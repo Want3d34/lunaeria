@@ -116,6 +116,12 @@ const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
 ]);
 
 const eventIcons = [Swords, BriefcaseBusiness, ShieldCheck];
+const activityIcons: Record<ActivityItem["type"], LucideIcon> = {
+  announcement: Megaphone,
+  build: ShieldCheck,
+  event: CalendarDays,
+  sale: WandSparkles,
+};
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -185,6 +191,7 @@ type ActivityItem = {
   label: string;
   title: string;
   meta: string;
+  type: "announcement" | "build" | "event" | "sale";
   timestamp?: string | null;
 };
 
@@ -677,23 +684,27 @@ export default function Home() {
       label: "Nouveau build ajouté",
       title: build.title,
       meta: `${build.className} · ${build.mode}`,
+      type: "build" as const,
       timestamp: formatActivityDate(build.createdAt),
     })),
     ...sales.slice(0, 1).map((sale) => ({
       label: "Nouvelle vente ajoutée",
       title: sale.itemName,
       meta: `${sale.quantity}x · ${sale.price} kamas`,
+      type: "sale" as const,
       timestamp: formatActivityDate(sale.createdAt),
     })),
     ...events.slice(0, 1).map((eventItem) => ({
       label: "Nouvel événement",
       title: eventItem.title,
       meta: eventItem.date,
+      type: "event" as const,
     })),
     ...homepageAnnouncements.slice(0, 1).map((announcement) => ({
       label: "Nouvelle annonce",
       title: announcement.title,
       meta: announcement.category,
+      type: "announcement" as const,
       timestamp: formatActivityDate(announcement.createdAt),
     })),
   ].slice(0, 5);
@@ -1032,32 +1043,36 @@ export default function Home() {
                   Aucune activité récente.
                 </div>
               ) : null}
-              {isDynamicContentLoaded ? activityItems.map((activity, index) => (
-                <div
-                  className="flex items-center gap-4 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052]"
-                  key={`${activity.label}-${activity.title}-${index}`}
-                >
-                  <div className="grid size-10 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
-                    <Sparkles size={17} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
-                      {activity.label}
-                    </p>
-                    <p className="mt-1 truncate font-black text-violet-50">
-                      {activity.title}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {activity.meta}
-                    </p>
-                    {activity.timestamp ? (
-                      <p className="mt-1 text-xs font-semibold text-violet-100/58">
-                        Ajouté le {activity.timestamp}
+              {isDynamicContentLoaded ? activityItems.map((activity, index) => {
+                const ActivityIcon = activityIcons[activity.type];
+
+                return (
+                  <div
+                    className="flex items-center gap-4 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052]"
+                    key={`${activity.label}-${activity.title}-${index}`}
+                  >
+                    <div className="grid size-10 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                      <ActivityIcon size={17} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+                        {activity.label}
                       </p>
-                    ) : null}
+                      <p className="mt-1 truncate font-black text-violet-50">
+                        {activity.title}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {activity.meta}
+                      </p>
+                      {activity.timestamp ? (
+                        <p className="mt-1 text-xs font-semibold text-violet-100/58">
+                          Ajouté le {activity.timestamp}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              )) : null}
+                );
+              }) : null}
             </div>
           </PremiumCard>
 
