@@ -20,7 +20,7 @@ export function LunaeriaSelect({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative z-40 grid gap-2">
+    <div className="relative z-[100] grid gap-2">
       <span className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
         {label}
       </span>
@@ -37,7 +37,7 @@ export function LunaeriaSelect({
       </button>
       {isOpen ? (
         <div
-          className={`absolute left-0 right-0 top-full z-50 mt-2 overflow-y-auto rounded-2xl border border-violet-200/14 bg-[#050817]/98 p-1 shadow-[0_18px_42px_rgba(0,0,0,0.5),0_0_18px_rgba(124,58,237,0.13)] backdrop-blur-md ${maxMenuHeight}`}
+          className={`absolute left-0 right-0 top-full z-[9999] mt-2 overflow-y-auto rounded-2xl border border-violet-200/14 bg-[#050817]/98 p-1 shadow-[0_18px_42px_rgba(0,0,0,0.5),0_0_18px_rgba(124,58,237,0.13)] backdrop-blur-md ${maxMenuHeight}`}
         >
           {options.map((option) => (
             <button
