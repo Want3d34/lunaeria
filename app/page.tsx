@@ -566,6 +566,18 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
+      <style jsx global>{`
+        .mobile-menu-scrollbar {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+
+        .mobile-menu-scrollbar::-webkit-scrollbar {
+          display: none;
+          width: 0;
+          height: 0;
+        }
+      `}</style>
       <div className="aurora-bg fixed inset-0" />
       <div className="rune-grid fixed inset-0" />
       <div className="star-veil fixed inset-0 opacity-42" />
@@ -586,7 +598,7 @@ export default function Home() {
           </div>
         </div>
 
-        <nav className="relative z-[10000] flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:overflow-visible lg:pr-0">
+        <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:overflow-visible lg:pr-0">
           {navItems.map((item) => (
             <SidebarNavItem
               item={item}
