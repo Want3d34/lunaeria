@@ -251,6 +251,22 @@ function galleryPlaceholder(index: number) {
     : "bg-[radial-gradient(circle_at_65%_25%,rgba(196,181,253,0.19),transparent_26%),linear-gradient(135deg,#030512,#171638_52%,#2b135f)]";
 }
 
+function ContentSkeleton({ className = "" }: { className?: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] shadow-[inset_0_0_13px_rgba(196,181,253,0.022),0_14px_32px_rgba(0,0,0,0.2)] ${className}`}
+    >
+      <div className="space-y-3 p-4">
+        <div className="h-3 w-24 rounded-full bg-violet-100/[0.075]" />
+        <div className="h-4 w-2/3 rounded-full bg-violet-100/[0.06]" />
+        <div className="h-3 w-full rounded-full bg-violet-100/[0.045]" />
+        <div className="h-3 w-4/5 rounded-full bg-violet-100/[0.035]" />
+      </div>
+    </div>
+  );
+}
+
 
 const monthNames = [
   "Janvier",
@@ -456,6 +472,8 @@ export default function Home() {
     useState<HomepageSettings | null>(null);
 
   const [galleryItemsState, setGalleryItemsState] = useState<GalleryItem[]>([]);
+  const [isDynamicContentLoaded, setIsDynamicContentLoaded] = useState(false);
+  const [isGalleryLoaded, setIsGalleryLoaded] = useState(false);
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
@@ -579,6 +597,8 @@ export default function Home() {
           })),
         );
       }
+
+      setIsDynamicContentLoaded(true);
     }
 
     loadHomepageDynamicContent();
@@ -593,6 +613,7 @@ export default function Home() {
 
       if (error) {
         console.error(error);
+        setIsGalleryLoaded(true);
         return;
       }
 
@@ -605,6 +626,7 @@ export default function Home() {
           image: item.image || "",
         })),
       );
+      setIsGalleryLoaded(true);
     }
 
     loadGallery();
@@ -853,7 +875,17 @@ export default function Home() {
             className="xl:col-span-2"
           >
             <div className="grid gap-3 md:grid-cols-2">
-              {homepageAnnouncements.map((item) => (
+              {!isDynamicContentLoaded
+                ? [0, 1].map((item) => (
+                    <ContentSkeleton className="min-h-[154px]" key={item} />
+                  ))
+                : null}
+              {isDynamicContentLoaded && homepageAnnouncements.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 md:col-span-2">
+                  Aucune annonce publiée pour le moment.
+                </div>
+              ) : null}
+              {isDynamicContentLoaded ? homepageAnnouncements.map((item) => (
                 <article
                   key={item.id}
                   className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-4 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
@@ -868,7 +900,7 @@ export default function Home() {
                     {item.content}
                   </p>
                 </article>
-              ))}
+              )) : null}
             </div>
           </PremiumCard>
 
@@ -906,7 +938,17 @@ export default function Home() {
             className="xl:col-span-2"
           >
             <div className="space-y-3">
-              {events.map((eventItem, index) => {
+              {!isDynamicContentLoaded
+                ? [0, 1, 2].map((item) => (
+                    <ContentSkeleton className="min-h-[86px]" key={item} />
+                  ))
+                : null}
+              {isDynamicContentLoaded && events.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                  Aucun événement planifié.
+                </div>
+              ) : null}
+              {isDynamicContentLoaded ? events.map((eventItem, index) => {
                 const Icon = eventIcons[index % eventIcons.length];
 
                 return (
@@ -930,7 +972,7 @@ export default function Home() {
                     </div>
                   </div>
                 );
-              })}
+              }) : null}
             </div>
           </PremiumCard>
 
@@ -940,7 +982,17 @@ export default function Home() {
             className="xl:col-span-2"
           >
             <div className="space-y-3">
-              {activityItems.map((activity, index) => (
+              {!isDynamicContentLoaded
+                ? [0, 1, 2].map((item) => (
+                    <ContentSkeleton className="min-h-[82px]" key={item} />
+                  ))
+                : null}
+              {isDynamicContentLoaded && activityItems.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                  Aucune activité récente.
+                </div>
+              ) : null}
+              {isDynamicContentLoaded ? activityItems.map((activity, index) => (
                 <div
                   className="flex items-center gap-4 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052]"
                   key={`${activity.label}-${activity.title}-${index}`}
@@ -960,7 +1012,7 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-              ))}
+              )) : null}
             </div>
           </PremiumCard>
 
@@ -990,7 +1042,21 @@ export default function Home() {
 
         <PremiumCard title="Galerie" icon={Images} className="mt-6">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {galleryItems.map((item, index) => (
+            {!isGalleryLoaded
+              ? [0, 1, 2, 3].map((item) => (
+                  <div
+                    aria-hidden="true"
+                    className="min-h-44 rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] shadow-[0_22px_54px_rgba(0,0,0,0.28)]"
+                    key={item}
+                  />
+                ))
+              : null}
+            {isGalleryLoaded && galleryItems.length === 0 ? (
+              <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 sm:col-span-2 xl:col-span-4">
+                Aucune image publiée pour le moment.
+              </div>
+            ) : null}
+            {isGalleryLoaded ? galleryItems.map((item, index) => (
               <div
                 key={item.id}
                 className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
@@ -1027,7 +1093,7 @@ export default function Home() {
                   />
                 ) : null}
               </div>
-            ))}
+            )) : null}
           </div>
         </PremiumCard>
       </div>
