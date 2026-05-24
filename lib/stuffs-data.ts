@@ -18,6 +18,32 @@ type ClassArt = {
   symbol: string;
 };
 
+export const CLASS_IMAGES: Record<string, string> = {
+  cra: "/classes/cra.png",
+  ecaflip: "/classes/ecaflip.png",
+  eliotrope: "/classes/eliotrope.png",
+  eniripsa: "/classes/eniripsa.png",
+  enutrof: "/classes/enutrof.png",
+  feca: "/classes/feca.png",
+  forgelance: "/classes/forgelance.png",
+  huppermage: "/classes/huppermage.png",
+  iop: "/classes/iop.png",
+  osamodas: "/classes/osamodas.png",
+  ouginak: "/classes/ouginak.png",
+  pandawa: "/classes/pandawa.png",
+  roublard: "/classes/roublard.png",
+  sacrieur: "/classes/sacrieur.png",
+  sadida: "/classes/sadida.png",
+  sram: "/classes/sram.png",
+  steamer: "/classes/steamer.png",
+  xelor: "/classes/xelor.png",
+  zobal: "/classes/zobal.png",
+};
+
+export function normalizeClassName(className: string) {
+  return className.trim().toLowerCase();
+}
+
 const classArt: Record<string, ClassArt> = {
   Cra: {
     accent: "#f4c66e",
@@ -200,8 +226,8 @@ export const dofusElements: DofusElement[] = [
 
 export function getClassImage(className: string) {
   return (
-    dofusClasses.find((dofusClass) => dofusClass.name === className)?.image ??
-    dofusClasses[0].image
+    CLASS_IMAGES[normalizeClassName(className)] ??
+    CLASS_IMAGES.cra
   );
 }
 

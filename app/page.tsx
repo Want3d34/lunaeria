@@ -70,7 +70,6 @@ const legacyNavItems: NavItem[] = [
     icon: ShieldCheck,
     children: [
       { label: "Encyclopédie", href: "/stuffs-builds/encyclopedie" },
-      { label: "Ajouter un Stuff", href: "/stuffs-builds/ajouter" },
     ],
   },
   { label: "Annonces", icon: Megaphone, href: "/annonces" },
@@ -109,7 +108,6 @@ const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
     icon: ShieldCheck,
     children: [
       { label: "Encyclopédie", href: "/stuffs-builds/encyclopedie" },
-      { label: "Ajouter un Stuff", href: "/stuffs-builds/ajouter" },
     ],
   },
   { label: "Annonces", icon: Megaphone, href: "/annonces" },

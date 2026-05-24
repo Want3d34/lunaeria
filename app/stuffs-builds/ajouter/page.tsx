@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ImagePlus, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { FormEvent, useState } from "react";
@@ -22,7 +22,6 @@ const emptyDraft = {
   level: "200",
   dofusbookUrl: "",
   description: "",
-  image: "",
 };
 
 const supabase = createClient(
@@ -39,16 +38,6 @@ export default function AjouterStuffPage() {
   const { content, setContent } = useHomepageContent();
   const [draft, setDraft] = useState(emptyDraft);
   const classImage = getClassImage(draft.className);
-
-  function readImage(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setDraft((current) => ({ ...current, image: reader.result as string }));
-      }
-    };
-    reader.readAsDataURL(file);
-  }
 
   async function submitBuild(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,7 +61,7 @@ export default function AjouterStuffPage() {
       level: draft.level,
       dofusbook_url: draft.dofusbookUrl.trim() || "https://www.dofusbook.net",
       description: draft.description.trim(),
-      image: draft.image || classImage,
+      image: classImage,
     };
 
     const { data, error } = await supabase
@@ -108,7 +97,7 @@ export default function AjouterStuffPage() {
             level: data.level || "200",
             dofusbookUrl: data.dofusbook_url || "https://www.dofusbook.net",
             description: data.description || "",
-            image: data.image || data.class_image || classImage,
+            image: data.image || data.class_image || getClassImage(data.class_name),
             createdAt: data.created_at || new Date().toISOString(),
             views: data.views ?? 0,
           },
@@ -143,13 +132,11 @@ export default function AjouterStuffPage() {
             </div>
           </div>
           <div className="relative z-10 grid gap-4 md:grid-cols-[220px_1fr]">
-            <label className="grid cursor-pointer place-items-center rounded-2xl border border-dashed border-violet-100/18 bg-[#030512]/70 p-4 text-center text-sm text-violet-100">
-              <ImagePlus className="mb-3" size={26} />
-              Image optionnelle
-              <input accept="image/*" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) readImage(file); }} type="file" />
+            <div className="grid place-items-center rounded-2xl border border-violet-100/18 bg-[#030512]/70 p-4 text-center text-sm font-black uppercase tracking-[0.16em] text-violet-100 shadow-[inset_0_0_14px_rgba(196,181,253,0.025)]">
+              Image de classe
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt="Aperçu classe" className="mt-4 size-28 rounded-2xl object-cover" src={draft.image || classImage} />
-            </label>
+              <img alt={`Aperçu ${draft.className}`} className="mt-4 size-28 rounded-2xl object-contain" src={classImage} />
+            </div>
             <div className="grid gap-3">
               <div className="grid gap-3 sm:grid-cols-2">
                 <input className={inputClass()} onChange={(event) => setDraft((current) => ({ ...current, gamePseudo: event.target.value }))} placeholder="Pseudo en jeu" value={draft.gamePseudo} />

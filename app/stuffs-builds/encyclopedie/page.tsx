@@ -197,7 +197,7 @@ export default function StuffEncyclopediePage() {
               <article className="premium-card rounded-[1.35rem] border border-violet-100/9 bg-[#06091b]/72 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.35)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/18" key={build.id}>
                 <div className="relative z-10 flex gap-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img alt={build.className} className="h-20 w-16 rounded-2xl border border-violet-100/10 bg-[#030512]/75 object-contain p-1" src={getClassImage(build.className)} />
+                  <img alt={build.className} className="h-20 w-16 rounded-2xl border border-violet-100/10 bg-[#030512]/75 object-contain p-1" src={build.image || getClassImage(build.className)} />
                   <div className="min-w-0">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">{build.className}</p>
                     <h2 className="mt-2 line-clamp-2 text-lg font-black text-violet-50">{build.title}</h2>
