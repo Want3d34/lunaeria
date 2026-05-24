@@ -269,15 +269,15 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       announcements: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
         content: item.content,
         category: item.category || "Guilde",
       })),
-    }));
+    });
   }
 
   async function loadEventsFromSupabase() {
@@ -292,15 +292,15 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       events: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
         date: item.date,
         description: item.description || "Détails à compléter.",
       })),
-    }));
+    });
   }
 
   async function loadSalesFromSupabase() {
@@ -315,8 +315,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       sales: (data ?? []).map((item) => ({
         id: String(item.id),
         itemName: item.item_name,
@@ -328,7 +328,7 @@ export default function AdminPage() {
         sellerGameName: item.seller_game_name || "Anonyme",
         sellerDiscordName: item.seller_discord_name || "discord inconnu",
       })),
-    }));
+    });
   }
 
   async function loadBuildsFromSupabase() {
@@ -343,8 +343,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       builds: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -369,7 +369,7 @@ export default function AdminPage() {
         createdAt: item.created_at || new Date().toISOString(),
         views: item.views ?? 0,
       })),
-    }));
+    });
   }
 
   async function loadUsefulLinksFromSupabase() {
@@ -384,8 +384,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       usefulLinks: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -393,7 +393,7 @@ export default function AdminPage() {
         url: item.url,
         section: item.section || "general",
       })),
-    }));
+    });
   }
 
   async function loadGalleryFromSupabase() {
@@ -408,8 +408,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       gallery: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -418,7 +418,7 @@ export default function AdminPage() {
         image: item.image || "",
         createdAt: item.created_at || new Date().toISOString(),
       })),
-    }));
+    });
   }
 
   async function loadReglementFromSupabase() {
@@ -438,13 +438,13 @@ export default function AdminPage() {
     const body = data.body || content.regulation.body;
 
     setRegulationDraft(body);
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       regulation: {
-        ...current.regulation,
+        ...content.regulation,
         body,
       },
-    }));
+    });
   }
 
   async function loadHomepageSettingsFromSupabase() {
@@ -481,11 +481,11 @@ export default function AdminPage() {
 
     setHeroDraft(nextHero);
     setRecruitmentDraft(nextRecruitment);
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       hero: nextHero,
       recruitment: nextRecruitment,
-    }));
+    });
   }
 
   async function loadSupabaseContent() {
@@ -559,8 +559,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       announcements: (announcementsResult.data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -623,7 +623,7 @@ export default function AdminPage() {
         image: item.image || "",
         createdAt: item.created_at || new Date().toISOString(),
       })),
-    }));
+    });
   }
 
   async function persistHero() {
@@ -647,11 +647,11 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       hero: heroDraft,
       recruitment: recruitmentDraft,
-    }));
+    });
     notify("Accueil sauvegardé");
   }
 
@@ -672,10 +672,10 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       recruitment: recruitmentDraft,
-    }));
+    });
     notify("Recrutement sauvegardé");
   }
 
@@ -980,13 +980,13 @@ export default function AdminPage() {
       return;
     }
 
-    setContent((current) => ({
-      ...current,
+    setContent({
+      ...content,
       regulation: {
-        ...current.regulation,
+        ...content.regulation,
         body: regulationDraft,
       },
-    }));
+    });
     notify("Règlement sauvegardé");
   }
 
