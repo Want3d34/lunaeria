@@ -586,7 +586,7 @@ export default function Home() {
           </div>
         </div>
 
-        <nav className="relative z-[10000] flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [-webkit-overflow-scrolling:touch] lg:min-w-0 lg:flex-col lg:overflow-visible lg:pr-0">
+        <nav className="relative z-[10000] flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:overflow-visible lg:pr-0">
           {navItems.map((item) => (
             <SidebarNavItem
               item={item}
