@@ -28,7 +28,6 @@ import NextLink from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { LunaeriaLogo } from "@/components/lunaeria-logo";
 
 type NavItem = {
   label: string;
@@ -426,7 +425,7 @@ function SidebarNavItem({
             open ? "pointer-events-auto translate-x-0 opacity-100 lg:grid lg:grid-rows-[1fr]" : "pointer-events-none translate-x-2 opacity-0 lg:pointer-events-auto lg:grid lg:grid-rows-[0fr] lg:translate-x-0 lg:opacity-55"
           }`}
         >
-<NavChildrenList children={item.children} pathname={pathname} />
+          <NavChildrenList pathname={pathname}>{item.children}</NavChildrenList>
         </div>
       ) : null}
     </div>
@@ -494,7 +493,6 @@ export default function Home() {
     }
 
     loadHomepageSettings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -737,10 +735,9 @@ export default function Home() {
 
         {activeMobileSection ? (
           <div className="fixed left-3 right-3 top-[6.75rem] z-[99999] max-h-[calc(100svh-8rem)] overflow-y-auto rounded-2xl border border-violet-200/12 bg-[#050719]/98 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.75)] backdrop-blur-md lg:hidden">
-            <NavChildrenList
-              children={activeMobileSection.children}
-              pathname={pathname}
-            />
+            <NavChildrenList pathname={pathname}>
+              {activeMobileSection.children}
+            </NavChildrenList>
           </div>
         ) : null}
 

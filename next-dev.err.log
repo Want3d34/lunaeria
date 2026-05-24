@@ -1,9 +1,0 @@
-⚠ Port 3000 is in use by process 9704, using available port 3001 instead.
-⨯ Another next dev server is already running.
-
-- Local:        http://localhost:3000
-- PID:          9704
-- Dir:          C:\Users\Preda\lunae-hub
-- Log:          .next\dev\logs\next-development.log
-
-Run taskkill /PID 9704 /F to stop it.

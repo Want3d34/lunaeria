@@ -16,10 +16,7 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
-import {
-  type SaleItem,
-  useHomepageContent,
-} from "@/lib/lunaeria-content";
+import { useHomepageContent } from "@/lib/lunaeria-content";
 
 const emptySale = {
   itemName: "",

@@ -30,12 +30,10 @@ import { createClient, type Session } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import {
-  createContentId,
   type Announcement,
   type BuildItem,
   type Event,
   type GalleryItem,
-  type HomepageContent,
   type SaleItem,
   type UsefulLink,
   useHomepageContent,
@@ -143,20 +141,10 @@ const emptyBuild = {
   image: "",
 };
 
-function saveDraft<T extends HomepageContent>(
-  content: T,
-  setContent: (content: HomepageContent) => void,
-  notify: (message: string) => void,
-  message: string,
-) {
-  setContent(content);
-  notify(message);
-}
-
 export default function AdminPage() {
   const { content, isLoaded, setContent } = useHomepageContent();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
+  const [, setSession] = useState<Session | null>(null);
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(true);
@@ -1337,7 +1325,7 @@ export default function AdminPage() {
                 </h1>
                 <p className="relative z-10 mt-4 text-sm leading-7 text-slate-400 sm:text-base">
                   Connecte-toi avec ton compte Supabase Auth pour accéder au
-                  panel d'administration Lunaeria.
+                  panel d&apos;administration Lunaeria.
                 </p>
 
                 <form className="relative z-10 mt-7 grid gap-3 text-left" onSubmit={handleAdminLogin}>
@@ -2547,7 +2535,7 @@ export default function AdminPage() {
                     <div className="grid gap-4 lg:grid-cols-3">
                       {[
                         ["Authentification", "Fake gate actif, Discord OAuth prévu."],
-                        ["Stockage", "localStorage partagé entre admin et homepage."],
+                        ["Stockage", "Supabase partagé entre admin et homepage."],
                         ["Publication", "Refresh homepage suffisant, live entre onglets."],
                       ].map(([title, detail]) => (
                         <article
