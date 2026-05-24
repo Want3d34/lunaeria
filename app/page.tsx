@@ -884,6 +884,15 @@ export default function Home() {
                     {item.description}
                   </p>
                 </div>
+{item.image ? (
+  <a
+    href={item.image}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Ouvrir ${item.title}`}
+    className="absolute inset-0 z-30"
+  />
+) : null}
               </div>
             ))}
           </div>
