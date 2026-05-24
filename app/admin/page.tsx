@@ -34,7 +34,6 @@ import {
   type BuildItem,
   type Event,
   type GalleryItem,
-  type SaleItem,
   type UsefulLink,
   useHomepageContent,
 } from "@/lib/lunaeria-content";
@@ -63,7 +62,6 @@ const navItems: NavItem[] = [
   { key: "galerie", label: "Galerie", icon: Images },
   { key: "stuffs", label: "Stuff & Build", icon: ShieldCheck },
   { key: "metiers", label: "Métiers", icon: BriefcaseBusiness },
-  { key: "recrutement", label: "Recrutement", icon: Users },
   { key: "reglement", label: "Règlement", icon: FileText },
   { key: "liens", label: "Liens utiles", icon: LinkIcon },
   { key: "parametres", label: "Paramètres", icon: Settings },
@@ -99,17 +97,6 @@ const emptyEvent = {
   title: "",
   date: "",
   description: "",
-};
-
-const emptySale = {
-  itemName: "",
-  category: "",
-  price: "",
-  quantity: "1",
-  message: "",
-  imageUrl: "/file.svg",
-  sellerGameName: "",
-  sellerDiscordName: "",
 };
 
 const emptyUsefulLink: Omit<UsefulLink, "id"> = {
@@ -159,8 +146,6 @@ export default function AdminPage() {
   );
   const [eventDraft, setEventDraft] = useState(emptyEvent);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [saleDraft, setSaleDraft] = useState(emptySale);
-  const [editingSaleId, setEditingSaleId] = useState<string | null>(null);
   const [regulationDraft, setRegulationDraft] = useState(content.regulation.body);
   const [linkDraft, setLinkDraft] = useState(emptyUsefulLink);
   const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
@@ -225,16 +210,6 @@ export default function AdminPage() {
 
     return () => window.clearTimeout(timeout);
   }, [toast]);
-
-
-  useEffect(() => {
-    if (isLoaded) {
-      loadHomepageSettingsFromSupabase();
-      loadReglementFromSupabase();
-      loadSupabaseContent();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded]);
 
   const stats = useMemo(
     () => [
@@ -735,30 +710,6 @@ export default function AdminPage() {
     notify("Accueil sauvegardé");
   }
 
-  async function persistRecruitment() {
-    const { error } = await supabase
-      .from("homepage_settings")
-      .upsert({
-        id: 1,
-        recruitment_is_open: recruitmentDraft.isOpen,
-        recruitment_message: recruitmentDraft.message,
-        recruitment_server_name: recruitmentDraft.serverName,
-        updated_at: new Date().toISOString(),
-      });
-
-    if (error) {
-      console.error(error);
-      notify("Erreur sauvegarde recrutement");
-      return;
-    }
-
-    setContent((current) => ({
-      ...current,
-      recruitment: recruitmentDraft,
-    }));
-    notify("Recrutement sauvegardé");
-  }
-
   async function submitAnnouncement(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -881,73 +832,6 @@ export default function AdminPage() {
     notify("Evénement supprimé");
   }
 
-  function readSaleImage(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setSaleDraft((current) => ({ ...current, imageUrl: reader.result as string }));
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
-  async function submitSale(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!saleDraft.itemName.trim() || !saleDraft.price.trim()) {
-      notify("Nom de l'objet et prix obligatoires");
-      return;
-    }
-
-    const payload = {
-      item_name: saleDraft.itemName.trim(),
-      category: saleDraft.category.trim() || "Divers",
-      price: saleDraft.price.trim(),
-      quantity: saleDraft.quantity.trim() || "1",
-      message: saleDraft.message.trim(),
-      image_url: saleDraft.imageUrl || "/file.svg",
-      seller_game_name: saleDraft.sellerGameName.trim() || "Anonyme",
-      seller_discord_name: saleDraft.sellerDiscordName.trim() || "discord inconnu",
-    };
-
-    const query = editingSaleId
-      ? supabase
-          .from("ventes")
-          .update(payload)
-          .eq("id", Number(editingSaleId))
-          .select()
-      : supabase.from("ventes").insert(payload).select();
-
-    const { error } = await query;
-
-    if (error) {
-      console.error("Erreur Supabase ventes:", error);
-      notify(`Erreur ventes: ${error.message}`);
-      return;
-    }
-
-    const wasEditing = Boolean(editingSaleId);
-
-    setSaleDraft(emptySale);
-    setEditingSaleId(null);
-    await loadSalesFromSupabase();
-    notify(wasEditing ? "Vente mise à jour" : "Vente publiée");
-  }
-
-  function editSale(sale: SaleItem) {
-    setEditingSaleId(sale.id);
-    setSaleDraft({
-      itemName: sale.itemName,
-      category: sale.category,
-      price: sale.price,
-      quantity: sale.quantity,
-      message: sale.message,
-      imageUrl: sale.imageUrl,
-      sellerGameName: sale.sellerGameName,
-      sellerDiscordName: sale.sellerDiscordName,
-    });
-  }
-
   async function deleteSale(id: string) {
     const { error } = await supabase.from("ventes").delete().eq("id", Number(id));
 
@@ -955,11 +839,6 @@ export default function AdminPage() {
       console.error("Erreur suppression vente:", error);
       notify(`Erreur suppression: ${error.message}`);
       return;
-    }
-
-    if (editingSaleId === id) {
-      setEditingSaleId(null);
-      setSaleDraft(emptySale);
     }
 
     await loadSalesFromSupabase();
@@ -1236,6 +1115,19 @@ export default function AdminPage() {
   function activateSection(key: string) {
     setActiveSection(key);
   }
+
+  useEffect(() => {
+    if (isLoaded) {
+      const timeout = window.setTimeout(() => {
+        loadHomepageSettingsFromSupabase();
+        loadReglementFromSupabase();
+        loadSupabaseContent();
+      }, 0);
+
+      return () => window.clearTimeout(timeout);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
@@ -1756,126 +1648,7 @@ export default function AdminPage() {
                     icon={ShoppingBag}
                     title="Ventes"
                   >
-                    <form className="grid gap-3" onSubmit={submitSale}>
-                      <div className="grid gap-3 md:grid-cols-[130px_1fr]">
-                        <label className="grid cursor-pointer place-items-center rounded-2xl border border-dashed border-violet-100/18 bg-[#030512]/70 p-3 text-center text-xs text-violet-100">
-                          <ImagePlus className="mb-2" size={20} />
-                          Image
-                          <input
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={(event) => {
-                              const file = event.target.files?.[0];
-                              if (file) {
-                                readSaleImage(file);
-                              }
-                            }}
-                            type="file"
-                          />
-                          <Image
-                            alt="Aperçu vente"
-                            className="mt-3 max-h-20 object-contain"
-                            height={80}
-                            src={saleDraft.imageUrl}
-                            width={80}
-                          />
-                        </label>
-                        <div className="grid gap-3">
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            <AdminInput
-                              onChange={(event) =>
-                                setSaleDraft((current) => ({
-                                  ...current,
-                                  itemName: event.target.value,
-                                }))
-                              }
-                              placeholder="Nom de l'objet"
-                              value={saleDraft.itemName}
-                            />
-                            <AdminInput
-                              onChange={(event) =>
-                                setSaleDraft((current) => ({
-                                  ...current,
-                                  category: event.target.value,
-                                }))
-                              }
-                              placeholder="Catégorie"
-                              value={saleDraft.category}
-                            />
-                            <AdminInput
-                              onChange={(event) =>
-                                setSaleDraft((current) => ({
-                                  ...current,
-                                  price: event.target.value,
-                                }))
-                              }
-                              placeholder="Prix"
-                              value={saleDraft.price}
-                            />
-                            <AdminInput
-                              onChange={(event) =>
-                                setSaleDraft((current) => ({
-                                  ...current,
-                                  quantity: event.target.value,
-                                }))
-                              }
-                              placeholder="Quantité"
-                              value={saleDraft.quantity}
-                            />
-                            <AdminInput
-                              onChange={(event) =>
-                                setSaleDraft((current) => ({
-                                  ...current,
-                                  sellerGameName: event.target.value,
-                                }))
-                              }
-                              placeholder="Pseudo en jeu"
-                              value={saleDraft.sellerGameName}
-                            />
-                            <AdminInput
-                              onChange={(event) =>
-                                setSaleDraft((current) => ({
-                                  ...current,
-                                  sellerDiscordName: event.target.value,
-                                }))
-                              }
-                              placeholder="Pseudo Discord"
-                              value={saleDraft.sellerDiscordName}
-                            />
-                          </div>
-                          <AdminTextarea
-                            onChange={(event) =>
-                              setSaleDraft((current) => ({
-                                ...current,
-                                message: event.target.value,
-                              }))
-                            }
-                            placeholder="Message"
-                            value={saleDraft.message}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-3">
-                        <AdminButton type="submit">
-                          {editingSaleId ? <Save size={17} /> : <Plus size={17} />}
-                          {editingSaleId ? "Mettre à jour" : "Créer"}
-                        </AdminButton>
-                        {editingSaleId ? (
-                          <AdminButton
-                            onClick={() => {
-                              setEditingSaleId(null);
-                              setSaleDraft(emptySale);
-                            }}
-                            variant="ghost"
-                          >
-                            <X size={17} />
-                            Annuler
-                          </AdminButton>
-                        ) : null}
-                      </div>
-                    </form>
-
-                    <div className="mt-5 grid gap-3">
+                    <div className="grid gap-3">
                       {content.sales.map((sale) => (
                         <article
                           className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4"
@@ -1903,13 +1676,6 @@ export default function AdminPage() {
                             <div className="flex gap-2">
                               <AdminButton
                                 className="size-10 p-0"
-                                onClick={() => editSale(sale)}
-                                variant="ghost"
-                              >
-                                <Pencil size={15} />
-                              </AdminButton>
-                              <AdminButton
-                                className="size-10 p-0"
                                 onClick={() => deleteSale(sale.id)}
                                 variant="danger"
                               >
@@ -1919,6 +1685,11 @@ export default function AdminPage() {
                           </div>
                         </article>
                       ))}
+                      {content.sales.length === 0 ? (
+                        <div className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4 text-sm font-bold text-violet-100/65">
+                          Aucune vente publiée.
+                        </div>
+                      ) : null}
                     </div>
                   </AdminCard>
                 </AdminSection>
@@ -2310,70 +2081,6 @@ export default function AdminPage() {
                           </div>
                         </article>
                       ))}
-                    </div>
-                  </AdminCard>
-                </AdminSection>
-
-                <AdminSection id="recrutement">
-                  <AdminCard
-                    action={
-                      <AdminButton onClick={persistRecruitment}>
-                        <Save size={17} />
-                        Sauvegarder
-                      </AdminButton>
-                    }
-                    icon={Users}
-                    title="Recrutement"
-                  >
-                    <div className="grid gap-4">
-                      <button
-                        className={`flex min-h-14 items-center justify-between gap-4 rounded-2xl border px-4 text-left transition ${
-                          recruitmentDraft.isOpen
-                            ? "border-emerald-200/18 bg-emerald-300/[0.055] text-emerald-100"
-                            : "border-rose-200/18 bg-rose-300/[0.055] text-rose-100"
-                        }`}
-                        onClick={() =>
-                          setRecruitmentDraft((current) => ({
-                            ...current,
-                            isOpen: !current.isOpen,
-                          }))
-                        }
-                        type="button"
-                      >
-                        <span>
-                          <span className="block text-sm font-black">
-                            {recruitmentDraft.isOpen
-                              ? "Recrutement ouvert"
-                              : "Recrutement fermé"}
-                          </span>
-                          <span className="mt-1 block text-xs opacity-75">
-                            Le statut se synchronise avec la homepage au save.
-                          </span>
-                        </span>
-                        <CheckCircle2 size={20} />
-                      </button>
-                      <AdminField label="Message recrutement">
-                        <AdminTextarea
-                          onChange={(event) =>
-                            setRecruitmentDraft((current) => ({
-                              ...current,
-                              message: event.target.value,
-                            }))
-                          }
-                          value={recruitmentDraft.message}
-                        />
-                      </AdminField>
-                      <AdminField label="Serveur de guilde">
-                        <AdminInput
-                          onChange={(event) =>
-                            setRecruitmentDraft((current) => ({
-                              ...current,
-                              serverName: event.target.value,
-                            }))
-                          }
-                          value={recruitmentDraft.serverName}
-                        />
-                      </AdminField>
                     </div>
                   </AdminCard>
                 </AdminSection>
