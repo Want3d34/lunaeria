@@ -680,9 +680,13 @@ export default function Home() {
 
       <aside className="sidebar-shell fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
         <div className="relative z-10 flex shrink-0 items-center justify-center gap-3 rounded-[1.35rem] border border-violet-200/9 bg-violet-100/[0.028] p-2 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:mb-7 lg:w-full lg:p-3 lg:justify-start">
-          <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)] lg:size-12">
-            <LunaeriaLogo size={27} />
-          </div>
+          <div className="flex shrink-0 items-center justify-center lg:size-[72px]">
+  <img
+    src="/newlogo.png"
+    alt="Lunaeria"
+    className="h-14 w-auto object-contain lg:h-16"
+  />
+</div>
           <div className="hidden min-w-0 lg:block">
             <p className="text-lg font-black tracking-[0.24em] text-violet-50 drop-shadow-[0_0_7px_rgba(196,181,253,0.2)]">
               LUNAERIA
