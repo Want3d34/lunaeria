@@ -679,14 +679,12 @@ export default function Home() {
       <div className="fog-veil fixed inset-0" />
 
       <aside className="sidebar-shell fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
-        <div className="relative z-10 flex h-40 shrink-0 items-center justify-center overflow-hidden rounded-[1.35rem] border border-violet-200/9 bg-violet-100/[0.028] p-0 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:mb-7 lg:w-full">
-  <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-[1.35rem]">
+        <div className="relative z-10 flex shrink-0 items-center justify-center lg:mb-7 lg:w-full">
   <img
     src="/newlogo.png"
     alt="Lunaeria"
-    className="h-full w-full object-cover"
+    className="w-full max-w-[260px] object-contain drop-shadow-[0_0_25px_rgba(167,139,250,0.28)]"
   />
-</div>
 </div>
 
         <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:overflow-visible lg:pr-0">
