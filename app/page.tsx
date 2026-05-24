@@ -285,7 +285,7 @@ function SidebarNavItem({
   );
 
   return (
-    <div className="relative">
+    <div className="relative z-[10001] shrink-0">
       {item.href && !hasChildren ? (
         <NextLink className={controlClassName} href={item.href}>
           {controlContent}
@@ -302,7 +302,7 @@ function SidebarNavItem({
 
       {hasChildren ? (
         <div
-          className={`fixed left-3 right-3 top-24 z-[10000] max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border border-violet-200/12 bg-[#050719]/98 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.65)] backdrop-blur-md transition-[opacity,transform] duration-300 lg:static lg:left-auto lg:right-auto lg:top-auto lg:z-auto lg:mt-0 lg:max-h-none lg:w-auto lg:overflow-hidden lg:border-0 lg:bg-transparent lg:p-0 lg:pl-5 lg:shadow-none lg:backdrop-blur-0 ${
+          className={`fixed left-3 right-3 top-[6.75rem] z-[99999] max-h-[calc(100svh-8rem)] overflow-y-auto rounded-2xl border border-violet-200/12 bg-[#050719]/98 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.75)] backdrop-blur-md transition-[opacity,transform] duration-300 lg:static lg:left-auto lg:right-auto lg:top-auto lg:z-auto lg:mt-0 lg:max-h-none lg:w-auto lg:overflow-hidden lg:border-0 lg:bg-transparent lg:p-0 lg:pl-5 lg:shadow-none lg:backdrop-blur-0 ${
             open ? "pointer-events-auto translate-x-0 opacity-100 lg:grid lg:grid-rows-[1fr]" : "pointer-events-none translate-x-2 opacity-0 lg:pointer-events-auto lg:grid lg:grid-rows-[0fr] lg:translate-x-0 lg:opacity-55"
           }`}
         >
@@ -556,7 +556,7 @@ export default function Home() {
       <div className="star-veil fixed inset-0 opacity-42" />
       <div className="fog-veil fixed inset-0" />
 
-      <aside className="sidebar-shell fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-3 overflow-x-auto border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
+      <aside className="sidebar-shell fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
         <div className="relative z-10 flex shrink-0 items-center justify-center gap-3 rounded-[1.35rem] border border-violet-200/9 bg-violet-100/[0.028] p-2 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:mb-7 lg:w-full lg:p-3 lg:justify-start">
           <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)] lg:size-12">
             <LunaeriaLogo size={27} />
