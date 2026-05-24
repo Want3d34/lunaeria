@@ -2,7 +2,6 @@
 
 import {
   Bell,
-  BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
   FileText,
@@ -19,9 +18,7 @@ import {
   Settings,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
   Trash2,
-  Users,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -61,13 +58,10 @@ const navItems: NavItem[] = [
   { key: "ventes", label: "Ventes", icon: ShoppingBag },
   { key: "galerie", label: "Galerie", icon: Images },
   { key: "stuffs", label: "Stuff & Build", icon: ShieldCheck },
-  { key: "metiers", label: "Métiers", icon: BriefcaseBusiness },
   { key: "reglement", label: "Règlement", icon: FileText },
   { key: "liens", label: "Liens utiles", icon: LinkIcon },
   { key: "parametres", label: "Paramètres", icon: Settings },
 ];
-
-const jobs = ["Alchimiste", "Paysan", "Chasseur", "Mineur", "Pêcheur"];
 
 const emptyAnnouncement = {
   title: "",
@@ -214,18 +208,6 @@ export default function AdminPage() {
   const stats = useMemo(
     () => [
       {
-        label: "Métiers actifs",
-        value: jobs.length,
-        detail: "Guides publics",
-        icon: BriefcaseBusiness,
-      },
-      {
-        label: "Recrutement",
-        value: content.recruitment.isOpen ? "Ouvert" : "Fermé",
-        detail: content.recruitment.serverName,
-        icon: Users,
-      },
-      {
         label: "Annonces",
         value: content.announcements.length,
         detail: "Publiées",
@@ -255,7 +237,6 @@ export default function AdminPage() {
       content.builds.length,
       content.events.length,
       content.gallery.length,
-      content.recruitment,
     ],
   );
 
@@ -2079,30 +2060,6 @@ export default function AdminPage() {
                               </AdminButton>
                             </div>
                           </div>
-                        </article>
-                      ))}
-                    </div>
-                  </AdminCard>
-                </AdminSection>
-
-                <AdminSection id="metiers">
-                  <AdminCard icon={BriefcaseBusiness} title="Métiers">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {jobs.map((job) => (
-                        <article
-                          className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/16"
-                          key={job}
-                        >
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="font-black text-violet-50">{job}</p>
-                            <Sparkles className="text-violet-100/70" size={17} />
-                          </div>
-                          <p className="mt-3 text-sm text-slate-400">
-                            Guide public actif
-                          </p>
-                          <p className="mt-3 inline-flex rounded-full border border-violet-100/10 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-violet-200">
-                            Lecture seule
-                          </p>
                         </article>
                       ))}
                     </div>
