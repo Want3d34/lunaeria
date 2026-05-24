@@ -35,7 +35,7 @@ function inputClass() {
 
 export default function AjouterStuffPage() {
   const router = useRouter();
-  const { content, setContent } = useHomepageContent();
+  const { setContent } = useHomepageContent();
   const [draft, setDraft] = useState(emptyDraft);
   const classImage = getClassImage(draft.className);
 
@@ -76,9 +76,9 @@ export default function AjouterStuffPage() {
     }
 
     if (data) {
-      setContent({
-  ...content,
-  builds: [
+      setContent((current) => ({
+        ...current,
+        builds: [
           {
             id: String(data.id),
             title: data.title,
@@ -101,9 +101,9 @@ export default function AjouterStuffPage() {
             createdAt: data.created_at || new Date().toISOString(),
             views: data.views ?? 0,
           },
-          ...content.builds,
+          ...current.builds,
         ],
-      });
+      }));
     }
 
     router.push("/stuffs-builds/encyclopedie");

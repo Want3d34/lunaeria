@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type SetStateAction } from "react";
 
 export type Announcement = {
   id: string;
@@ -226,9 +226,18 @@ export function useHomepageContent() {
     };
   }, []);
 
-  function updateContent(nextContent: HomepageContent) {
-    setContent(nextContent);
-    saveHomepageContent(nextContent);
+  function updateContent(nextContent: SetStateAction<HomepageContent>) {
+    setContent((currentContent) => {
+      const resolvedContent =
+        typeof nextContent === "function"
+          ? (nextContent as (current: HomepageContent) => HomepageContent)(
+              currentContent,
+            )
+          : nextContent;
+
+      saveHomepageContent(resolvedContent);
+      return resolvedContent;
+    });
   }
 
   return { content, isLoaded, setContent: updateContent };

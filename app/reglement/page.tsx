@@ -39,14 +39,18 @@ export default function ReglementPage() {
         .select("*")
         .order("id", { ascending: true })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error(error);
         return;
       }
 
-      setRegulationBody(data.body || content.regulation.body);
+      if (!data) {
+        return;
+      }
+
+      setRegulationBody(data.body ?? content.regulation.body);
     }
 
     loadReglementFromSupabase();

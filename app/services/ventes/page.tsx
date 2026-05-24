@@ -54,8 +54,8 @@ export default function VentesPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       sales: (data ?? []).map((item) => ({
         id: String(item.id),
         itemName: item.item_name,
@@ -67,7 +67,7 @@ export default function VentesPage() {
         sellerGameName: item.seller_game_name || "Anonyme",
         sellerDiscordName: item.seller_discord_name || "discord inconnu",
       })),
-    });
+    }));
   }
 
   useEffect(() => {

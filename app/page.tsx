@@ -467,10 +467,14 @@ export default function Home() {
         .select("*")
         .order("id", { ascending: true })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error(error);
+        return;
+      }
+
+      if (!data) {
         return;
       }
 

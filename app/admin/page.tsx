@@ -341,15 +341,15 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       announcements: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
         content: item.content,
         category: item.category || "Guilde",
       })),
-    });
+    }));
   }
 
   async function loadEventsFromSupabase() {
@@ -364,15 +364,15 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       events: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
         date: item.date,
         description: item.description || "Détails à compléter.",
       })),
-    });
+    }));
   }
 
   async function loadSalesFromSupabase() {
@@ -387,8 +387,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       sales: (data ?? []).map((item) => ({
         id: String(item.id),
         itemName: item.item_name,
@@ -400,7 +400,7 @@ export default function AdminPage() {
         sellerGameName: item.seller_game_name || "Anonyme",
         sellerDiscordName: item.seller_discord_name || "discord inconnu",
       })),
-    });
+    }));
   }
 
   async function loadBuildsFromSupabase() {
@@ -415,8 +415,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       builds: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -441,7 +441,7 @@ export default function AdminPage() {
         createdAt: item.created_at || new Date().toISOString(),
         views: item.views ?? 0,
       })),
-    });
+    }));
   }
 
   async function loadUsefulLinksFromSupabase() {
@@ -456,8 +456,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       usefulLinks: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -465,7 +465,7 @@ export default function AdminPage() {
         url: item.url,
         section: item.section || "general",
       })),
-    });
+    }));
   }
 
   async function loadGalleryFromSupabase() {
@@ -480,8 +480,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       gallery: (data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -490,7 +490,7 @@ export default function AdminPage() {
         image: item.image || "",
         createdAt: item.created_at || new Date().toISOString(),
       })),
-    });
+    }));
   }
 
   async function loadReglementFromSupabase() {
@@ -499,7 +499,7 @@ export default function AdminPage() {
       .select("*")
       .order("id", { ascending: true })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error(error);
@@ -507,16 +507,20 @@ export default function AdminPage() {
       return;
     }
 
-    const body = data.body || content.regulation.body;
+    if (!data) {
+      return;
+    }
+
+    const body = data.body ?? content.regulation.body;
 
     setRegulationDraft(body);
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       regulation: {
-        ...content.regulation,
+        ...current.regulation,
         body,
       },
-    });
+    }));
   }
 
   async function loadHomepageSettingsFromSupabase() {
@@ -525,7 +529,7 @@ export default function AdminPage() {
       .select("*")
       .order("id", { ascending: true })
       .limit(1)
-      .single<HomepageSettingsRow>();
+      .maybeSingle<HomepageSettingsRow>();
 
     if (error) {
       console.error(error);
@@ -533,11 +537,15 @@ export default function AdminPage() {
       return;
     }
 
+    if (!data) {
+      return;
+    }
+
     const nextHero = {
-      title: data.hero_title || content.hero.title,
-      subtitle: data.hero_subtitle || content.hero.subtitle,
-      buttonText: data.hero_button_text || content.hero.buttonText,
-      buttonLink: data.hero_button_link || content.hero.buttonLink,
+      title: data.hero_title ?? content.hero.title,
+      subtitle: data.hero_subtitle ?? content.hero.subtitle,
+      buttonText: data.hero_button_text ?? content.hero.buttonText,
+      buttonLink: data.hero_button_link ?? content.hero.buttonLink,
     };
 
     const nextRecruitment = {
@@ -546,18 +554,18 @@ export default function AdminPage() {
         typeof data.recruitment_is_open === "boolean"
           ? data.recruitment_is_open
           : content.recruitment.isOpen,
-      message: data.recruitment_message || content.recruitment.message,
+      message: data.recruitment_message ?? content.recruitment.message,
       serverName:
-        data.recruitment_server_name || content.recruitment.serverName,
+        data.recruitment_server_name ?? content.recruitment.serverName,
     };
 
     setHeroDraft(nextHero);
     setRecruitmentDraft(nextRecruitment);
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       hero: nextHero,
       recruitment: nextRecruitment,
-    });
+    }));
   }
 
   async function loadSupabaseContent() {
@@ -631,8 +639,8 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       announcements: (announcementsResult.data ?? []).map((item) => ({
         id: String(item.id),
         title: item.title,
@@ -695,13 +703,14 @@ export default function AdminPage() {
         image: item.image || "",
         createdAt: item.created_at || new Date().toISOString(),
       })),
-    });
+    }));
   }
 
   async function persistHero() {
     const { error } = await supabase
       .from("homepage_settings")
-      .update({
+      .upsert({
+        id: 1,
         hero_title: heroDraft.title,
         hero_subtitle: heroDraft.subtitle,
         hero_button_text: heroDraft.buttonText,
@@ -710,8 +719,7 @@ export default function AdminPage() {
         recruitment_message: recruitmentDraft.message,
         recruitment_server_name: recruitmentDraft.serverName,
         updated_at: new Date().toISOString(),
-      })
-      .eq("id", 1);
+      });
 
     if (error) {
       console.error(error);
@@ -719,24 +727,24 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       hero: heroDraft,
       recruitment: recruitmentDraft,
-    });
+    }));
     notify("Accueil sauvegardé");
   }
 
   async function persistRecruitment() {
     const { error } = await supabase
       .from("homepage_settings")
-      .update({
+      .upsert({
+        id: 1,
         recruitment_is_open: recruitmentDraft.isOpen,
         recruitment_message: recruitmentDraft.message,
         recruitment_server_name: recruitmentDraft.serverName,
         updated_at: new Date().toISOString(),
-      })
-      .eq("id", 1);
+      });
 
     if (error) {
       console.error(error);
@@ -744,10 +752,10 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       recruitment: recruitmentDraft,
-    });
+    }));
     notify("Recrutement sauvegardé");
   }
 
@@ -1040,11 +1048,11 @@ export default function AdminPage() {
   async function persistRegulation() {
     const { error } = await supabase
       .from("reglement")
-      .update({
+      .upsert({
+        id: 1,
         body: regulationDraft,
         updated_at: new Date().toISOString(),
-      })
-      .eq("id", 1);
+      });
 
     if (error) {
       console.error(error);
@@ -1052,13 +1060,13 @@ export default function AdminPage() {
       return;
     }
 
-    setContent({
-      ...content,
+    setContent((current) => ({
+      ...current,
       regulation: {
-        ...content.regulation,
+        ...current.regulation,
         body: regulationDraft,
       },
-    });
+    }));
     notify("Règlement sauvegardé");
   }
 
