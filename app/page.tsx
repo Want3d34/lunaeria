@@ -745,11 +745,13 @@ export default function Home() {
         ) : null}
 
         <div className="relative z-10 hidden rounded-[1.6rem] border border-violet-200/10 bg-[linear-gradient(145deg,rgba(124,58,237,0.075),rgba(49,46,129,0.065))] p-4 text-sm text-violet-100 shadow-[inset_0_0_16px_rgba(196,181,253,0.035),0_0_14px_rgba(76,29,149,0.055)] lg:block">
-          <p className="font-black tracking-wide">Canal de guilde</p>
-          <p className="mt-1 text-xs leading-5 text-cyan-100/70">
-            Songes, Donjons, Kolizeum, Métiers et AvA coordonnés depuis{" "}
-            {homepageSettings.recruitmentServerName}.
-          </p>
+          <p className="font-black tracking-wide text-violet-50">
+  Développement & Design
+</p>
+
+<p className="mt-1 text-xs leading-5 text-cyan-100/70">
+  BY <span className="font-black text-violet-200">Azelya</span>
+</p>
         </div>
       </aside>
 
