@@ -556,9 +556,9 @@ export default function Home() {
       <div className="star-veil fixed inset-0 opacity-42" />
       <div className="fog-veil fixed inset-0" />
 
-      <aside className="sidebar-shell fixed left-0 top-0 z-30 flex h-screen w-24 flex-col border-r border-violet-200/8 bg-[#040719]/90 px-3 py-5 shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:w-72 lg:px-5">
-        <div className="relative z-10 mb-7 flex items-center justify-center gap-3 rounded-[1.7rem] border border-violet-200/9 bg-violet-100/[0.028] p-3 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:justify-start">
-          <div className="grid size-12 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)]">
+      <aside className="sidebar-shell sticky top-0 z-30 flex min-h-0 w-full flex-row items-center gap-3 overflow-x-auto border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.42),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
+        <div className="relative z-10 flex shrink-0 items-center justify-center gap-3 rounded-[1.35rem] border border-violet-200/9 bg-violet-100/[0.028] p-2 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:mb-7 lg:w-full lg:p-3 lg:justify-start">
+          <div className="grid size-10 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)] lg:size-12">
             <LunaeriaLogo size={27} />
           </div>
           <div className="hidden min-w-0 lg:block">
@@ -571,7 +571,7 @@ export default function Home() {
           </div>
         </div>
 
-        <nav className="relative z-10 flex flex-1 flex-col gap-2">
+        <nav className="relative z-10 flex flex-1 flex-row gap-2 lg:flex-col">
           {navItems.map((item) => (
             <SidebarNavItem
               item={item}
@@ -597,14 +597,14 @@ export default function Home() {
         </div>
       </aside>
 
-      <div className="relative z-10 ml-24 min-h-screen p-4 sm:p-6 lg:ml-72 lg:p-8">
-        <section className="hero-shell relative min-h-[560px] overflow-hidden rounded-[2.1rem] border border-violet-200/9 bg-slate-950 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)]">
+      <div className="relative z-10 min-h-screen p-3 sm:p-5 lg:ml-72 lg:p-8">
+        <section className="hero-shell relative min-h-[520px] overflow-hidden rounded-[1.6rem] border border-violet-200/9 bg-slate-950 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)] sm:rounded-[2.1rem] lg:min-h-[560px]">
           <div className="hero-artwork absolute inset-0 bg-[url('/fond.png')] bg-cover bg-[center_42%]" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,18,0.82)_0%,rgba(7,8,25,0.54)_34%,rgba(8,7,24,0.07)_74%,rgba(4,5,18,0.16)_100%)]" />
           <div className="hero-depth absolute inset-0" />
           <div className="hero-light absolute inset-0" />
 
-          <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-between p-6 sm:p-10 lg:p-14">
+          <div className="relative z-10 flex min-h-[520px] max-w-4xl flex-col justify-between p-5 sm:p-10 lg:min-h-[560px] lg:p-14">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/13 bg-violet-200/7 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[inset_0_0_10px_rgba(196,181,253,0.032),0_0_11px_rgba(109,40,217,0.06)] backdrop-blur-sm">
                 <Sparkles size={14} /> Guilde niveau 20
@@ -614,15 +614,15 @@ export default function Home() {
               </span>
             </div>
 
-            <div className="py-12">
+            <div className="py-8 sm:py-12">
               <div className="mb-4 flex items-center gap-3 text-xs font-black uppercase tracking-[0.32em] text-violet-100/76">
                 <Moon size={16} />
                 Sanctuaire de guilde
               </div>
-              <h1 className="legend-title text-6xl font-black tracking-[0.2em] text-violet-50 sm:text-7xl lg:text-8xl">
+              <h1 className="legend-title text-4xl font-black tracking-[0.16em] text-violet-50 sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
                 {homepageSettings.heroTitle}
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:text-xl">
+              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:mt-6 sm:text-xl sm:leading-8">
                 {homepageSettings.heroSubtitle}
                 <br />
                 Recrutement [{recruitmentLabel}]
@@ -635,13 +635,13 @@ export default function Home() {
               <div className="mt-9 flex flex-col gap-4 sm:flex-row">
                 <a
                   href={homepageSettings.heroButtonLink}
-                  className="discord-cta inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-[#b9a7ea] px-6 text-sm font-black uppercase tracking-[0.16em] text-[#09071a] shadow-[inset_0_1px_0_rgba(237,233,254,0.48),0_0_18px_rgba(124,58,237,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.55),0_0_22px_rgba(167,139,250,0.22)]"
+                  className="discord-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#b9a7ea] px-6 text-sm font-black uppercase tracking-[0.16em] text-[#09071a] shadow-[inset_0_1px_0_rgba(237,233,254,0.48),0_0_18px_rgba(124,58,237,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.55),0_0_22px_rgba(167,139,250,0.22)] sm:w-auto"
                 >
                   <DiscordIcon /> {homepageSettings.heroButtonText}
                 </a>
                 <a
                   href="#"
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-violet-200/15 bg-violet-100/[0.045] px-6 text-sm font-black uppercase tracking-[0.16em] text-violet-50 shadow-[inset_0_0_15px_rgba(196,181,253,0.026),0_0_12px_rgba(109,40,217,0.045)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-violet-200/24 hover:bg-violet-200/8 hover:shadow-[inset_0_0_17px_rgba(196,181,253,0.04),0_0_15px_rgba(124,58,237,0.075)]"
+                  className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-200/15 bg-violet-100/[0.045] px-6 text-sm font-black uppercase tracking-[0.16em] text-violet-50 shadow-[inset_0_0_15px_rgba(196,181,253,0.026),0_0_12px_rgba(109,40,217,0.045)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-violet-200/24 hover:bg-violet-200/8 hover:shadow-[inset_0_0_17px_rgba(196,181,253,0.04),0_0_15px_rgba(124,58,237,0.075)] sm:w-auto"
                 >
                   <CalendarDays size={18} /> Voir le calendrier
                 </a>
