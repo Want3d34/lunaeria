@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lunae Hub | Guilde Mikhal",
+  title: "Lunaeria | Portail",
   description: "Tableau de bord premium de la guilde Lunae sur Mikhal.",
 };
 
