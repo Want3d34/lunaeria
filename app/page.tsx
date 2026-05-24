@@ -937,7 +937,57 @@ export default function Home() {
                 href={homepageSettings.heroButtonLink}
               >
                 <DiscordIcon />
-                      {isCalendarOpen ? (
+                Booster le Discord
+              </a>
+            </div>
+          </PremiumCard>
+        </section>
+
+        <PremiumCard title="Galerie" icon={Images} className="mt-6">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {galleryItems.map((item, index) => (
+              <div
+                key={item.id}
+                className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
+              >
+                {item.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    alt={item.title}
+                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
+                    src={item.image}
+                  />
+                ) : (
+                  <div
+                    className={`absolute inset-0 ${galleryPlaceholder(index)} transition duration-700 group-hover/gallery:scale-110`}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/18 to-transparent" />
+                <div className="absolute inset-0 opacity-0 shadow-[inset_0_0_26px_rgba(196,181,253,0.075)] transition duration-500 group-hover/gallery:opacity-100" />
+                <div className="absolute left-4 top-4 rounded-full border border-violet-100/12 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-100 backdrop-blur-sm">
+                  {item.category}
+                </div>
+                <div className="absolute bottom-0 p-4">
+                  <p className="text-sm font-black text-violet-50">{item.title}</p>
+                  <p className="mt-1 text-xs text-slate-300">
+                    {item.description}
+                  </p>
+                </div>
+                {item.image ? (
+                  <button
+                    aria-label={`Ouvrir ${item.title}`}
+                    className="absolute inset-0 z-30 cursor-zoom-in"
+                    onClick={() => setSelectedGalleryItem(item)}
+                    type="button"
+                  />
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </PremiumCard>
+      </div>
+
+      {isCalendarOpen ? (
         <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-3 backdrop-blur-md sm:p-4">
           <button
             aria-label="Fermer le calendrier"
@@ -1111,61 +1161,6 @@ export default function Home() {
                   )}
                 </div>
               </aside>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-let-100/[0.08]"
-              onClick={() => setIsCalendarOpen(false)}
-              type="button"
-            >
-              <X size={18} />
-            </button>
-
-            <div className="relative z-10 pr-12">
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-violet-200">
-                Calendrier Lunaeria
-              </p>
-              <h2 className="mt-2 text-2xl font-black text-violet-50 sm:text-3xl">
-                Prochains événements
-              </h2>
-            </div>
-
-            <div className="relative z-10 mt-6 max-h-[68vh] space-y-3 overflow-y-auto pr-1">
-              {events.length ? (
-                events.map((eventItem, index) => {
-                  const Icon = eventIcons[index % eventIcons.length];
-
-                  return (
-                    <article
-                      className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)]"
-                      key={eventItem.id}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
-                          <Icon size={19} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-black text-violet-50">
-                            {eventItem.title}
-                          </p>
-                          <p className="mt-1 text-sm font-bold text-[#e8dcbd]">
-                            {eventItem.date}
-                          </p>
-                          <p className="mt-2 text-sm leading-6 text-slate-400">
-                            {eventItem.description}
-                          </p>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })
-              ) : (
-                <div className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-5 text-sm leading-6 text-slate-400">
-                  Aucun événement n'est encore publié.
-                </div>
-              )}
             </div>
           </div>
         </div>
