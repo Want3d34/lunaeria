@@ -132,6 +132,16 @@ type HomepageSettings = {
   recruitmentServerName: string;
 };
 
+const homepageSettingsFallback: HomepageSettings = {
+  heroTitle: "LUNAERIA",
+  heroSubtitle: "Portail de la Guilde Lunaeria",
+  heroButtonText: "Rejoindre la guilde",
+  heroButtonLink: "#recrutement",
+  recruitmentIsOpen: false,
+  recruitmentMessage: "",
+  recruitmentServerName: "Lunaeria",
+};
+
 type GalleryItem = {
   id: string;
   title: string;
@@ -442,15 +452,8 @@ export default function Home() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [builds, setBuilds] = useState<BuildItem[]>([]);
   const [sales, setSales] = useState<SaleItem[]>([]);
-  const [homepageSettings, setHomepageSettings] = useState<HomepageSettings>({
-    heroTitle: "LUNAERIA",
-    heroSubtitle: "Portail de la Guilde Lunaeria",
-    heroButtonText: "Rejoindre la guilde",
-    heroButtonLink: "#recrutement",
-    recruitmentIsOpen: false,
-    recruitmentMessage: "",
-    recruitmentServerName: "Lunaeria",
-  });
+  const [homepageSettings, setHomepageSettings] =
+    useState<HomepageSettings | null>(null);
 
   const [galleryItemsState, setGalleryItemsState] = useState<GalleryItem[]>([]);
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
@@ -471,10 +474,12 @@ export default function Home() {
 
       if (error) {
         console.error(error);
+        setHomepageSettings(homepageSettingsFallback);
         return;
       }
 
       if (!data) {
+        setHomepageSettings(homepageSettingsFallback);
         return;
       }
 
@@ -607,7 +612,7 @@ export default function Home() {
 
   const homepageAnnouncements = announcements;
 
-  const recruitmentLabel = homepageSettings.recruitmentIsOpen ? "Ouvert" : "Fermé";
+  const recruitmentLabel = homepageSettings?.recruitmentIsOpen ? "Ouvert" : "Fermé";
   const recentActivity = [
     ...builds.slice(0, 2).map((build) => ({
       label: "Nouveau build ajouté",
@@ -776,26 +781,40 @@ export default function Home() {
                 <Moon size={16} />
                 Sanctuaire de guilde
               </div>
-              <h1 className="legend-title max-w-full break-words text-[2.7rem] font-black tracking-[0.14em] text-violet-50 sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
-                {homepageSettings.heroTitle}
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:mt-6 sm:text-xl sm:leading-8">
-                {homepageSettings.heroSubtitle}
-                <br />
-                Recrutement [{recruitmentLabel}]
-              </p>
-              {homepageSettings.recruitmentMessage ? (
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100/78 drop-shadow-[0_2px_14px_rgba(0,0,0,0.7)]">
-                  {homepageSettings.recruitmentMessage}
-                </p>
-              ) : null}
+              {homepageSettings ? (
+                <>
+                  <h1 className="legend-title max-w-full break-words text-[2.7rem] font-black tracking-[0.14em] text-violet-50 sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
+                    {homepageSettings.heroTitle}
+                  </h1>
+                  <p className="mt-5 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:mt-6 sm:text-xl sm:leading-8">
+                    {homepageSettings.heroSubtitle}
+                    <br />
+                    Recrutement [{recruitmentLabel}]
+                  </p>
+                  {homepageSettings.recruitmentMessage ? (
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100/78 drop-shadow-[0_2px_14px_rgba(0,0,0,0.7)]">
+                      {homepageSettings.recruitmentMessage}
+                    </p>
+                  ) : null}
+                </>
+              ) : (
+                <div className="mt-5 max-w-2xl space-y-4" aria-hidden="true">
+                  <div className="h-16 w-4/5 rounded-2xl bg-violet-100/[0.055] shadow-[inset_0_0_18px_rgba(196,181,253,0.035)] sm:h-24" />
+                  <div className="h-5 w-2/3 rounded-full bg-violet-100/[0.045]" />
+                  <div className="h-5 w-1/2 rounded-full bg-violet-100/[0.035]" />
+                </div>
+              )}
               <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-                <a
-                  href={homepageSettings.heroButtonLink}
-                  className="discord-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#b9a7ea] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#09071a] shadow-[inset_0_1px_0_rgba(237,233,254,0.48),0_0_18px_rgba(124,58,237,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.55),0_0_22px_rgba(167,139,250,0.22)] sm:w-auto sm:px-6 sm:tracking-[0.16em]"
-                >
-                  <DiscordIcon /> {homepageSettings.heroButtonText}
-                </a>
+                {homepageSettings ? (
+                  <a
+                    href={homepageSettings.heroButtonLink}
+                    className="discord-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#b9a7ea] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#09071a] shadow-[inset_0_1px_0_rgba(237,233,254,0.48),0_0_18px_rgba(124,58,237,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.55),0_0_22px_rgba(167,139,250,0.22)] sm:w-auto sm:px-6 sm:tracking-[0.16em]"
+                  >
+                    <DiscordIcon /> {homepageSettings.heroButtonText}
+                  </a>
+                ) : (
+                  <div className="h-14 w-full rounded-2xl bg-violet-100/[0.055] sm:w-56" aria-hidden="true" />
+                )}
                 <button
                   className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-200/15 bg-violet-100/[0.045] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-violet-50 shadow-[inset_0_0_15px_rgba(196,181,253,0.026),0_0_12px_rgba(109,40,217,0.045)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-violet-200/24 hover:bg-violet-200/8 hover:shadow-[inset_0_0_17px_rgba(196,181,253,0.04),0_0_15px_rgba(124,58,237,0.075)] sm:w-auto sm:px-6 sm:tracking-[0.16em]"
                   onClick={() => setIsCalendarOpen(true)}
@@ -954,13 +973,17 @@ export default function Home() {
                 Les boosts aident à améliorer le Discord Lunaeria, renforcer la
                 visibilité de la guilde et soutenir les espaces communautaires.
               </p>
-              <a
-                className="discord-cta mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-violet-200/18 bg-[#b9a7ea] px-5 text-sm font-black uppercase tracking-[0.14em] text-[#09071a] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2]"
-                href={homepageSettings.heroButtonLink}
-              >
-                <DiscordIcon />
-                Booster le Discord
-              </a>
+              {homepageSettings ? (
+                <a
+                  className="discord-cta mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-violet-200/18 bg-[#b9a7ea] px-5 text-sm font-black uppercase tracking-[0.14em] text-[#09071a] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2]"
+                  href={homepageSettings.heroButtonLink}
+                >
+                  <DiscordIcon />
+                  Booster le Discord
+                </a>
+              ) : (
+                <div className="mt-5 h-12 w-full rounded-2xl bg-violet-100/[0.045]" aria-hidden="true" />
+              )}
             </div>
           </PremiumCard>
         </section>

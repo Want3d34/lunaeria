@@ -29,7 +29,8 @@ function splitRules(body: string) {
 
 export default function ReglementPage() {
   const { content } = useHomepageContent();
-  const [regulationBody, setRegulationBody] = useState(content.regulation.body);
+  const [regulationBody, setRegulationBody] = useState("");
+  const [isRegulationLoaded, setIsRegulationLoaded] = useState(false);
   const { introTitle, introText, sections } = splitRules(regulationBody);
 
   useEffect(() => {
@@ -43,14 +44,19 @@ export default function ReglementPage() {
 
       if (error) {
         console.error(error);
+        setRegulationBody(content.regulation.body);
+        setIsRegulationLoaded(true);
         return;
       }
 
       if (!data) {
+        setRegulationBody(content.regulation.body);
+        setIsRegulationLoaded(true);
         return;
       }
 
       setRegulationBody(data.body ?? content.regulation.body);
+      setIsRegulationLoaded(true);
     }
 
     loadReglementFromSupabase();
@@ -80,15 +86,30 @@ export default function ReglementPage() {
           <p className="relative z-10 mt-6 text-xs font-black uppercase tracking-[0.3em] text-violet-200">
             Charte officielle
           </p>
-          <h1 className="legend-title relative z-10 mt-3 text-4xl font-black text-violet-50 sm:text-6xl">
-            {content.regulation.title}
-          </h1>
-          <p className="relative z-10 mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-300">
-            {introText}
-          </p>
+          {isRegulationLoaded ? (
+            <>
+              <h1 className="legend-title relative z-10 mt-3 text-4xl font-black text-violet-50 sm:text-6xl">
+                Règlement
+              </h1>
+              <p className="relative z-10 mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-300">
+                {introText}
+              </p>
+            </>
+          ) : (
+            <div className="relative z-10 mx-auto mt-5 max-w-3xl space-y-4" aria-hidden="true">
+              <div className="mx-auto h-12 w-2/3 rounded-2xl bg-violet-100/[0.055]" />
+              <div className="mx-auto h-5 w-4/5 rounded-full bg-violet-100/[0.04]" />
+            </div>
+          )}
         </header>
 
         <section className="mt-8 grid gap-5">
+          {!isRegulationLoaded ? (
+            <div className="grid gap-5" aria-hidden="true">
+              <div className="h-24 rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/70 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md" />
+              <div className="h-40 rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/50 backdrop-blur-md" />
+            </div>
+          ) : null}
           {introTitle ? (
             <div className="grid gap-5">
               <article className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md">

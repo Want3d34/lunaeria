@@ -5,7 +5,6 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
-import { useHomepageContent } from "@/lib/lunaeria-content";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,10 +19,7 @@ type AnnouncementItem = {
 };
 
 export default function AnnoncesPage() {
-  const { content } = useHomepageContent();
-  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(
-    content.announcements,
-  );
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
 
   useEffect(() => {
     async function loadAnnouncementsFromSupabase() {

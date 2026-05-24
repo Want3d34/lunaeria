@@ -13,7 +13,7 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
-import { type UsefulLink, type UsefulLinkSection, useHomepageContent } from "@/lib/lunaeria-content";
+import { type UsefulLink, type UsefulLinkSection } from "@/lib/lunaeria-content";
 
 const sectionLabels: Record<UsefulLinkSection, string> = {
   general: "Outils généraux",
@@ -28,10 +28,7 @@ const supabase = createClient(
 );
 
 export default function LiensUtilesPage() {
-  const { content } = useHomepageContent();
-  const [usefulLinks, setUsefulLinks] = useState<UsefulLink[]>(
-    content.usefulLinks,
-  );
+  const [usefulLinks, setUsefulLinks] = useState<UsefulLink[]>([]);
 
   useEffect(() => {
     async function loadUsefulLinksFromSupabase() {
