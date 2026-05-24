@@ -5,6 +5,7 @@ import {
   BriefcaseBusiness,
   CalendarDays,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Gem,
   Home as HomeIcon,
@@ -244,6 +245,70 @@ function galleryPlaceholder(index: number) {
 }
 
 
+const monthNames = [
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
+];
+
+const weekdayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+function formatDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function parseEventDate(date: string) {
+  const value = date.trim();
+
+  const frenchDate = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (frenchDate) {
+    return new Date(
+      Number(frenchDate[3]),
+      Number(frenchDate[2]) - 1,
+      Number(frenchDate[1]),
+    );
+  }
+
+  const isoDate = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (isoDate) {
+    return new Date(
+      Number(isoDate[1]),
+      Number(isoDate[2]) - 1,
+      Number(isoDate[3]),
+    );
+  }
+
+  return null;
+}
+
+function buildCalendarDays(monthDate: Date) {
+  const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const startOffset = (firstDay.getDay() + 6) % 7;
+  const calendarStart = new Date(firstDay);
+
+  calendarStart.setDate(firstDay.getDate() - startOffset);
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const day = new Date(calendarStart);
+    day.setDate(calendarStart.getDate() + index);
+    return day;
+  });
+}
+
+
 function NavChildrenList({
   children,
   pathname,
@@ -393,6 +458,10 @@ export default function Home() {
   const [galleryItemsState, setGalleryItemsState] = useState<GalleryItem[]>([]);
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(() =>
+    formatDateKey(new Date()),
+  );
 
   useEffect(() => {
     async function loadHomepageSettings() {
@@ -566,6 +635,29 @@ export default function Home() {
   const activeMobileSection = navItems.find(
     (item) => item.children?.length && openSections[item.label],
   );
+  const eventsByDate = events.reduce<Record<string, EventItem[]>>(
+    (accumulator, eventItem) => {
+      const eventDate = parseEventDate(eventItem.date);
+
+      if (!eventDate) {
+        return accumulator;
+      }
+
+      const dateKey = formatDateKey(eventDate);
+      accumulator[dateKey] = [...(accumulator[dateKey] ?? []), eventItem];
+
+      return accumulator;
+    },
+    {},
+  );
+  const calendarDays = buildCalendarDays(calendarMonth);
+  const selectedDateEvents = eventsByDate[selectedCalendarDate] ?? [];
+  const selectedDate = new Date(`${selectedCalendarDate}T00:00:00`);
+  const selectedDateLabel = selectedDate.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
@@ -845,68 +937,186 @@ export default function Home() {
                 href={homepageSettings.heroButtonLink}
               >
                 <DiscordIcon />
-                Booster le Discord
-              </a>
-            </div>
-          </PremiumCard>
-        </section>
-
-        <PremiumCard title="Galerie" icon={Images} className="mt-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {galleryItems.map((item, index) => (
-              <div
-                key={item.id}
-                className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
-              >
-                {item.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt={item.title}
-                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
-                    src={item.image}
-                  />
-                ) : (
-                  <div
-                    className={`absolute inset-0 ${galleryPlaceholder(index)} transition duration-700 group-hover/gallery:scale-110`}
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/18 to-transparent" />
-                <div className="absolute inset-0 opacity-0 shadow-[inset_0_0_26px_rgba(196,181,253,0.075)] transition duration-500 group-hover/gallery:opacity-100" />
-                <div className="absolute left-4 top-4 rounded-full border border-violet-100/12 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-100 backdrop-blur-sm">
-                  {item.category}
-                </div>
-                <div className="absolute bottom-0 p-4">
-                  <p className="text-sm font-black text-violet-50">{item.title}</p>
-                  <p className="mt-1 text-xs text-slate-300">
-                    {item.description}
-                  </p>
-                </div>
-                {item.image ? (
-                  <button
-                    aria-label={`Ouvrir ${item.title}`}
-                    className="absolute inset-0 z-30 cursor-zoom-in"
-                    onClick={() => setSelectedGalleryItem(item)}
-                    type="button"
-                  />
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </PremiumCard>
-      </div>
-
-      {isCalendarOpen ? (
-        <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-4 backdrop-blur-md">
+                      {isCalendarOpen ? (
+        <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-3 backdrop-blur-md sm:p-4">
           <button
             aria-label="Fermer le calendrier"
             className="absolute inset-0"
             onClick={() => setIsCalendarOpen(false)}
             type="button"
           />
-          <div className="relative z-10 w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-violet-200/14 bg-[#06091b]/94 p-5 shadow-[0_42px_120px_rgba(0,0,0,0.72),0_0_30px_rgba(76,29,149,0.14)] sm:p-6">
+          <div className="relative z-10 flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[1.75rem] border border-violet-200/14 bg-[#06091b]/94 p-4 shadow-[0_42px_120px_rgba(0,0,0,0.72),0_0_30px_rgba(76,29,149,0.14)] sm:p-6">
             <button
               aria-label="Fermer le calendrier"
               className="absolute right-4 top-4 z-20 grid size-10 place-items-center rounded-xl border border-violet-100/12 bg-[#030512]/80 text-violet-100 backdrop-blur-md transition hover:bg-violet-100/[0.08]"
+              onClick={() => setIsCalendarOpen(false)}
+              type="button"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="relative z-10 pr-12">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-violet-200">
+                Calendrier Lunaeria
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-violet-50 sm:text-3xl">
+                {monthNames[calendarMonth.getMonth()]}{" "}
+                {calendarMonth.getFullYear()}
+              </h2>
+            </div>
+
+            <div className="relative z-10 mt-5 grid min-h-0 gap-5 overflow-y-auto lg:grid-cols-[1.35fr_0.9fr] lg:overflow-hidden">
+              <section className="min-w-0 rounded-[1.35rem] border border-violet-100/10 bg-[#030512]/58 p-3 shadow-[inset_0_0_18px_rgba(196,181,253,0.024)] sm:p-4">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <button
+                    className="grid size-10 place-items-center rounded-xl border border-violet-100/12 bg-violet-100/[0.045] text-violet-100 transition hover:bg-violet-100/[0.08]"
+                    onClick={() =>
+                      setCalendarMonth(
+                        (current) =>
+                          new Date(
+                            current.getFullYear(),
+                            current.getMonth() - 1,
+                            1,
+                          ),
+                      )
+                    }
+                    type="button"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <p className="text-center text-sm font-black uppercase tracking-[0.2em] text-violet-100">
+                    {monthNames[calendarMonth.getMonth()]}
+                  </p>
+                  <button
+                    className="grid size-10 place-items-center rounded-xl border border-violet-100/12 bg-violet-100/[0.045] text-violet-100 transition hover:bg-violet-100/[0.08]"
+                    onClick={() =>
+                      setCalendarMonth(
+                        (current) =>
+                          new Date(
+                            current.getFullYear(),
+                            current.getMonth() + 1,
+                            1,
+                          ),
+                      )
+                    }
+                    type="button"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+                  {weekdayNames.map((weekday) => (
+                    <div
+                      className="pb-1 text-center text-[10px] font-black uppercase tracking-[0.16em] text-violet-100/55 sm:text-xs"
+                      key={weekday}
+                    >
+                      {weekday}
+                    </div>
+                  ))}
+
+                  {calendarDays.map((day) => {
+                    const dateKey = formatDateKey(day);
+                    const dayEvents = eventsByDate[dateKey] ?? [];
+                    const isCurrentMonth =
+                      day.getMonth() === calendarMonth.getMonth();
+                    const isSelected = dateKey === selectedCalendarDate;
+                    const isToday = dateKey === formatDateKey(new Date());
+
+                    return (
+                      <button
+                        className={`relative min-h-14 rounded-2xl border p-2 text-left transition sm:min-h-20 ${
+                          isSelected
+                            ? "border-violet-200/28 bg-violet-200/12 text-violet-50 shadow-[0_0_18px_rgba(139,92,246,0.16)]"
+                            : isCurrentMonth
+                              ? "border-violet-100/9 bg-violet-50/[0.035] text-violet-50 hover:border-violet-200/18 hover:bg-violet-100/[0.06]"
+                              : "border-violet-100/[0.04] bg-transparent text-slate-600"
+                        }`}
+                        key={dateKey}
+                        onClick={() => setSelectedCalendarDate(dateKey)}
+                        type="button"
+                      >
+                        <span
+                          className={`inline-grid size-7 place-items-center rounded-xl text-xs font-black ${
+                            isToday
+                              ? "bg-[#b9a7ea] text-[#09071a]"
+                              : "bg-[#030512]/45 text-current"
+                          }`}
+                        >
+                          {day.getDate()}
+                        </span>
+
+                        {dayEvents.length ? (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {dayEvents.slice(0, 3).map((eventItem) => (
+                              <span
+                                className="h-1.5 w-1.5 rounded-full bg-violet-200 shadow-[0_0_8px_rgba(196,181,253,0.75)]"
+                                key={eventItem.id}
+                              />
+                            ))}
+                            {dayEvents.length > 3 ? (
+                              <span className="text-[10px] font-black text-violet-100">
+                                +{dayEvents.length - 3}
+                              </span>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <aside className="min-h-0 rounded-[1.35rem] border border-violet-100/10 bg-violet-50/[0.035] p-4 shadow-[inset_0_0_18px_rgba(196,181,253,0.024)] lg:overflow-y-auto">
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
+                  Jour sélectionné
+                </p>
+                <h3 className="mt-2 text-xl font-black capitalize text-violet-50">
+                  {selectedDateLabel}
+                </h3>
+
+                <div className="mt-5 space-y-3">
+                  {selectedDateEvents.length ? (
+                    selectedDateEvents.map((eventItem, index) => {
+                      const Icon = eventIcons[index % eventIcons.length];
+
+                      return (
+                        <article
+                          className="rounded-2xl border border-violet-100/9 bg-[#030512]/70 p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)]"
+                          key={eventItem.id}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                              <Icon size={19} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-black text-violet-50">
+                                {eventItem.title}
+                              </p>
+                              <p className="mt-1 text-sm font-bold text-[#e8dcbd]">
+                                {eventItem.date}
+                              </p>
+                              <p className="mt-2 text-sm leading-6 text-slate-400">
+                                {eventItem.description}
+                              </p>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })
+                  ) : (
+                    <div className="rounded-2xl border border-violet-100/9 bg-[#030512]/70 p-5 text-sm leading-6 text-slate-400">
+                      Aucun événement prévu ce jour.
+                    </div>
+                  )}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+let-100/[0.08]"
               onClick={() => setIsCalendarOpen(false)}
               type="button"
             >
