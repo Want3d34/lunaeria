@@ -77,10 +77,10 @@ export default function StuffEncyclopediePage() {
       views: item.views ?? 0,
     }));
 
-    setContent((current) => ({
-      ...current,
-      builds: buildsFromSupabase,
-    }));
+    setContent({
+  ...content,
+  builds: buildsFromSupabase,
+});
   }
 
   useEffect(() => {
