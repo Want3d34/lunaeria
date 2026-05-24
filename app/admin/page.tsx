@@ -26,7 +26,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type Session } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import {
@@ -83,6 +83,8 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
+
+const ADMIN_EMAIL = "danou7434@gmail.com";
 
 type HomepageSettingsRow = {
   id: number;
@@ -154,6 +156,11 @@ function saveDraft<T extends HomepageContent>(
 export default function AdminPage() {
   const { content, isLoaded, setContent } = useHomepageContent();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState("");
   const [activeSection, setActiveSection] = useState("overview");
   const [toast, setToast] = useState("");
   const [heroDraft, setHeroDraft] = useState(content.hero);
@@ -173,6 +180,43 @@ export default function AdminPage() {
   const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
   const [buildDraft, setBuildDraft] = useState(emptyBuild);
   const [editingBuildId, setEditingBuildId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadAdminSession() {
+      const { data } = await supabase.auth.getSession();
+      const currentSession = data.session ?? null;
+      const isAllowedAdmin = currentSession?.user.email === ADMIN_EMAIL;
+
+      setSession(currentSession);
+      setIsAdmin(Boolean(isAllowedAdmin));
+      setAuthLoading(false);
+
+      if (currentSession && !isAllowedAdmin) {
+        await supabase.auth.signOut();
+        setSession(null);
+        setIsAdmin(false);
+        setAuthError("Ce compte n'est pas autorisé à accéder au panel.");
+      }
+    }
+
+    loadAdminSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      const isAllowedAdmin = nextSession?.user.email === ADMIN_EMAIL;
+
+      setSession(nextSession);
+      setIsAdmin(Boolean(isAllowedAdmin));
+
+      if (nextSession && !isAllowedAdmin) {
+        supabase.auth.signOut();
+        setAuthError("Ce compte n'est pas autorisé à accéder au panel.");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const syncTimeout = window.setTimeout(() => {
@@ -251,6 +295,46 @@ export default function AdminPage() {
       content.recruitment,
     ],
   );
+
+  async function handleAdminLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setAuthError("");
+    setAuthLoading(true);
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: authEmail.trim(),
+      password: authPassword,
+    });
+
+    if (error) {
+      setAuthError("Email ou mot de passe incorrect.");
+      setAuthLoading(false);
+      return;
+    }
+
+    if (data.session?.user.email !== ADMIN_EMAIL) {
+      await supabase.auth.signOut();
+      setSession(null);
+      setIsAdmin(false);
+      setAuthError("Ce compte n'est pas autorisé à accéder au panel.");
+      setAuthLoading(false);
+      return;
+    }
+
+    setSession(data.session);
+    setIsAdmin(true);
+    setAuthPassword("");
+    setAuthLoading(false);
+    notify("Connexion admin réussie");
+  }
+
+  async function handleAdminLogout() {
+    await supabase.auth.signOut();
+    setSession(null);
+    setIsAdmin(false);
+    setAuthPassword("");
+    notify("Déconnexion réussie");
+  }
 
   function notify(message: string) {
     setToast(message);
@@ -1229,10 +1313,11 @@ export default function AdminPage() {
             </div>
             <AdminButton
               className="mt-4 w-full"
-              onClick={() => setIsAdmin((current) => !current)}
+              onClick={isAdmin ? handleAdminLogout : undefined}
+              variant={isAdmin ? "ghost" : "primary"}
             >
               <ShieldCheck size={17} />
-              {isAdmin ? "Session admin active" : "Connexion admin"}
+              {isAdmin ? "Déconnexion" : "Connexion requise"}
             </AdminButton>
           </div>
         </aside>
@@ -1251,16 +1336,41 @@ export default function AdminPage() {
                   Lunaeria Command Center
                 </h1>
                 <p className="relative z-10 mt-4 text-sm leading-7 text-slate-400 sm:text-base">
-                  Panneau local persistant pour piloter le contenu public avant
-                  Discord OAuth et la base de données.
+                  Connecte-toi avec ton compte Supabase Auth pour accéder au
+                  panel d'administration Lunaeria.
                 </p>
-                <AdminButton
-                  className="relative z-10 mt-7"
-                  onClick={() => setIsAdmin(true)}
-                >
-                  <ShieldCheck size={18} />
-                  Connexion admin
-                </AdminButton>
+
+                <form className="relative z-10 mt-7 grid gap-3 text-left" onSubmit={handleAdminLogin}>
+                  <AdminField label="Email admin">
+                    <AdminInput
+                      autoComplete="email"
+                      onChange={(event) => setAuthEmail(event.target.value)}
+                      placeholder="email@exemple.com"
+                      type="email"
+                      value={authEmail}
+                    />
+                  </AdminField>
+                  <AdminField label="Mot de passe">
+                    <AdminInput
+                      autoComplete="current-password"
+                      onChange={(event) => setAuthPassword(event.target.value)}
+                      placeholder="Mot de passe"
+                      type="password"
+                      value={authPassword}
+                    />
+                  </AdminField>
+
+                  {authError ? (
+                    <p className="rounded-2xl border border-rose-200/20 bg-rose-300/[0.06] px-4 py-3 text-sm font-bold text-rose-100">
+                      {authError}
+                    </p>
+                  ) : null}
+
+                  <AdminButton className="w-full" disabled={authLoading} type="submit">
+                    {authLoading ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
+                    {authLoading ? "Vérification..." : "Se connecter"}
+                  </AdminButton>
+                </form>
               </div>
             </section>
           ) : (
@@ -1275,8 +1385,8 @@ export default function AdminPage() {
                       Piloter Lunaeria
                     </h1>
                     <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base">
-                      Toutes les éditions écrivent dans la même source locale
-                      persistante que la homepage.
+                      Toutes les éditions écrivent maintenant dans Supabase et sont
+                      synchronisées avec le site public.
                     </p>
                   </div>
                   <div className="rounded-2xl border border-violet-200/12 bg-[#030512]/68 px-4 py-3 text-sm font-black text-violet-100">
