@@ -338,13 +338,17 @@ function formatActivityDate(value?: string) {
     return null;
   }
 
-  return new Intl.DateTimeFormat("fr-FR", {
+  const formattedDate = new Intl.DateTimeFormat("fr-FR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+  }).format(date);
+  const formattedTime = new Intl.DateTimeFormat("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+
+  return `${formattedDate} à ${formattedTime}`;
 }
 
 function buildCalendarDays(monthDate: Date) {
