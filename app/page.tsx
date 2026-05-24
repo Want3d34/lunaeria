@@ -392,6 +392,7 @@ export default function Home() {
 
   const [galleryItemsState, setGalleryItemsState] = useState<GalleryItem[]>([]);
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   useEffect(() => {
     async function loadHomepageSettings() {
@@ -681,12 +682,13 @@ export default function Home() {
                 >
                   <DiscordIcon /> {homepageSettings.heroButtonText}
                 </a>
-                <a
-                  href="#"
+                <button
                   className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-200/15 bg-violet-100/[0.045] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-violet-50 shadow-[inset_0_0_15px_rgba(196,181,253,0.026),0_0_12px_rgba(109,40,217,0.045)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-violet-200/24 hover:bg-violet-200/8 hover:shadow-[inset_0_0_17px_rgba(196,181,253,0.04),0_0_15px_rgba(124,58,237,0.075)] sm:w-auto sm:px-6 sm:tracking-[0.16em]"
+                  onClick={() => setIsCalendarOpen(true)}
+                  type="button"
                 >
                   <CalendarDays size={18} /> Voir le calendrier
-                </a>
+                </button>
               </div>
             </div>
 
@@ -892,6 +894,72 @@ export default function Home() {
           </div>
         </PremiumCard>
       </div>
+
+      {isCalendarOpen ? (
+        <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-4 backdrop-blur-md">
+          <button
+            aria-label="Fermer le calendrier"
+            className="absolute inset-0"
+            onClick={() => setIsCalendarOpen(false)}
+            type="button"
+          />
+          <div className="relative z-10 w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-violet-200/14 bg-[#06091b]/94 p-5 shadow-[0_42px_120px_rgba(0,0,0,0.72),0_0_30px_rgba(76,29,149,0.14)] sm:p-6">
+            <button
+              aria-label="Fermer le calendrier"
+              className="absolute right-4 top-4 z-20 grid size-10 place-items-center rounded-xl border border-violet-100/12 bg-[#030512]/80 text-violet-100 backdrop-blur-md transition hover:bg-violet-100/[0.08]"
+              onClick={() => setIsCalendarOpen(false)}
+              type="button"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="relative z-10 pr-12">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-violet-200">
+                Calendrier Lunaeria
+              </p>
+              <h2 className="mt-2 text-2xl font-black text-violet-50 sm:text-3xl">
+                Prochains événements
+              </h2>
+            </div>
+
+            <div className="relative z-10 mt-6 max-h-[68vh] space-y-3 overflow-y-auto pr-1">
+              {events.length ? (
+                events.map((eventItem, index) => {
+                  const Icon = eventIcons[index % eventIcons.length];
+
+                  return (
+                    <article
+                      className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)]"
+                      key={eventItem.id}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                          <Icon size={19} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-black text-violet-50">
+                            {eventItem.title}
+                          </p>
+                          <p className="mt-1 text-sm font-bold text-[#e8dcbd]">
+                            {eventItem.date}
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-slate-400">
+                            {eventItem.description}
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })
+              ) : (
+                <div className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-5 text-sm leading-6 text-slate-400">
+                  Aucun événement n'est encore publié.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {selectedGalleryItem ? (
         <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-4 backdrop-blur-md">
