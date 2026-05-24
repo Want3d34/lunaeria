@@ -827,7 +827,7 @@ export default function Home() {
 </p>
 
 <p className="mt-1 text-xs leading-5 text-cyan-100/70">
-  BY <span className="font-black text-violet-200">Azelya</span>
+   <span className="font-black text-violet-200">BY AZELYA</span>
 </p>
         </div>
       </aside>
