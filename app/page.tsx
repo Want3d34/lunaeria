@@ -302,7 +302,7 @@ function SidebarNavItem({
 
       {hasChildren ? (
         <div
-          className={`absolute left-full top-0 z-50 ml-2 w-60 rounded-2xl border border-violet-200/12 bg-[#050719]/96 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-md transition-[opacity,transform] duration-300 lg:static lg:ml-0 lg:w-auto lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-0 ${
+          className={`absolute left-full top-0 z-50 ml-2 w-64 rounded-2xl border border-violet-200/12 bg-[#050719]/96 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-md transition-[opacity,transform] duration-300 lg:static lg:ml-0 lg:w-auto lg:border-0 lg:bg-transparent lg:p-0 lg:pl-5 lg:shadow-none lg:backdrop-blur-0 ${
             open ? "pointer-events-auto translate-x-0 opacity-100 lg:grid lg:grid-rows-[1fr]" : "pointer-events-none translate-x-2 opacity-0 lg:pointer-events-auto lg:grid lg:grid-rows-[0fr] lg:translate-x-0 lg:opacity-55"
           }`}
         >
