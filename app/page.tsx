@@ -260,7 +260,7 @@ function SidebarNavItem({
     item.active ||
     (Boolean(item.href) && pathname === item.href) ||
     (hasChildren && open);
-  const controlClassName = `group/nav relative flex h-12 w-full items-center justify-center gap-3 overflow-visible rounded-2xl border px-3 text-sm font-bold transition duration-300 lg:overflow-hidden lg:justify-start ${
+  const controlClassName = `group/nav relative flex h-12 min-w-14 items-center justify-center gap-3 overflow-visible rounded-2xl border px-3 text-sm font-bold transition duration-300 lg:w-full lg:overflow-hidden lg:justify-start ${
     isActive
       ? "border-violet-200/16 bg-[linear-gradient(90deg,rgba(124,58,237,0.13),rgba(91,33,182,0.055))] text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)]"
       : "border-transparent text-slate-400 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100 hover:shadow-[0_0_10px_rgba(109,40,217,0.055)]"
@@ -302,7 +302,7 @@ function SidebarNavItem({
 
       {hasChildren ? (
         <div
-          className={`absolute left-full top-0 z-50 ml-2 w-64 rounded-2xl border border-violet-200/12 bg-[#050719]/96 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-md transition-[opacity,transform] duration-300 lg:static lg:ml-0 lg:w-auto lg:border-0 lg:bg-transparent lg:p-0 lg:pl-5 lg:shadow-none lg:backdrop-blur-0 ${
+          className={`absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-violet-200/12 bg-[#050719]/96 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-md transition-[opacity,transform] duration-300 lg:static lg:mt-0 lg:w-auto lg:border-0 lg:bg-transparent lg:p-0 lg:pl-5 lg:shadow-none lg:backdrop-blur-0 ${
             open ? "pointer-events-auto translate-x-0 opacity-100 lg:grid lg:grid-rows-[1fr]" : "pointer-events-none translate-x-2 opacity-0 lg:pointer-events-auto lg:grid lg:grid-rows-[0fr] lg:translate-x-0 lg:opacity-55"
           }`}
         >
@@ -556,8 +556,8 @@ export default function Home() {
       <div className="star-veil fixed inset-0 opacity-42" />
       <div className="fog-veil fixed inset-0" />
 
-      <aside className="sidebar-shell fixed left-0 top-0 z-30 flex h-screen w-20 flex-col border-r border-violet-200/8 bg-[#040719]/94 px-2 py-4 shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:w-72 lg:px-5 lg:py-5">
-        <div className="relative z-10 mb-5 flex items-center justify-center gap-3 rounded-[1.35rem] border border-violet-200/9 bg-violet-100/[0.028] p-2 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:mb-7 lg:p-3 lg:justify-start">
+      <aside className="sidebar-shell fixed left-0 top-0 z-30 flex h-24 w-full flex-row items-center gap-3 overflow-x-auto border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
+        <div className="relative z-10 flex shrink-0 items-center justify-center gap-3 rounded-[1.35rem] border border-violet-200/9 bg-violet-100/[0.028] p-2 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:mb-7 lg:w-full lg:p-3 lg:justify-start">
           <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)] lg:size-12">
             <LunaeriaLogo size={27} />
           </div>
@@ -571,7 +571,7 @@ export default function Home() {
           </div>
         </div>
 
-        <nav className="relative z-10 flex flex-1 flex-col gap-2">
+        <nav className="relative z-10 flex flex-1 flex-row gap-2 lg:flex-col">
           {navItems.map((item) => (
             <SidebarNavItem
               item={item}
@@ -597,7 +597,7 @@ export default function Home() {
         </div>
       </aside>
 
-      <div className="relative z-10 ml-20 min-h-screen max-w-[calc(100vw-5rem)] p-3 sm:p-5 lg:ml-72 lg:max-w-none lg:p-8">
+      <div className="relative z-10 min-h-screen max-w-full p-3 pt-28 sm:p-5 sm:pt-30 lg:ml-72 lg:max-w-none lg:p-8">
         <section className="hero-shell relative min-h-[520px] overflow-hidden rounded-[1.45rem] border border-violet-200/9 bg-slate-950 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)] sm:rounded-[2.1rem] lg:min-h-[560px]">
           <div className="hero-artwork absolute inset-0 bg-[url('/fond.png')] bg-cover bg-[center_42%]" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,18,0.82)_0%,rgba(7,8,25,0.54)_34%,rgba(8,7,24,0.07)_74%,rgba(4,5,18,0.16)_100%)]" />
@@ -619,7 +619,7 @@ export default function Home() {
                 <Moon size={16} />
                 Sanctuaire de guilde
               </div>
-              <h1 className="legend-title max-w-full break-words text-[2.35rem] font-black tracking-[0.12em] text-violet-50 sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
+              <h1 className="legend-title max-w-full break-words text-[2.7rem] font-black tracking-[0.14em] text-violet-50 sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
                 {homepageSettings.heroTitle}
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:mt-6 sm:text-xl sm:leading-8">
