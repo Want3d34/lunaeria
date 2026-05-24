@@ -155,6 +155,7 @@ type AnnouncementItem = {
   title: string;
   content: string;
   category: string;
+  createdAt?: string;
 };
 
 type EventItem = {
@@ -169,6 +170,7 @@ type BuildItem = {
   title: string;
   className: string;
   mode: string;
+  createdAt?: string;
 };
 
 type SaleItem = {
@@ -176,6 +178,14 @@ type SaleItem = {
   itemName: string;
   quantity: string;
   price: string;
+  createdAt?: string;
+};
+
+type ActivityItem = {
+  label: string;
+  title: string;
+  meta: string;
+  timestamp?: string | null;
 };
 
 const onlineMembers = [
@@ -315,6 +325,26 @@ function parseEventDate(date: string) {
   }
 
   return null;
+}
+
+function formatActivityDate(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 function buildCalendarDays(monthDate: Date) {
@@ -555,6 +585,7 @@ export default function Home() {
             title: item.title,
             content: item.content,
             category: item.category || "Guilde",
+            createdAt: item.created_at ?? item.updated_at ?? undefined,
           })),
         );
       }
@@ -581,6 +612,7 @@ export default function Home() {
             title: item.title,
             className: item.class_name,
             mode: item.mode || "PvM",
+            createdAt: item.created_at ?? item.updated_at ?? undefined,
           })),
         );
       }
@@ -594,6 +626,7 @@ export default function Home() {
             itemName: item.item_name,
             quantity: item.quantity || "1",
             price: item.price,
+            createdAt: item.created_at ?? item.updated_at ?? undefined,
           })),
         );
       }
@@ -635,16 +668,18 @@ export default function Home() {
   const homepageAnnouncements = announcements;
 
   const recruitmentLabel = homepageSettings?.recruitmentIsOpen ? "Ouvert" : "Fermé";
-  const recentActivity = [
+  const recentActivity: ActivityItem[] = [
     ...builds.slice(0, 2).map((build) => ({
       label: "Nouveau build ajouté",
       title: build.title,
       meta: `${build.className} · ${build.mode}`,
+      timestamp: formatActivityDate(build.createdAt),
     })),
     ...sales.slice(0, 1).map((sale) => ({
       label: "Nouvelle vente ajoutée",
       title: sale.itemName,
       meta: `${sale.quantity}x · ${sale.price} kamas`,
+      timestamp: formatActivityDate(sale.createdAt),
     })),
     ...events.slice(0, 1).map((eventItem) => ({
       label: "Nouvel événement",
@@ -655,6 +690,7 @@ export default function Home() {
       label: "Nouvelle annonce",
       title: announcement.title,
       meta: announcement.category,
+      timestamp: formatActivityDate(announcement.createdAt),
     })),
   ].slice(0, 5);
   const activityItems = recentActivity;
@@ -1010,6 +1046,11 @@ export default function Home() {
                     <p className="mt-1 text-xs text-slate-500">
                       {activity.meta}
                     </p>
+                    {activity.timestamp ? (
+                      <p className="mt-1 text-xs font-semibold text-violet-100/58">
+                        Ajouté le {activity.timestamp}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               )) : null}
