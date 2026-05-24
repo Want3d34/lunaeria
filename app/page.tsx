@@ -20,6 +20,7 @@ import {
   Swords,
   Users,
   WandSparkles,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import NextLink from "next/link";
@@ -390,6 +391,7 @@ export default function Home() {
   });
 
   const [galleryItemsState, setGalleryItemsState] = useState<GalleryItem[]>([]);
+  const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
 
   useEffect(() => {
     async function loadHomepageSettings() {
@@ -855,20 +857,13 @@ export default function Home() {
                 className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
               >
                 {item.image ? (
-  <a
-    href={item.image}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="absolute inset-0 block"
-  >
-    {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img
-      alt={item.title}
-      className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
-      src={item.image}
-    />
-  </a>
-) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    alt={item.title}
+                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
+                    src={item.image}
+                  />
+                ) : (
                   <div
                     className={`absolute inset-0 ${galleryPlaceholder(index)} transition duration-700 group-hover/gallery:scale-110`}
                   />
@@ -884,20 +879,58 @@ export default function Home() {
                     {item.description}
                   </p>
                 </div>
-{item.image ? (
-  <a
-    href={item.image}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={`Ouvrir ${item.title}`}
-    className="absolute inset-0 z-30"
-  />
-) : null}
+                {item.image ? (
+                  <button
+                    aria-label={`Ouvrir ${item.title}`}
+                    className="absolute inset-0 z-30 cursor-zoom-in"
+                    onClick={() => setSelectedGalleryItem(item)}
+                    type="button"
+                  />
+                ) : null}
               </div>
             ))}
           </div>
         </PremiumCard>
       </div>
+
+      {selectedGalleryItem ? (
+        <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-4 backdrop-blur-md">
+          <button
+            aria-label="Fermer l'image"
+            className="absolute inset-0 cursor-zoom-out"
+            onClick={() => setSelectedGalleryItem(null)}
+            type="button"
+          />
+          <div className="relative z-10 w-full max-w-5xl overflow-hidden rounded-[1.75rem] border border-violet-200/14 bg-[#06091b]/92 p-4 shadow-[0_42px_120px_rgba(0,0,0,0.72),0_0_30px_rgba(76,29,149,0.14)]">
+            <button
+              aria-label="Fermer l'image"
+              className="absolute right-4 top-4 z-20 grid size-10 place-items-center rounded-xl border border-violet-100/12 bg-[#030512]/80 text-violet-100 backdrop-blur-md transition hover:bg-violet-100/[0.08]"
+              onClick={() => setSelectedGalleryItem(null)}
+              type="button"
+            >
+              <X size={18} />
+            </button>
+            <div className="relative grid max-h-[78vh] place-items-center overflow-hidden rounded-2xl border border-violet-100/10 bg-[#030512]/75">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt={selectedGalleryItem.title}
+                className="max-h-[78vh] w-full object-contain"
+                src={selectedGalleryItem.image}
+              />
+            </div>
+            <div className="mt-4">
+              <p className="text-sm font-black text-violet-50">
+                {selectedGalleryItem.title}
+              </p>
+              {selectedGalleryItem.description ? (
+                <p className="mt-1 text-sm text-slate-300">
+                  {selectedGalleryItem.description}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
