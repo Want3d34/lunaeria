@@ -680,12 +680,11 @@ export default function Home() {
 
       <aside className="sidebar-shell fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
         <div className="relative z-10 flex shrink-0 items-center justify-center py-3 lg:mb-7 lg:w-full">
-  <div className="absolute inset-0 rounded-[2rem] bg-violet-500/10 blur-3xl" />
 
   <img
     src="/newlogo.png"
     alt="Lunaeria"
-    className="relative z-10 w-full max-w-[300px] object-contain drop-shadow-[0_0_30px_rgba(167,139,250,0.32)]"
+    className="relative z-10 w-[135%] max-w-none object-contain drop-shadow-[0_0_18px_rgba(167,139,250,0.22)]"
   />
 </div>
 
