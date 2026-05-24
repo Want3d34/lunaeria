@@ -647,7 +647,7 @@ export default function Home() {
           <div className="relative z-10 flex min-h-[520px] max-w-full flex-col justify-between p-5 sm:p-10 lg:min-h-[560px] lg:max-w-4xl lg:p-14">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/13 bg-violet-200/7 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[inset_0_0_10px_rgba(196,181,253,0.032),0_0_11px_rgba(109,40,217,0.06)] backdrop-blur-sm">
-                <Sparkles size={14} /> Guilde niveau 20
+                <Sparkles size={14} /> Dofus 3
               </span>
              <span className="rounded-full border border-violet-200/11 bg-indigo-200/6 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100/90 shadow-[0_0_10px_rgba(99,102,241,0.055)] backdrop-blur-sm">
   Portail Lunaeria
