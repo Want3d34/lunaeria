@@ -1,0 +1,847 @@
+"use client";
+
+import {
+  Bell,
+  BriefcaseBusiness,
+  CalendarDays,
+  ChevronDown,
+  ChevronRight,
+  Gem,
+  Home as HomeIcon,
+  Images,
+  Layers3,
+  Link,
+  Megaphone,
+  Moon,
+  PackageOpen,
+  ScrollText,
+  ShieldCheck,
+  Sparkles,
+  Swords,
+  Users,
+  WandSparkles,
+  type LucideIcon,
+} from "lucide-react";
+import NextLink from "next/link";
+import { createClient } from "@supabase/supabase-js";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
+import { LunaeriaLogo } from "@/components/lunaeria-logo";
+
+type NavItem = {
+  label: string;
+  icon: LucideIcon;
+  href?: string;
+  active?: boolean;
+  children?: NavChild[];
+};
+
+type NavChild = {
+  label: string;
+  active?: boolean;
+  href?: string;
+  children?: NavChild[];
+};
+
+const metierLinks = [
+  ["Paysan", "/metiers/paysan"],
+  ["Alchimiste", "/metiers/alchimiste"],
+  ["Mineur", "/metiers/mineur"],
+  ["Pêcheur", "/metiers/pecheur"],
+  ["Chasseur", "/metiers/chasseur"],
+  ["Bûcheron", "/metiers/bucheron"],
+].map(([label, href]) => ({ label, href }));
+
+const legacyNavItems: NavItem[] = [
+  { label: "Accueil", icon: HomeIcon, href: "/" },
+  {
+    label: "Services",
+    icon: WandSparkles,
+    children: [{ label: "Ventes", href: "/services/ventes" }],
+  },
+  {
+    label: "Ressources",
+    icon: PackageOpen,
+    children: [{ label: "Métiers" }],
+  },
+  {
+    label: "Stuffs & Builds",
+    icon: ShieldCheck,
+    children: [
+      { label: "Encyclopédie", href: "/stuffs-builds/encyclopedie" },
+      { label: "Ajouter un Stuff", href: "/stuffs-builds/ajouter" },
+    ],
+  },
+  { label: "Annonces", icon: Megaphone, href: "/annonces" },
+  { label: "Règlement", icon: ScrollText, href: "/reglement" },
+  { label: "Liens utiles", icon: Link, href: "/liens-utiles" },
+];
+
+const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
+  { label: "Accueil", icon: HomeIcon, href: "/" },
+  {
+    label: "Services",
+    icon: WandSparkles,
+    children: [{ label: "Ventes", href: "/services/ventes" }],
+  },
+  {
+    label: "Métiers",
+    icon: BriefcaseBusiness,
+    children: metierLinks,
+  },
+  {
+    label: "Ressources",
+    icon: PackageOpen,
+    children: [
+      {
+        label: "Élevage",
+        children: [
+          { label: "Muldos", href: "/ressources/elevage/muldos" },
+          { label: "Dragodindes", href: "/ressources/elevage/dragodindes" },
+          { label: "Volkornes", href: "/ressources/elevage/volkornes" },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Stuffs & Builds",
+    icon: ShieldCheck,
+    children: [
+      { label: "Encyclopédie", href: "/stuffs-builds/encyclopedie" },
+      { label: "Ajouter un Stuff", href: "/stuffs-builds/ajouter" },
+    ],
+  },
+  { label: "Annonces", icon: Megaphone, href: "/annonces" },
+  { label: "Règlement", icon: ScrollText, href: "/reglement" },
+  { label: "Liens utiles", icon: Link, href: "/liens-utiles" },
+]);
+
+const eventIcons = [Swords, BriefcaseBusiness, ShieldCheck];
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
+
+type HomepageSettings = {
+  heroTitle: string;
+  heroSubtitle: string;
+  heroButtonText: string;
+  heroButtonLink: string;
+  recruitmentIsOpen: boolean;
+  recruitmentMessage: string;
+  recruitmentServerName: string;
+};
+
+type GalleryItem = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  image: string;
+};
+
+type AnnouncementItem = {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+};
+
+type EventItem = {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+};
+
+type BuildItem = {
+  id: string;
+  title: string;
+  className: string;
+  mode: string;
+};
+
+type SaleItem = {
+  id: string;
+  itemName: string;
+  quantity: string;
+  price: string;
+};
+
+const onlineMembers = [
+  { name: "Azelya", role: "Meneuse", status: "Songes" },
+  { name: "Zyphor", role: "Bras droit", status: "AvA" },
+  { name: "Helya", role: "Trésorière", status: "Métiers" },
+  { name: "Kyzen", role: "Protecteur", status: "Kolizeum" },
+  { name: "Lumya", role: "Artisane", status: "Donjons" },
+];
+
+function DiscordIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height={size}
+      viewBox="0 0 24 24"
+      width={size}
+    >
+      <path
+        d="M7.8 6.7c1.35-.62 2.68-.92 4.2-.92s2.85.3 4.2.92c1.26 1.86 1.88 3.93 1.72 6.2a7.1 7.1 0 0 1-3.5 1.74l-.76-1.13c.42-.13.82-.32 1.2-.56-1.88.87-3.85.87-5.72 0 .38.24.78.43 1.2.56l-.76 1.13a7.1 7.1 0 0 1-3.5-1.75c-.16-2.26.46-4.33 1.72-6.19Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.7"
+      />
+      <path
+        d="M9.55 11.15h.02M14.43 11.15h.02"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.8"
+      />
+    </svg>
+  );
+}
+
+function PremiumCard({
+  title,
+  icon: Icon,
+  children,
+  className = "",
+}: {
+  title: string;
+  icon: LucideIcon;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={`premium-card group rounded-[1.75rem] border border-violet-200/8 bg-[#06091b]/70 p-5 shadow-[0_26px_68px_rgba(0,0,0,0.42),0_0_24px_rgba(76,29,149,0.055)] backdrop-blur-md transition duration-500 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-[#090c22]/78 ${className}`}
+    >
+      <div className="relative z-10 mb-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="grid size-11 place-items-center rounded-2xl border border-violet-200/12 bg-[linear-gradient(145deg,rgba(196,181,253,0.105),rgba(76,29,149,0.055))] text-violet-100 shadow-[inset_0_1px_12px_rgba(196,181,253,0.045),0_0_14px_rgba(109,40,217,0.09)] transition duration-500 group-hover:scale-105 group-hover:text-violet-50 group-hover:shadow-[inset_0_1px_14px_rgba(196,181,253,0.055),0_0_18px_rgba(139,92,246,0.1)]">
+            <Icon size={19} />
+          </div>
+          <h2 className="text-base font-black tracking-[0.08em] text-slate-50">
+            {title}
+          </h2>
+        </div>
+        <ChevronRight
+          className="text-violet-100/65 transition duration-500 group-hover:translate-x-1 group-hover:text-cyan-100"
+          size={18}
+        />
+      </div>
+      <div className="relative z-10">{children}</div>
+    </section>
+  );
+}
+
+function galleryPlaceholder(index: number) {
+  return index % 2 === 0
+    ? "bg-[radial-gradient(circle_at_35%_30%,rgba(167,139,250,0.18),transparent_26%),linear-gradient(135deg,#060b22,#240a42_54%,#030512)]"
+    : "bg-[radial-gradient(circle_at_65%_25%,rgba(196,181,253,0.19),transparent_26%),linear-gradient(135deg,#030512,#171638_52%,#2b135f)]";
+}
+
+
+function SidebarNavItem({
+  item,
+  open,
+  onToggle,
+  pathname,
+}: {
+  item: NavItem;
+  open: boolean;
+  onToggle: () => void;
+  pathname: string;
+}) {
+  const Icon = item.icon;
+  const hasChildren = Boolean(item.children?.length);
+  const isActive =
+    item.active ||
+    (Boolean(item.href) && pathname === item.href) ||
+    (hasChildren && open);
+  const controlClassName = `group/nav relative flex h-12 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border px-3 text-sm font-bold transition duration-300 lg:justify-start ${
+    isActive
+      ? "border-violet-200/16 bg-[linear-gradient(90deg,rgba(124,58,237,0.13),rgba(91,33,182,0.055))] text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)]"
+      : "border-transparent text-slate-400 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100 hover:shadow-[0_0_10px_rgba(109,40,217,0.055)]"
+  }`;
+  const controlContent = (
+    <>
+      <span className="absolute inset-y-2 left-0 w-px bg-violet-200/0 transition duration-300 group-hover/nav:bg-violet-200/45" />
+      <Icon
+        className="shrink-0 transition duration-300 group-hover/nav:scale-105 group-hover/nav:drop-shadow-[0_0_6px_rgba(196,181,253,0.26)]"
+        size={19}
+      />
+      <span className="hidden flex-1 text-left lg:inline">{item.label}</span>
+      {hasChildren ? (
+        <ChevronDown
+          className={`hidden text-violet-100/58 transition duration-300 lg:block ${
+            open ? "rotate-180" : ""
+          }`}
+          size={16}
+        />
+      ) : null}
+    </>
+  );
+
+  return (
+    <div>
+      {item.href && !hasChildren ? (
+        <NextLink className={controlClassName} href={item.href}>
+          {controlContent}
+        </NextLink>
+      ) : (
+        <button
+          className={controlClassName}
+          onClick={hasChildren ? onToggle : undefined}
+          type="button"
+        >
+          {controlContent}
+        </button>
+      )}
+
+      {hasChildren ? (
+        <div
+          className={`hidden grid-rows-[0fr] pl-5 transition-[grid-template-rows,opacity] duration-300 lg:grid ${
+            open ? "grid-rows-[1fr] opacity-100" : "opacity-55"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="ml-3 mt-2 space-y-2 border-l border-violet-100/12 pl-3">
+              {item.children?.map((child) =>
+                child.children?.length ? (
+                  <div key={child.label}>
+                    <div className="mb-2 flex h-10 items-center rounded-xl border border-violet-200/10 bg-violet-100/[0.035] px-3 text-xs font-black uppercase tracking-[0.16em] text-violet-100">
+                      <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
+                      {child.label}
+                    </div>
+                    <div className="ml-3 space-y-2 border-l border-violet-100/10 pl-3">
+                      {child.children.map((nestedChild) => (
+                        <NextLink
+                          className={`group/sub relative flex h-10 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.16em] transition duration-300 ${
+                            nestedChild.href === pathname || nestedChild.active
+                              ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_0_12px_rgba(196,181,253,0.045),0_0_11px_rgba(109,40,217,0.06)]"
+                              : "border-transparent text-slate-500 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
+                          }`}
+                          href={nestedChild.href ?? "#"}
+                          key={nestedChild.label}
+                        >
+                          <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
+                          {nestedChild.label}
+                        </NextLink>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <NextLink
+                    className={`group/sub relative flex h-10 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.16em] transition duration-300 ${
+                      child.href === pathname || child.active
+                        ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_0_12px_rgba(196,181,253,0.045),0_0_11px_rgba(109,40,217,0.06)]"
+                        : "border-transparent text-slate-500 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
+                    }`}
+                    href={child.href ?? "#"}
+                    key={child.label}
+                  >
+                    <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
+                    {child.label}
+                  </NextLink>
+                ),
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export default function Home() {
+  const pathname = usePathname();
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    Services: false,
+    Ressources: false,
+    Métiers: false,
+    "Stuffs & Builds": false,
+  });
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [builds, setBuilds] = useState<BuildItem[]>([]);
+  const [sales, setSales] = useState<SaleItem[]>([]);
+  const [homepageSettings, setHomepageSettings] = useState<HomepageSettings>({
+    heroTitle: "LUNAERIA",
+    heroSubtitle: "Portail de la Guilde Lunaeria",
+    heroButtonText: "Rejoindre la guilde",
+    heroButtonLink: "#recrutement",
+    recruitmentIsOpen: false,
+    recruitmentMessage: "",
+    recruitmentServerName: "Lunaeria",
+  });
+
+  const [galleryItemsState, setGalleryItemsState] = useState<GalleryItem[]>([]);
+
+  useEffect(() => {
+    async function loadHomepageSettings() {
+      const { data, error } = await supabase
+        .from("homepage_settings")
+        .select("*")
+        .order("id", { ascending: true })
+        .limit(1)
+        .single();
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      setHomepageSettings({
+        heroTitle: data.hero_title ?? "LUNAERIA",
+        heroSubtitle: data.hero_subtitle ?? "Portail de la Guilde Lunaeria",
+        heroButtonText: data.hero_button_text ?? "Rejoindre la guilde",
+        heroButtonLink: data.hero_button_link ?? "#recrutement",
+        recruitmentIsOpen:
+          typeof data.recruitment_is_open === "boolean"
+            ? data.recruitment_is_open
+            : false,
+        recruitmentMessage:
+          data.recruitment_message ?? "",
+        recruitmentServerName:
+          data.recruitment_server_name ?? "Lunaeria",
+      });
+    }
+
+    loadHomepageSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    async function loadHomepageDynamicContent() {
+      const [
+        announcementsResult,
+        eventsResult,
+        buildsResult,
+        salesResult,
+      ] = await Promise.all([
+        supabase
+          .from("announcements")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("evenements")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("builds")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("ventes")
+          .select("*")
+          .order("created_at", { ascending: false }),
+      ]);
+
+      if (announcementsResult.error) {
+        console.error(announcementsResult.error);
+      } else {
+        setAnnouncements(
+          (announcementsResult.data ?? []).map((item) => ({
+            id: String(item.id),
+            title: item.title,
+            content: item.content,
+            category: item.category || "Guilde",
+          })),
+        );
+      }
+
+      if (eventsResult.error) {
+        console.error(eventsResult.error);
+      } else {
+        setEvents(
+          (eventsResult.data ?? []).map((item) => ({
+            id: String(item.id),
+            title: item.title,
+            date: item.date,
+            description: item.description || "Détails à compléter.",
+          })),
+        );
+      }
+
+      if (buildsResult.error) {
+        console.error(buildsResult.error);
+      } else {
+        setBuilds(
+          (buildsResult.data ?? []).map((item) => ({
+            id: String(item.id),
+            title: item.title,
+            className: item.class_name,
+            mode: item.mode || "PvM",
+          })),
+        );
+      }
+
+      if (salesResult.error) {
+        console.error(salesResult.error);
+      } else {
+        setSales(
+          (salesResult.data ?? []).map((item) => ({
+            id: String(item.id),
+            itemName: item.item_name,
+            quantity: item.quantity || "1",
+            price: item.price,
+          })),
+        );
+      }
+    }
+
+    loadHomepageDynamicContent();
+  }, []);
+
+  useEffect(() => {
+    async function loadGallery() {
+      const { data, error } = await supabase
+        .from("galerie")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      setGalleryItemsState(
+        (data ?? []).map((item) => ({
+          id: String(item.id),
+          title: item.title,
+          description: item.description || "",
+          category: item.category || "Guilde",
+          image: item.image || "",
+        })),
+      );
+    }
+
+    loadGallery();
+  }, []);
+
+  const homepageAnnouncements = announcements;
+
+  const recruitmentLabel = homepageSettings.recruitmentIsOpen ? "Ouvert" : "Fermé";
+  const recentActivity = [
+    ...builds.slice(0, 2).map((build) => ({
+      label: "Nouveau build ajouté",
+      title: build.title,
+      meta: `${build.className} · ${build.mode}`,
+    })),
+    ...sales.slice(0, 1).map((sale) => ({
+      label: "Nouvelle vente ajoutée",
+      title: sale.itemName,
+      meta: `${sale.quantity}x · ${sale.price} kamas`,
+    })),
+    ...events.slice(0, 1).map((eventItem) => ({
+      label: "Nouvel événement",
+      title: eventItem.title,
+      meta: eventItem.date,
+    })),
+    ...homepageAnnouncements.slice(0, 1).map((announcement) => ({
+      label: "Nouvelle annonce",
+      title: announcement.title,
+      meta: announcement.category,
+    })),
+  ].slice(0, 5);
+  const activityItems = recentActivity;
+  const galleryItems = galleryItemsState.slice(0, 4);
+
+  return (
+    <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
+      <div className="aurora-bg fixed inset-0" />
+      <div className="rune-grid fixed inset-0" />
+      <div className="star-veil fixed inset-0 opacity-42" />
+      <div className="fog-veil fixed inset-0" />
+
+      <aside className="sidebar-shell fixed left-0 top-0 z-30 flex h-screen w-24 flex-col border-r border-violet-200/8 bg-[#040719]/90 px-3 py-5 shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:w-72 lg:px-5">
+        <div className="relative z-10 mb-7 flex items-center justify-center gap-3 rounded-[1.7rem] border border-violet-200/9 bg-violet-100/[0.028] p-3 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:justify-start">
+          <div className="grid size-12 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)]">
+            <LunaeriaLogo size={27} />
+          </div>
+          <div className="hidden min-w-0 lg:block">
+            <p className="text-lg font-black tracking-[0.24em] text-violet-50 drop-shadow-[0_0_7px_rgba(196,181,253,0.2)]">
+              LUNAERIA
+            </p>
+            <p className="text-xs uppercase tracking-[0.32em] text-violet-100/70">
+              GUILDE MIKHAL
+            </p>
+          </div>
+        </div>
+
+        <nav className="relative z-10 flex flex-1 flex-col gap-2">
+          {navItems.map((item) => (
+            <SidebarNavItem
+              item={item}
+              key={item.label}
+              onToggle={() =>
+                setOpenSections((current) => ({
+                  ...current,
+                  [item.label]: !current[item.label],
+                }))
+              }
+              open={Boolean(openSections[item.label])}
+              pathname={pathname}
+            />
+          ))}
+        </nav>
+
+        <div className="relative z-10 hidden rounded-[1.6rem] border border-violet-200/10 bg-[linear-gradient(145deg,rgba(124,58,237,0.075),rgba(49,46,129,0.065))] p-4 text-sm text-violet-100 shadow-[inset_0_0_16px_rgba(196,181,253,0.035),0_0_14px_rgba(76,29,149,0.055)] lg:block">
+          <p className="font-black tracking-wide">Canal de guilde</p>
+          <p className="mt-1 text-xs leading-5 text-cyan-100/70">
+            Songes, Donjons, Kolizeum, Métiers et AvA coordonnés depuis{" "}
+            {homepageSettings.recruitmentServerName}.
+          </p>
+        </div>
+      </aside>
+
+      <div className="relative z-10 ml-24 min-h-screen p-4 sm:p-6 lg:ml-72 lg:p-8">
+        <section className="hero-shell relative min-h-[560px] overflow-hidden rounded-[2.1rem] border border-violet-200/9 bg-slate-950 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)]">
+          <div className="hero-artwork absolute inset-0 bg-[url('/fond.png')] bg-cover bg-[center_42%]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,18,0.82)_0%,rgba(7,8,25,0.54)_34%,rgba(8,7,24,0.07)_74%,rgba(4,5,18,0.16)_100%)]" />
+          <div className="hero-depth absolute inset-0" />
+          <div className="hero-light absolute inset-0" />
+
+          <div className="relative z-10 flex min-h-[560px] max-w-4xl flex-col justify-between p-6 sm:p-10 lg:p-14">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/13 bg-violet-200/7 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[inset_0_0_10px_rgba(196,181,253,0.032),0_0_11px_rgba(109,40,217,0.06)] backdrop-blur-sm">
+                <Sparkles size={14} /> Guilde niveau 20
+              </span>
+              <span className="rounded-full border border-violet-200/11 bg-indigo-200/6 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100/90 shadow-[0_0_10px_rgba(99,102,241,0.055)] backdrop-blur-sm">
+                Serveur {homepageSettings.recruitmentServerName}
+              </span>
+            </div>
+
+            <div className="py-12">
+              <div className="mb-4 flex items-center gap-3 text-xs font-black uppercase tracking-[0.32em] text-violet-100/76">
+                <Moon size={16} />
+                Sanctuaire de guilde
+              </div>
+              <h1 className="legend-title text-6xl font-black tracking-[0.2em] text-violet-50 sm:text-7xl lg:text-8xl">
+                {homepageSettings.heroTitle}
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:text-xl">
+                {homepageSettings.heroSubtitle}
+                <br />
+                Recrutement [{recruitmentLabel}]
+              </p>
+              {homepageSettings.recruitmentMessage ? (
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100/78 drop-shadow-[0_2px_14px_rgba(0,0,0,0.7)]">
+                  {homepageSettings.recruitmentMessage}
+                </p>
+              ) : null}
+              <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+                <a
+                  href={homepageSettings.heroButtonLink}
+                  className="discord-cta inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-[#b9a7ea] px-6 text-sm font-black uppercase tracking-[0.16em] text-[#09071a] shadow-[inset_0_1px_0_rgba(237,233,254,0.48),0_0_18px_rgba(124,58,237,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.55),0_0_22px_rgba(167,139,250,0.22)]"
+                >
+                  <DiscordIcon /> {homepageSettings.heroButtonText}
+                </a>
+                <a
+                  href="#"
+                  className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-violet-200/15 bg-violet-100/[0.045] px-6 text-sm font-black uppercase tracking-[0.16em] text-violet-50 shadow-[inset_0_0_15px_rgba(196,181,253,0.026),0_0_12px_rgba(109,40,217,0.045)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-violet-200/24 hover:bg-violet-200/8 hover:shadow-[inset_0_0_17px_rgba(196,181,253,0.04),0_0_15px_rgba(124,58,237,0.075)]"
+                >
+                  <CalendarDays size={18} /> Voir le calendrier
+                </a>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                ["Niveau max", "20"],
+                ["Membres", "86"],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.045] p-4 shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_14px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-100/[0.06] hover:shadow-[inset_0_0_17px_rgba(196,181,253,0.04),0_0_13px_rgba(109,40,217,0.06)]"
+                >
+                  <p className="text-xs uppercase tracking-[0.22em] text-violet-100/74">
+                    {label}
+                  </p>
+                  <p className="mt-2 text-2xl font-black text-violet-50 drop-shadow-[0_0_6px_rgba(196,181,253,0.15)]">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-6 grid gap-6 xl:grid-cols-3">
+          <PremiumCard
+            title="Dernières annonces"
+            icon={Bell}
+            className="xl:col-span-2"
+          >
+            <div className="grid gap-3 md:grid-cols-2">
+              {homepageAnnouncements.map((item) => (
+                <article
+                  key={item.id}
+                  className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-4 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
+                >
+                  <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
+                    {item.category}
+                  </span>
+                  <h3 className="mt-3 text-sm font-black text-violet-50">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    {item.content}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </PremiumCard>
+
+          <PremiumCard title="Membres en ligne" icon={Users}>
+            <div className="space-y-3">
+              {onlineMembers.map((member) => (
+                <div
+                  key={member.name}
+                  className="flex items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-3 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
+                >
+                  <div className="grid size-10 place-items-center rounded-xl border border-violet-100/14 bg-gradient-to-br from-violet-200 to-indigo-300 text-sm font-black text-[#09071a] shadow-[0_0_12px_rgba(124,58,237,0.11)]">
+                    {member.name.slice(0, 2)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-black text-violet-50">
+                      {member.name}
+                    </p>
+                    <p className="truncate text-xs text-slate-400">
+                      {member.role}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-violet-100/10 bg-violet-200/7 px-3 py-1 text-xs font-bold text-violet-100 shadow-[0_0_8px_rgba(124,58,237,0.055)]">
+                    {member.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </PremiumCard>
+        </section>
+
+        <section className="mt-6 grid gap-6 xl:grid-cols-5">
+          <PremiumCard
+            title="Prochains events"
+            icon={CalendarDays}
+            className="xl:col-span-2"
+          >
+            <div className="space-y-3">
+              {events.map((eventItem, index) => {
+                const Icon = eventIcons[index % eventIcons.length];
+
+                return (
+                  <div
+                    key={eventItem.id}
+                    className="flex items-center gap-4 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
+                  >
+                    <div className="grid size-11 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                      <Icon size={19} />
+                    </div>
+                    <div>
+                      <p className="font-black text-violet-50">
+                        {eventItem.title}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-400">
+                        {eventItem.date}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                        {eventItem.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </PremiumCard>
+
+          <PremiumCard
+            title="Activité récente"
+            icon={Layers3}
+            className="xl:col-span-2"
+          >
+            <div className="space-y-3">
+              {activityItems.map((activity, index) => (
+                <div
+                  className="flex items-center gap-4 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052]"
+                  key={`${activity.label}-${activity.title}-${index}`}
+                >
+                  <div className="grid size-10 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                    <Sparkles size={17} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+                      {activity.label}
+                    </p>
+                    <p className="mt-1 truncate font-black text-violet-50">
+                      {activity.title}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {activity.meta}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </PremiumCard>
+
+          <PremiumCard title="Booster le serveur Discord" icon={Gem}>
+            <div className="rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.075),rgba(76,29,149,0.06))] p-5 shadow-[inset_0_0_16px_rgba(196,181,253,0.035),0_0_13px_rgba(76,29,149,0.055)]">
+              <p className="text-sm font-bold text-violet-100/86">
+                Soutenir Lunaeria
+              </p>
+              <p className="mt-3 text-sm leading-6 text-violet-50/70">
+                Les boosts aident à améliorer le Discord Lunaeria, renforcer la
+                visibilité de la guilde et soutenir les espaces communautaires.
+              </p>
+              <a
+                className="discord-cta mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-violet-200/18 bg-[#b9a7ea] px-5 text-sm font-black uppercase tracking-[0.14em] text-[#09071a] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2]"
+                href={homepageSettings.heroButtonLink}
+              >
+                <DiscordIcon />
+                Booster le Discord
+              </a>
+            </div>
+          </PremiumCard>
+        </section>
+
+        <PremiumCard title="Galerie" icon={Images} className="mt-6">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {galleryItems.map((item, index) => (
+              <div
+                key={item.id}
+                className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
+              >
+                {item.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    alt={item.title}
+                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
+                    src={item.image}
+                  />
+                ) : (
+                  <div
+                    className={`absolute inset-0 ${galleryPlaceholder(index)} transition duration-700 group-hover/gallery:scale-110`}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/18 to-transparent" />
+                <div className="absolute inset-0 opacity-0 shadow-[inset_0_0_26px_rgba(196,181,253,0.075)] transition duration-500 group-hover/gallery:opacity-100" />
+                <div className="absolute left-4 top-4 rounded-full border border-violet-100/12 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-100 backdrop-blur-sm">
+                  {item.category}
+                </div>
+                <div className="absolute bottom-0 p-4">
+                  <p className="text-sm font-black text-violet-50">{item.title}</p>
+                  <p className="mt-1 text-xs text-slate-300">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </PremiumCard>
+      </div>
+    </main>
+  );
+}
