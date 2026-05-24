@@ -56,12 +56,12 @@ export async function generateMetadata({ params }: PageProps) {
 
 function Sidebar({ activeSlug }: { activeSlug: string }) {
   return (
-    <aside className="sidebar-shell fixed left-0 top-0 z-30 flex h-screen w-24 flex-col border-r border-violet-200/8 bg-[#040719]/90 px-3 py-5 shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:w-72 lg:px-5">
+    <aside className="sidebar-shell fixed left-0 top-0 z-30 flex h-24 w-full flex-row items-center gap-3 overflow-x-auto border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
       <Link
-        className="relative z-10 mb-7 flex items-center justify-center gap-3 rounded-[1.7rem] border border-violet-200/9 bg-violet-100/[0.028] p-3 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:justify-start"
+        className="relative z-10 flex shrink-0 items-center justify-center gap-3 rounded-[1.35rem] border border-violet-200/9 bg-violet-100/[0.028] p-2 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:mb-7 lg:w-full lg:p-3 lg:justify-start"
         href="/"
       >
-        <div className="grid size-12 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)]">
+        <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)] lg:size-12">
           <LunaeriaLogo size={27} />
         </div>
         <div className="hidden min-w-0 lg:block">
@@ -74,19 +74,39 @@ function Sidebar({ activeSlug }: { activeSlug: string }) {
         </div>
       </Link>
 
-      <nav className="relative z-10 flex flex-1 flex-col gap-2 overflow-y-auto pr-1">
+      <nav className="relative z-10 flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:overflow-y-auto lg:overflow-x-visible lg:pr-1">
         <Link
-          className="group/nav relative flex h-12 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-transparent px-3 text-sm font-bold text-slate-400 transition duration-300 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100 lg:justify-start"
+          className="group/nav relative flex h-12 min-w-14 items-center justify-center gap-3 overflow-hidden rounded-2xl border border-transparent px-3 text-sm font-bold text-slate-400 transition duration-300 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100 lg:w-full lg:justify-start"
           href="/"
         >
           <Home className="shrink-0" size={19} />
           <span className="hidden flex-1 text-left lg:inline">Accueil</span>
         </Link>
 
-        <div className="group/nav relative flex h-12 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-violet-200/16 bg-[linear-gradient(90deg,rgba(124,58,237,0.13),rgba(91,33,182,0.055))] px-3 text-sm font-bold text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)] lg:justify-start">
+        <div className="group/nav relative flex h-12 min-w-14 items-center justify-center gap-3 overflow-hidden rounded-2xl border border-violet-200/16 bg-[linear-gradient(90deg,rgba(124,58,237,0.13),rgba(91,33,182,0.055))] px-3 text-sm font-bold text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)] lg:w-full lg:justify-start">
           <BriefcaseBusiness className="shrink-0" size={19} />
           <span className="hidden flex-1 text-left lg:inline">Métiers</span>
         </div>
+
+        {professions.map((profession) => {
+          const ProfessionIcon = professionIcons[profession.slug] ?? BriefcaseBusiness;
+
+          return (
+            <Link
+              className={`group/nav relative flex h-12 min-w-[3.5rem] items-center justify-center gap-2 overflow-hidden rounded-2xl border px-3 text-sm font-bold transition duration-300 lg:hidden ${
+                profession.slug === activeSlug
+                  ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)]"
+                  : "border-transparent text-slate-400 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
+              }`}
+              href={`/metiers/${profession.slug}`}
+              key={profession.slug}
+              title={profession.name.fr}
+            >
+              <ProfessionIcon className="shrink-0" size={19} />
+              <span className="sr-only">{profession.name.fr}</span>
+            </Link>
+          );
+        })}
 
         <div className="hidden pl-5 lg:block">
           <div className="ml-3 mt-2 space-y-2 border-l border-violet-100/12 pl-3">
@@ -150,13 +170,13 @@ function IngredientRow({ ingredient }: { ingredient: Ingredient }) {
 
 function RecipeCard({ recipe }: { recipe: Recipe }) {
   return (
-    <article className="rounded-[1.45rem] border border-violet-100/8 bg-violet-50/[0.035] p-4 shadow-[inset_0_0_14px_rgba(196,181,253,0.018),0_16px_38px_rgba(0,0,0,0.22)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/16 hover:bg-violet-100/[0.055]">
+    <article className="rounded-[1.35rem] border border-violet-100/8 bg-violet-50/[0.035] p-3 shadow-[inset_0_0_14px_rgba(196,181,253,0.018),0_16px_38px_rgba(0,0,0,0.22)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/16 hover:bg-violet-100/[0.055] sm:rounded-[1.45rem] sm:p-4">
       {recipe.optionLabel ? (
         <span className="mb-4 inline-flex rounded-full border border-violet-100/12 bg-violet-200/[0.07] px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-violet-100">
           {recipe.optionLabel}
         </span>
       ) : null}
-      <div className="flex gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row">
         <div className="rounded-[1.25rem] border border-violet-200/12 bg-[radial-gradient(circle_at_35%_25%,rgba(196,181,253,0.14),transparent_28%),linear-gradient(145deg,#090d28,#20114f_58%,#030512)] p-3">
           <ItemImage alt={recipe.resultName.fr} src={recipe.resultImageUrl} />
         </div>
@@ -175,7 +195,7 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
               </span>
             ) : null}
           </div>
-          <h3 className="mt-3 text-xl font-black text-violet-50">
+          <h3 className="mt-3 text-lg font-black text-violet-50 sm:text-xl">
             {recipe.resultName.fr}
           </h3>
           <p className="mt-2 text-xs uppercase tracking-[0.2em] text-slate-500">
@@ -221,27 +241,27 @@ export default async function MetierPage({ params }: PageProps) {
 
       <Sidebar activeSlug={profession.slug} />
 
-      <div className="relative z-10 ml-24 min-h-screen p-4 sm:p-6 lg:ml-72 lg:p-8">
-        <section className="premium-card relative overflow-hidden rounded-[2.1rem] border border-violet-200/9 bg-[#06091b]/76 p-6 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)] backdrop-blur-md sm:p-10">
+      <div className="relative z-10 min-h-screen p-3 pt-28 sm:p-5 sm:pt-30 lg:ml-72 lg:p-8 lg:pt-8">
+        <section className="premium-card relative overflow-hidden rounded-[1.45rem] border border-violet-200/9 bg-[#06091b]/76 p-5 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)] backdrop-blur-md sm:rounded-[2.1rem] sm:p-10">
           <div className="relative z-10 grid gap-8 xl:grid-cols-[1fr_360px]">
             <div>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-200/13 bg-violet-200/7 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100">
                 <Sparkles size={14} /> Données DofusDB
               </div>
               <div className="flex flex-wrap items-center gap-5">
-                <div className="grid size-20 place-items-center rounded-[1.6rem] border border-violet-200/15 bg-[linear-gradient(145deg,rgba(196,181,253,0.14),rgba(76,29,149,0.08))] text-violet-50 shadow-[inset_0_1px_18px_rgba(196,181,253,0.045),0_0_24px_rgba(109,40,217,0.09)]">
-                  <Icon size={34} />
+                <div className="grid size-16 place-items-center rounded-[1.35rem] border border-violet-200/15 bg-[linear-gradient(145deg,rgba(196,181,253,0.14),rgba(76,29,149,0.08))] text-violet-50 shadow-[inset_0_1px_18px_rgba(196,181,253,0.045),0_0_24px_rgba(109,40,217,0.09)] sm:size-20 sm:rounded-[1.6rem]">
+                  <Icon className="size-7 sm:size-[34px]" />
                 </div>
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.28em] text-violet-200/82">
                     {profession.role}
                   </p>
-                  <h1 className="mt-2 text-5xl font-black tracking-[0.14em] text-violet-50 sm:text-6xl">
+                  <h1 className="mt-2 break-words text-4xl font-black tracking-[0.1em] text-violet-50 sm:text-6xl sm:tracking-[0.14em]">
                     {profession.name.fr}
                   </h1>
                 </div>
               </div>
-              <p className="mt-7 max-w-3xl text-lg leading-8 text-slate-200/90">
+              <p className="mt-6 max-w-3xl text-base leading-7 text-slate-200/90 sm:mt-7 sm:text-lg sm:leading-8">
                 {profession.description}
               </p>
             </div>
@@ -293,12 +313,12 @@ export default async function MetierPage({ params }: PageProps) {
                 key={tier.id}
               >
                 <div className="relative z-10 grid lg:grid-cols-[230px_1fr]">
-                  <aside className="flex flex-col justify-between border-b border-violet-100/8 bg-[linear-gradient(180deg,rgba(124,58,237,0.14),rgba(2,4,16,0.66))] p-6 lg:border-b-0 lg:border-r">
+                  <aside className="flex flex-col justify-between border-b border-violet-100/8 bg-[linear-gradient(180deg,rgba(124,58,237,0.14),rgba(2,4,16,0.66))] p-5 lg:border-b-0 lg:border-r lg:p-6">
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.24em] text-violet-200/78">
                         Palier
                       </p>
-                      <p className="mt-3 text-3xl font-black text-violet-50">
+                      <p className="mt-3 text-2xl font-black text-violet-50 sm:text-3xl">
                         {tier.label}
                       </p>
                     </div>
@@ -322,7 +342,7 @@ export default async function MetierPage({ params }: PageProps) {
                     </div>
                   </aside>
 
-                  <div className="p-5 lg:p-6">
+                  <div className="p-4 sm:p-5 lg:p-6">
                     <div className="mb-5">
                       <p className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
                         {tierRecipes.length} recette
