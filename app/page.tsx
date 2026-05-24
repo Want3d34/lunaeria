@@ -382,8 +382,8 @@ function SidebarNavItem({
     (hasChildren && open);
   const controlClassName = `group/nav relative flex h-12 min-w-14 items-center justify-center gap-3 overflow-visible rounded-2xl border px-3 text-sm font-bold transition duration-300 lg:w-full lg:overflow-hidden lg:justify-start ${
     isActive
-      ? "border-violet-200/16 bg-[linear-gradient(90deg,rgba(124,58,237,0.13),rgba(91,33,182,0.055))] text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)]"
-      : "border-transparent text-slate-400 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100 hover:shadow-[0_0_10px_rgba(109,40,217,0.055)]"
+      ? "border-violet-200/20 bg-[linear-gradient(90deg,rgba(124,58,237,0.16),rgba(91,33,182,0.07))] text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.055),0_0_16px_rgba(139,92,246,0.1)]"
+      : "border-transparent text-slate-400 hover:border-violet-200/18 hover:bg-violet-100/[0.055] hover:text-violet-50 hover:shadow-[0_0_16px_rgba(139,92,246,0.095)]"
   }`;
   const controlContent = (
     <>
@@ -672,20 +672,47 @@ export default function Home() {
           width: 0;
           height: 0;
         }
+
+        .sidebar-premium::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.34;
+          background:
+            radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.12), transparent 34%),
+            radial-gradient(circle at 15% 32%, rgba(99, 102, 241, 0.08), transparent 28%),
+            radial-gradient(circle at 85% 72%, rgba(168, 85, 247, 0.07), transparent 30%);
+          animation: sidebarAuraDrift 16s ease-in-out infinite alternate;
+        }
+
+        @keyframes sidebarAuraDrift {
+          from {
+            transform: translate3d(0, -8px, 0) scale(1);
+            opacity: 0.25;
+          }
+
+          to {
+            transform: translate3d(0, 10px, 0) scale(1.035);
+            opacity: 0.42;
+          }
+        }
       `}</style>
       <div className="aurora-bg fixed inset-0" />
       <div className="rune-grid fixed inset-0" />
       <div className="star-veil fixed inset-0 opacity-42" />
       <div className="fog-veil fixed inset-0" />
 
-      <aside className="sidebar-shell fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
+      <aside className="sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
         <div className="relative z-10 -mt-2 flex shrink-0 items-center justify-center py-0 lg:mb-2 lg:w-full">
           <img
             src="/newlogo.png"
             alt="Lunaeria"
-            className="relative z-10 w-[145%] max-w-none object-contain drop-shadow-[0_0_12px_rgba(167,139,250,0.16)]"
+            className="relative z-10 w-[136%] max-w-none object-contain drop-shadow-[0_0_12px_rgba(167,139,250,0.16)]"
           />
         </div>
+
+        <div className="relative z-10 mx-auto mb-3 hidden h-px w-4/5 overflow-hidden rounded-full bg-gradient-to-r from-transparent via-violet-200/28 to-transparent shadow-[0_0_14px_rgba(167,139,250,0.18)] lg:block" />
 
         <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:overflow-visible lg:pr-0">
           {navItems.map((item) => (
