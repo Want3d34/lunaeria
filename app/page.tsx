@@ -577,10 +577,14 @@ export default function Home() {
               item={item}
               key={item.label}
               onToggle={() =>
-                setOpenSections((current) => ({
-                  ...current,
-                  [item.label]: !current[item.label],
-                }))
+                setOpenSections((current) => {
+                  const nextOpenState = !current[item.label];
+
+                  return navItems.reduce<Record<string, boolean>>((sections, navItem) => {
+                    sections[navItem.label] = navItem.label === item.label ? nextOpenState : false;
+                    return sections;
+                  }, {});
+                })
               }
               open={Boolean(openSections[item.label])}
               pathname={pathname}
