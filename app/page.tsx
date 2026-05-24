@@ -649,9 +649,9 @@ export default function Home() {
               <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/13 bg-violet-200/7 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[inset_0_0_10px_rgba(196,181,253,0.032),0_0_11px_rgba(109,40,217,0.06)] backdrop-blur-sm">
                 <Sparkles size={14} /> Guilde niveau 20
               </span>
-              <span className="rounded-full border border-violet-200/11 bg-indigo-200/6 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100/90 shadow-[0_0_10px_rgba(99,102,241,0.055)] backdrop-blur-sm">
-                Serveur {homepageSettings.recruitmentServerName}
-              </span>
+             <span className="rounded-full border border-violet-200/11 bg-indigo-200/6 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100/90 shadow-[0_0_10px_rgba(99,102,241,0.055)] backdrop-blur-sm">
+  Portail Lunaeria
+</span>
             </div>
 
             <div className="py-8 sm:py-12">
