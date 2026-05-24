@@ -855,13 +855,20 @@ export default function Home() {
                 className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
               >
                 {item.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt={item.title}
-                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
-                    src={item.image}
-                  />
-                ) : (
+  <a
+    href={item.image}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="absolute inset-0 block"
+  >
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
+      alt={item.title}
+      className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
+      src={item.image}
+    />
+  </a>
+) : (
                   <div
                     className={`absolute inset-0 ${galleryPlaceholder(index)} transition duration-700 group-hover/gallery:scale-110`}
                   />
