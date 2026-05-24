@@ -243,6 +243,60 @@ function galleryPlaceholder(index: number) {
 }
 
 
+function NavChildrenList({
+  children,
+  pathname,
+}: {
+  children?: NavChild[];
+  pathname: string;
+}) {
+  return (
+    <div className="overflow-hidden">
+      <div className="ml-3 mt-2 space-y-2 border-l border-violet-100/12 pl-3">
+        {children?.map((child) =>
+          child.children?.length ? (
+            <div key={child.label}>
+              <div className="mb-2 flex h-10 items-center rounded-xl border border-violet-200/10 bg-violet-100/[0.035] px-3 text-xs font-black uppercase tracking-[0.16em] text-violet-100">
+                <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
+                {child.label}
+              </div>
+              <div className="ml-3 space-y-2 border-l border-violet-100/10 pl-3">
+                {child.children.map((nestedChild) => (
+                  <NextLink
+                    className={`group/sub relative flex h-10 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.16em] transition duration-300 ${
+                      nestedChild.href === pathname || nestedChild.active
+                        ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_0_12px_rgba(196,181,253,0.045),0_0_11px_rgba(109,40,217,0.06)]"
+                        : "border-transparent text-slate-500 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
+                    }`}
+                    href={nestedChild.href ?? "#"}
+                    key={nestedChild.label}
+                  >
+                    <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
+                    {nestedChild.label}
+                  </NextLink>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <NextLink
+              className={`group/sub relative flex h-10 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.16em] transition duration-300 ${
+                child.href === pathname || child.active
+                  ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_0_12px_rgba(196,181,253,0.045),0_0_11px_rgba(109,40,217,0.06)]"
+                  : "border-transparent text-slate-500 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
+              }`}
+              href={child.href ?? "#"}
+              key={child.label}
+            >
+              <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
+              {child.label}
+            </NextLink>
+          ),
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SidebarNavItem({
   item,
   open,
@@ -302,53 +356,11 @@ function SidebarNavItem({
 
       {hasChildren ? (
         <div
-          className={`fixed left-3 right-3 top-[6.75rem] z-[99999] max-h-[calc(100svh-8rem)] overflow-y-auto rounded-2xl border border-violet-200/12 bg-[#050719]/98 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.75)] backdrop-blur-md transition-[opacity,transform] duration-300 lg:static lg:left-auto lg:right-auto lg:top-auto lg:z-auto lg:mt-0 lg:max-h-none lg:w-auto lg:overflow-hidden lg:border-0 lg:bg-transparent lg:p-0 lg:pl-5 lg:shadow-none lg:backdrop-blur-0 ${
+          className={`hidden transition-[opacity,transform] duration-300 lg:left-auto lg:right-auto lg:top-auto lg:z-auto lg:mt-0 lg:block lg:max-h-none lg:w-auto lg:overflow-hidden lg:border-0 lg:bg-transparent lg:p-0 lg:pl-5 lg:shadow-none lg:backdrop-blur-0 ${
             open ? "pointer-events-auto translate-x-0 opacity-100 lg:grid lg:grid-rows-[1fr]" : "pointer-events-none translate-x-2 opacity-0 lg:pointer-events-auto lg:grid lg:grid-rows-[0fr] lg:translate-x-0 lg:opacity-55"
           }`}
         >
-          <div className="overflow-hidden">
-            <div className="ml-3 mt-2 space-y-2 border-l border-violet-100/12 pl-3">
-              {item.children?.map((child) =>
-                child.children?.length ? (
-                  <div key={child.label}>
-                    <div className="mb-2 flex h-10 items-center rounded-xl border border-violet-200/10 bg-violet-100/[0.035] px-3 text-xs font-black uppercase tracking-[0.16em] text-violet-100">
-                      <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
-                      {child.label}
-                    </div>
-                    <div className="ml-3 space-y-2 border-l border-violet-100/10 pl-3">
-                      {child.children.map((nestedChild) => (
-                        <NextLink
-                          className={`group/sub relative flex h-10 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.16em] transition duration-300 ${
-                            nestedChild.href === pathname || nestedChild.active
-                              ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_0_12px_rgba(196,181,253,0.045),0_0_11px_rgba(109,40,217,0.06)]"
-                              : "border-transparent text-slate-500 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
-                          }`}
-                          href={nestedChild.href ?? "#"}
-                          key={nestedChild.label}
-                        >
-                          <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
-                          {nestedChild.label}
-                        </NextLink>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <NextLink
-                    className={`group/sub relative flex h-10 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.16em] transition duration-300 ${
-                      child.href === pathname || child.active
-                        ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_0_12px_rgba(196,181,253,0.045),0_0_11px_rgba(109,40,217,0.06)]"
-                        : "border-transparent text-slate-500 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
-                    }`}
-                    href={child.href ?? "#"}
-                    key={child.label}
-                  >
-                    <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
-                    {child.label}
-                  </NextLink>
-                ),
-              )}
-            </div>
-          </div>
+<NavChildrenList children={item.children} pathname={pathname} />
         </div>
       ) : null}
     </div>
@@ -548,6 +560,9 @@ export default function Home() {
   ].slice(0, 5);
   const activityItems = recentActivity;
   const galleryItems = galleryItemsState.slice(0, 4);
+  const activeMobileSection = navItems.find(
+    (item) => item.children?.length && openSections[item.label],
+  );
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
@@ -591,6 +606,15 @@ export default function Home() {
             />
           ))}
         </nav>
+
+        {activeMobileSection ? (
+          <div className="fixed left-3 right-3 top-[6.75rem] z-[99999] max-h-[calc(100svh-8rem)] overflow-y-auto rounded-2xl border border-violet-200/12 bg-[#050719]/98 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.75)] backdrop-blur-md lg:hidden">
+            <NavChildrenList
+              children={activeMobileSection.children}
+              pathname={pathname}
+            />
+          </div>
+        ) : null}
 
         <div className="relative z-10 hidden rounded-[1.6rem] border border-violet-200/10 bg-[linear-gradient(145deg,rgba(124,58,237,0.075),rgba(49,46,129,0.065))] p-4 text-sm text-violet-100 shadow-[inset_0_0_16px_rgba(196,181,253,0.035),0_0_14px_rgba(76,29,149,0.055)] lg:block">
           <p className="font-black tracking-wide">Canal de guilde</p>
