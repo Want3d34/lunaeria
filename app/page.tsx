@@ -1044,6 +1044,40 @@ export default function Home() {
           <div className="hero-depth absolute inset-0" />
           <div className="hero-light absolute inset-0" />
 
+          {discordProfile ? (
+            <div className="absolute left-4 right-4 top-4 z-20 flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-violet-100/14 bg-[#07091d]/62 p-2 text-xs font-bold text-violet-50/86 shadow-[inset_0_0_18px_rgba(196,181,253,0.035),0_16px_44px_rgba(0,0,0,0.3),0_0_18px_rgba(124,58,237,0.12)] backdrop-blur-md sm:left-auto sm:max-w-[min(30rem,calc(100%-2rem))]">
+              {discordProfile.avatar ? (
+                <div
+                  aria-hidden="true"
+                  className="h-8 w-8 shrink-0 rounded-full border border-violet-100/20 shadow-[0_0_14px_rgba(139,92,246,0.18)]"
+                  style={{
+                    backgroundImage: `url(${discordProfile.avatar})`,
+                    backgroundPosition: "center",
+                    backgroundSize: "cover",
+                  }}
+                />
+              ) : (
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-violet-100/20 bg-violet-100/10">
+                  <DiscordIcon size={15} />
+                </div>
+              )}
+              <span className="min-w-0 max-w-32 truncate sm:max-w-40">
+                {discordProfile.username}
+              </span>
+              <span className="shrink-0 rounded-full border border-emerald-200/20 bg-emerald-300/10 px-2 py-1 text-[0.65rem] font-black uppercase tracking-[0.16em] text-emerald-100">
+                Compte lié
+              </span>
+              <button
+                className="shrink-0 rounded-full border border-violet-200/16 bg-violet-100/[0.055] px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.14em] text-violet-50/78 transition hover:border-violet-200/28 hover:bg-violet-200/10"
+                disabled={isDiscordSubmitting}
+                onClick={handleDiscordSignOut}
+                type="button"
+              >
+                Déconnexion
+              </button>
+            </div>
+          ) : null}
+
           <div className="relative z-10 flex min-h-[520px] max-w-full flex-col justify-between p-5 sm:p-10 lg:min-h-[560px] lg:max-w-4xl lg:p-14">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/13 bg-violet-200/7 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[inset_0_0_10px_rgba(196,181,253,0.032),0_0_11px_rgba(109,40,217,0.06)] backdrop-blur-sm">
@@ -1094,38 +1128,7 @@ export default function Home() {
                     >
                       <DiscordIcon /> {discordButtonLabel}
                     </button>
-                    {discordProfile ? (
-                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-bold text-violet-50/82">
-                        {discordProfile.avatar ? (
-                          <div
-                            aria-hidden="true"
-                            className="h-8 w-8 rounded-full border border-violet-100/20 object-cover shadow-[0_0_14px_rgba(139,92,246,0.18)]"
-                            style={{
-                              backgroundImage: `url(${discordProfile.avatar})`,
-                              backgroundPosition: "center",
-                              backgroundSize: "cover",
-                            }}
-                          />
-                        ) : (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-violet-100/20 bg-violet-100/10">
-                            <DiscordIcon size={15} />
-                          </div>
-                        )}
-                        <span className="max-w-40 truncate">{discordProfile.username}</span>
-                        <span className="rounded-full border border-emerald-200/20 bg-emerald-300/10 px-2 py-1 text-[0.65rem] font-black uppercase tracking-[0.16em] text-emerald-100">
-                          Compte lié
-                        </span>
-                        <button
-                          className="rounded-full border border-violet-200/16 bg-violet-100/[0.055] px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.14em] text-violet-50/78 transition hover:border-violet-200/28 hover:bg-violet-200/10"
-                          disabled={isDiscordSubmitting}
-                          onClick={handleDiscordSignOut}
-                          type="button"
-                        >
-                          Déconnexion
-                        </button>
-                      </div>
-                    ) : null}
-                    {discordAuthError ? (
+                    {discordAuthError && !discordProfile ? (
                       <p className="mt-3 max-w-sm text-xs font-semibold text-rose-100/78">
                         {discordAuthError}
                       </p>
