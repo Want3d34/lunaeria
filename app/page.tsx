@@ -137,6 +137,7 @@ type HomepageSettings = {
 
 type DiscordProfile = {
   discordId: string;
+  display_name: string;
   username: string;
   avatar: string | null;
 };
@@ -145,7 +146,7 @@ type DiscordProfileRow = {
   discord_id?: string | null;
   display_name?: string | null;
   username?: string | null;
-  avatar?: string | null;
+  avatar_url?: string | null;
 };
 
 const discordDisplayNameFallback = "Compte lié";
@@ -344,6 +345,7 @@ function getDiscordProfileFromUser(user: User): DiscordProfile | null {
 
   return {
     discordId,
+    display_name: username,
     username,
     avatar,
   };
@@ -673,7 +675,7 @@ export default function Home() {
         error: readProfileError,
       } = await supabase
         .from("discord_profiles")
-        .select("*")
+        .select("username, display_name, avatar_url")
         .eq("discord_id", profile.discordId)
         .maybeSingle<DiscordProfileRow>();
 
@@ -689,10 +691,24 @@ export default function Home() {
         getValidDiscordDisplayName(existingProfile?.username) ||
         getValidDiscordDisplayName(profile.username) ||
         discordDisplayNameFallback;
-      const avatar = existingProfile?.avatar?.trim() || profile.avatar;
+      const avatar = existingProfile?.avatar_url?.trim() || profile.avatar;
+      const displaySource = getValidDiscordDisplayName(existingProfile?.display_name)
+        ? "discord_profiles.display_name"
+        : getValidDiscordDisplayName(existingProfile?.username)
+          ? "discord_profiles.username"
+          : getValidDiscordDisplayName(profile.username)
+            ? "oauth_metadata"
+            : "fallback";
+
+      console.log("[Discord profile overlay]", {
+        discordId: profile.discordId,
+        source: displaySource,
+        displayName,
+      });
 
       setDiscordProfile({
         discordId: profile.discordId,
+        display_name: displayName,
         username: displayName,
         avatar,
       });
@@ -701,7 +717,7 @@ export default function Home() {
         const oauthUsername = getValidDiscordDisplayName(profile.username);
         const insertPayload: DiscordProfileRow = {
           discord_id: profile.discordId,
-          avatar: profile.avatar,
+          avatar_url: profile.avatar,
         };
 
         if (oauthUsername) {
@@ -726,8 +742,8 @@ export default function Home() {
         profilePatch.username = oauthUsername;
       }
 
-      if (!existingProfile.avatar?.trim() && profile.avatar) {
-        profilePatch.avatar = profile.avatar;
+      if (!existingProfile.avatar_url?.trim() && profile.avatar) {
+        profilePatch.avatar_url = profile.avatar;
       }
 
       if (Object.keys(profilePatch).length > 0) {
@@ -1163,7 +1179,7 @@ export default function Home() {
                 </div>
               )}
               <span className="min-w-0 max-w-32 truncate sm:max-w-40">
-                {discordProfile.username}
+                {discordProfile.display_name || discordProfile.username}
               </span>
               <span className="shrink-0 rounded-full border border-emerald-200/20 bg-emerald-300/10 px-2 py-1 text-[0.65rem] font-black uppercase tracking-[0.16em] text-emerald-100">
                 Compte lié
