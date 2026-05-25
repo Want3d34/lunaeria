@@ -141,6 +141,13 @@ type DiscordProfile = {
   avatar: string | null;
 };
 
+type DiscordProfileRow = {
+  discord_id?: string | null;
+  display_name?: string | null;
+  username?: string | null;
+  avatar?: string | null;
+};
+
 const homepageSettingsFallback: HomepageSettings = {
   heroTitle: "LUNAERIA",
   heroSubtitle: "Portail de la Guilde Lunaeria",
@@ -277,26 +284,6 @@ function getDiscordProfileFromUser(user: User): DiscordProfile | null {
   }
 
   const username =
-    getStringMetadataValue(userMetadata, [
-      "server_display_name",
-      "guild_display_name",
-      "guild_nickname",
-      "guild_nick",
-      "member_nickname",
-      "member_nick",
-      "nickname",
-      "nick",
-    ]) ||
-    getStringMetadataValue(identityData, [
-      "server_display_name",
-      "guild_display_name",
-      "guild_nickname",
-      "guild_nick",
-      "member_nickname",
-      "member_nick",
-      "nickname",
-      "nick",
-    ]) ||
     getStringMetadataValue(userMetadata, ["display_name"]) ||
     getStringMetadataValue(identityData, ["display_name"]) ||
     getStringMetadataValue(userMetadata, ["global_name"]) ||
@@ -305,17 +292,11 @@ function getDiscordProfileFromUser(user: User): DiscordProfile | null {
       "username",
       "user_name",
       "preferred_username",
-      "custom_name",
-      "full_name",
-      "name",
     ]) ||
     getStringMetadataValue(identityData, [
       "username",
       "user_name",
       "preferred_username",
-      "custom_name",
-      "full_name",
-      "name",
     ]) ||
     "Discord";
 
@@ -649,20 +630,69 @@ export default function Home() {
         return;
       }
 
-      setDiscordProfile(profile);
+      const {
+        data: existingProfile,
+        error: readProfileError,
+      } = await supabase
+        .from("discord_profiles")
+        .select("*")
+        .eq("discord_id", profile.discordId)
+        .maybeSingle<DiscordProfileRow>();
 
-      const { error } = await supabase.from("discord_profiles").upsert(
-        {
+      if (readProfileError) {
+        setDiscordProfile(profile);
+        setDiscordAuthError("Compte lié, profil serveur indisponible.");
+        console.error(readProfileError);
+        return;
+      }
+
+      const displayName =
+        existingProfile?.display_name?.trim() ||
+        existingProfile?.username?.trim() ||
+        profile.username;
+      const avatar = existingProfile?.avatar?.trim() || profile.avatar;
+
+      setDiscordProfile({
+        discordId: profile.discordId,
+        username: displayName,
+        avatar,
+      });
+
+      if (!existingProfile) {
+        const { error } = await supabase.from("discord_profiles").insert({
           discord_id: profile.discordId,
           username: profile.username,
           avatar: profile.avatar,
-        },
-        { onConflict: "discord_id" },
-      );
+        });
 
-      if (error) {
-        setDiscordAuthError("Compte lié, synchronisation à réessayer.");
-        console.error(error);
+        if (error) {
+          setDiscordAuthError("Compte lié, synchronisation à réessayer.");
+          console.error(error);
+        }
+
+        return;
+      }
+
+      const profilePatch: Partial<DiscordProfileRow> = {};
+
+      if (!existingProfile.username?.trim()) {
+        profilePatch.username = profile.username;
+      }
+
+      if (!existingProfile.avatar?.trim() && profile.avatar) {
+        profilePatch.avatar = profile.avatar;
+      }
+
+      if (Object.keys(profilePatch).length > 0) {
+        const { error } = await supabase
+          .from("discord_profiles")
+          .update(profilePatch)
+          .eq("discord_id", profile.discordId);
+
+        if (error) {
+          setDiscordAuthError("Compte lié, synchronisation à réessayer.");
+          console.error(error);
+        }
       }
     },
     [],
