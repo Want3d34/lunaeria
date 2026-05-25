@@ -206,6 +206,15 @@ type SaleItem = {
   createdAt?: string;
 };
 
+type OnlineMember = {
+  discordId: string;
+  avatarUrl: string | null;
+  displayName: string;
+  status: string;
+  activityName: string | null;
+  activityType: string | null;
+};
+
 type ActivityItem = {
   label: string;
   title: string;
@@ -213,14 +222,6 @@ type ActivityItem = {
   type: "announcement" | "build" | "event" | "sale";
   timestamp?: string | null;
 };
-
-const onlineMembers = [
-  { name: "Azelya", role: "Meneuse", status: "Songes" },
-  { name: "Zyphor", role: "Bras droit", status: "AvA" },
-  { name: "Helya", role: "Trésorière", status: "Métiers" },
-  { name: "Kyzen", role: "Protecteur", status: "Kolizeum" },
-  { name: "Lumya", role: "Artisane", status: "Donjons" },
-];
 
 function DiscordIcon({ size = 18 }: { size?: number }) {
   return (
@@ -303,6 +304,60 @@ function getValidDiscordMetadataDisplayName(
   }
 
   return null;
+}
+
+function formatOnlineStatus(status: string) {
+  const normalizedStatus = status.trim().toLowerCase();
+
+  if (normalizedStatus === "idle") {
+    return "Absent";
+  }
+
+  if (normalizedStatus === "dnd" || normalizedStatus === "do_not_disturb") {
+    return "Ne pas déranger";
+  }
+
+  return "En ligne";
+}
+
+function formatDiscordActivity(activityName: string | null, activityType: string | null) {
+  if (!activityName?.trim()) {
+    return null;
+  }
+
+  const normalizedType = activityType?.trim().toLowerCase();
+
+  if (normalizedType === "playing" || normalizedType === "game" || normalizedType === "0") {
+    return `Joue à ${activityName}`;
+  }
+
+  if (normalizedType === "listening" || normalizedType === "spotify" || normalizedType === "2") {
+    return `Écoute ${activityName}`;
+  }
+
+  if (normalizedType === "streaming" || normalizedType === "1") {
+    return `Stream ${activityName}`;
+  }
+
+  if (normalizedType === "watching" || normalizedType === "3") {
+    return `Regarde ${activityName}`;
+  }
+
+  if (normalizedType === "competing" || normalizedType === "5") {
+    return `Participe à ${activityName}`;
+  }
+
+  return activityName;
+}
+
+function formatOnlineMemberMeta(member: OnlineMember) {
+  const statusLabel = formatOnlineStatus(member.status);
+  const activityLabel = formatDiscordActivity(
+    member.activityName,
+    member.activityType,
+  );
+
+  return activityLabel ? `${statusLabel} · ${activityLabel}` : statusLabel;
 }
 
 function getDiscordProfileFromUser(user: User): DiscordProfile | null {
@@ -636,11 +691,13 @@ export default function Home() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [builds, setBuilds] = useState<BuildItem[]>([]);
   const [sales, setSales] = useState<SaleItem[]>([]);
+  const [onlineMembers, setOnlineMembers] = useState<OnlineMember[]>([]);
   const [homepageSettings, setHomepageSettings] =
     useState<HomepageSettings | null>(null);
 
   const [galleryItemsState, setGalleryItemsState] = useState<GalleryItem[]>([]);
   const [isDynamicContentLoaded, setIsDynamicContentLoaded] = useState(false);
+  const [isOnlineMembersLoaded, setIsOnlineMembersLoaded] = useState(false);
   const [isGalleryLoaded, setIsGalleryLoaded] = useState(false);
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -935,6 +992,57 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    async function loadOnlineMembers() {
+      const { data, error } = await supabase
+        .from("online_members")
+        .select("discord_id, avatar_url, display_name, status, activity_name, activity_type")
+        .order("display_name", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        setOnlineMembers([]);
+        setIsOnlineMembersLoaded(true);
+        return;
+      }
+
+      const members = (data ?? [])
+        .filter((item) => {
+          const status = String(item.status ?? "").trim().toLowerCase();
+
+          return status !== "offline" && status !== "invisible";
+        })
+        .map((item) => ({
+          discordId: String(item.discord_id ?? item.display_name ?? crypto.randomUUID()),
+          avatarUrl:
+            typeof item.avatar_url === "string" && item.avatar_url.trim()
+              ? item.avatar_url.trim()
+              : null,
+          displayName:
+            typeof item.display_name === "string" && item.display_name.trim()
+              ? item.display_name.trim()
+              : "Membre Discord",
+          status:
+            typeof item.status === "string" && item.status.trim()
+              ? item.status.trim()
+              : "online",
+          activityName:
+            typeof item.activity_name === "string" && item.activity_name.trim()
+              ? item.activity_name.trim()
+              : null,
+          activityType:
+            typeof item.activity_type === "string" && item.activity_type.trim()
+              ? item.activity_type.trim()
+              : null,
+        }));
+
+      setOnlineMembers(members);
+      setIsOnlineMembersLoaded(true);
+    }
+
+    loadOnlineMembers();
+  }, []);
+
+  useEffect(() => {
     async function loadGallery() {
       const { data, error } = await supabase
         .from("galerie")
@@ -1079,6 +1187,29 @@ export default function Home() {
           display: none;
           width: 0;
           height: 0;
+        }
+
+        .lunae-scrollbar {
+          scrollbar-color: rgba(196, 181, 253, 0.2) rgba(15, 23, 42, 0.16);
+          scrollbar-width: thin;
+        }
+
+        .lunae-scrollbar::-webkit-scrollbar {
+          width: 7px;
+        }
+
+        .lunae-scrollbar::-webkit-scrollbar-track {
+          background: rgba(15, 23, 42, 0.16);
+          border-radius: 999px;
+        }
+
+        .lunae-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(196, 181, 253, 0.2);
+          border-radius: 999px;
+        }
+
+        .lunae-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(196, 181, 253, 0.3);
         }
 
         .sidebar-premium::before {
@@ -1330,28 +1461,52 @@ export default function Home() {
           </PremiumCard>
 
           <PremiumCard title="Membres en ligne" icon={Users}>
-            <div className="space-y-3">
-              {onlineMembers.map((member) => (
-                <div
-                  key={member.name}
-                  className="flex items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-3 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
-                >
-                  <div className="grid size-10 place-items-center rounded-xl border border-violet-100/14 bg-gradient-to-br from-violet-200 to-indigo-300 text-sm font-black text-[#09071a] shadow-[0_0_12px_rgba(124,58,237,0.11)]">
-                    {member.name.slice(0, 2)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-black text-violet-50">
-                      {member.name}
-                    </p>
-                    <p className="truncate text-xs text-slate-400">
-                      {member.role}
-                    </p>
-                  </div>
-                  <span className="rounded-full border border-violet-100/10 bg-violet-200/7 px-3 py-1 text-xs font-bold text-violet-100 shadow-[0_0_8px_rgba(124,58,237,0.055)]">
-                    {member.status}
-                  </span>
+            <div className="lunae-scrollbar max-h-[22rem] space-y-3 overflow-y-auto pr-1 sm:max-h-[24rem]">
+              {!isOnlineMembersLoaded
+                ? [0, 1, 2].map((item) => (
+                    <ContentSkeleton className="min-h-[66px]" key={item} />
+                  ))
+                : null}
+              {isOnlineMembersLoaded && onlineMembers.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                  Aucun membre en ligne pour le moment.
                 </div>
-              ))}
+              ) : null}
+              {isOnlineMembersLoaded
+                ? onlineMembers.map((member) => (
+                    <div
+                      key={member.discordId}
+                      className="flex items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-3 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
+                    >
+                      {member.avatarUrl ? (
+                        <div
+                          aria-hidden="true"
+                          className="size-10 shrink-0 rounded-xl border border-violet-100/14 bg-violet-200/10 shadow-[0_0_12px_rgba(124,58,237,0.11)]"
+                          style={{
+                            backgroundImage: `url(${member.avatarUrl})`,
+                            backgroundPosition: "center",
+                            backgroundSize: "cover",
+                          }}
+                        />
+                      ) : (
+                        <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-violet-100/14 bg-gradient-to-br from-violet-200 to-indigo-300 text-sm font-black text-[#09071a] shadow-[0_0_12px_rgba(124,58,237,0.11)]">
+                          {member.displayName.slice(0, 2)}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-black text-violet-50">
+                          {member.displayName}
+                        </p>
+                        <p className="truncate text-xs text-slate-400">
+                          {formatOnlineMemberMeta(member)}
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-full border border-violet-100/10 bg-violet-200/7 px-3 py-1 text-xs font-bold text-violet-100 shadow-[0_0_8px_rgba(124,58,237,0.055)]">
+                        {formatOnlineStatus(member.status)}
+                      </span>
+                    </div>
+                  ))
+                : null}
             </div>
           </PremiumCard>
         </section>
