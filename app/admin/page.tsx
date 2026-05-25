@@ -90,6 +90,7 @@ type HomepageSettingsRow = {
   hero_subtitle: string | null;
   hero_button_text: string | null;
   hero_button_link: string | null;
+  guild_level: string | number | null;
   recruitment_is_open: boolean | null;
   recruitment_message: string | null;
   recruitment_server_name: string | null;
@@ -510,6 +511,7 @@ export default function AdminPage() {
       subtitle: data.hero_subtitle ?? content.hero.subtitle,
       buttonText: data.hero_button_text ?? content.hero.buttonText,
       buttonLink: data.hero_button_link ?? content.hero.buttonLink,
+      guildLevel: data.guild_level ? String(data.guild_level) : content.hero.guildLevel,
     };
 
     const nextRecruitment = {
@@ -679,6 +681,7 @@ export default function AdminPage() {
         hero_subtitle: heroDraft.subtitle,
         hero_button_text: heroDraft.buttonText,
         hero_button_link: heroDraft.buttonLink,
+        guild_level: heroDraft.guildLevel,
         recruitment_is_open: recruitmentDraft.isOpen,
         recruitment_message: recruitmentDraft.message,
         recruitment_server_name: recruitmentDraft.serverName,
@@ -1367,6 +1370,17 @@ export default function AdminPage() {
                                 }))
                               }
                               value={heroDraft.buttonLink}
+                            />
+                          </AdminField>
+                          <AdminField label="Niveau max">
+                            <AdminInput
+                              onChange={(event) =>
+                                setHeroDraft((current) => ({
+                                  ...current,
+                                  guildLevel: event.target.value,
+                                }))
+                              }
+                              value={heroDraft.guildLevel}
                             />
                           </AdminField>
                         </div>

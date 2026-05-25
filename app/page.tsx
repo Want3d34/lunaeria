@@ -130,6 +130,7 @@ type HomepageSettings = {
   heroSubtitle: string;
   heroButtonText: string;
   heroButtonLink: string;
+  guildLevel: string;
   recruitmentIsOpen: boolean;
   recruitmentMessage: string;
   recruitmentServerName: string;
@@ -162,6 +163,7 @@ const homepageSettingsFallback: HomepageSettings = {
   heroSubtitle: "Portail de la Guilde Lunaeria",
   heroButtonText: "Rejoindre la guilde",
   heroButtonLink: "#recrutement",
+  guildLevel: "20",
   recruitmentIsOpen: false,
   recruitmentMessage: "",
   recruitmentServerName: "Lunaeria",
@@ -697,6 +699,7 @@ export default function Home() {
   const [builds, setBuilds] = useState<BuildItem[]>([]);
   const [sales, setSales] = useState<SaleItem[]>([]);
   const [onlineMembers, setOnlineMembers] = useState<OnlineMember[]>([]);
+  const [guildMemberCount, setGuildMemberCount] = useState("86");
   const [homepageSettings, setHomepageSettings] =
     useState<HomepageSettings | null>(null);
 
@@ -895,6 +898,7 @@ export default function Home() {
         heroSubtitle: data.hero_subtitle ?? "Portail de la Guilde Lunaeria",
         heroButtonText: data.hero_button_text ?? "Rejoindre la guilde",
         heroButtonLink: data.hero_button_link ?? "#recrutement",
+        guildLevel: data.guild_level ? String(data.guild_level) : "20",
         recruitmentIsOpen:
           typeof data.recruitment_is_open === "boolean"
             ? data.recruitment_is_open
@@ -907,6 +911,30 @@ export default function Home() {
     }
 
     loadHomepageSettings();
+  }, []);
+
+  useEffect(() => {
+    async function loadGuildStats() {
+      const { data, error } = await supabase
+        .from("guild_stats")
+        .select("member_count")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const memberCount = data?.member_count;
+
+      if (typeof memberCount === "number" || typeof memberCount === "string") {
+        setGuildMemberCount(String(memberCount));
+      }
+    }
+
+    loadGuildStats();
   }, []);
 
   useEffect(() => {
@@ -1410,8 +1438,8 @@ export default function Home() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               {[
-                ["Niveau max", "20"],
-                ["Membres", "86"],
+                ["Niveau max", homepageSettings?.guildLevel ?? "20"],
+                ["Membres", guildMemberCount],
               ].map(([label, value]) => (
                 <div
                   key={label}

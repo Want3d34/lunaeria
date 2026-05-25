@@ -86,6 +86,7 @@ export type HomepageContent = {
     subtitle: string;
     buttonText: string;
     buttonLink: string;
+    guildLevel: string;
   };
   recruitment: RecruitmentSettings;
   announcements: Announcement[];
@@ -175,6 +176,7 @@ export const defaultHomepageContent: HomepageContent = {
     subtitle: "Portail de la Guilde Lunaeria",
     buttonText: "Rejoindre le Discord",
     buttonLink: "#",
+    guildLevel: "20",
   },
   recruitment: {
     isOpen: true,
