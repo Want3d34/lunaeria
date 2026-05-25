@@ -278,20 +278,44 @@ function getDiscordProfileFromUser(user: User): DiscordProfile | null {
 
   const username =
     getStringMetadataValue(userMetadata, [
-      "custom_name",
-      "global_name",
-      "full_name",
-      "name",
-      "preferred_username",
-      "user_name",
+      "server_display_name",
+      "guild_display_name",
+      "guild_nickname",
+      "guild_nick",
+      "member_nickname",
+      "member_nick",
+      "nickname",
+      "nick",
     ]) ||
     getStringMetadataValue(identityData, [
+      "server_display_name",
+      "guild_display_name",
+      "guild_nickname",
+      "guild_nick",
+      "member_nickname",
+      "member_nick",
+      "nickname",
+      "nick",
+    ]) ||
+    getStringMetadataValue(userMetadata, ["display_name"]) ||
+    getStringMetadataValue(identityData, ["display_name"]) ||
+    getStringMetadataValue(userMetadata, ["global_name"]) ||
+    getStringMetadataValue(identityData, ["global_name"]) ||
+    getStringMetadataValue(userMetadata, [
+      "username",
+      "user_name",
+      "preferred_username",
       "custom_name",
-      "global_name",
       "full_name",
       "name",
-      "preferred_username",
+    ]) ||
+    getStringMetadataValue(identityData, [
+      "username",
       "user_name",
+      "preferred_username",
+      "custom_name",
+      "full_name",
+      "name",
     ]) ||
     "Discord";
 
