@@ -699,7 +699,7 @@ export default function Home() {
   const [builds, setBuilds] = useState<BuildItem[]>([]);
   const [sales, setSales] = useState<SaleItem[]>([]);
   const [onlineMembers, setOnlineMembers] = useState<OnlineMember[]>([]);
-  const [guildMemberCount, setGuildMemberCount] = useState("86");
+  const [guildMemberCount, setGuildMemberCount] = useState("0");
   const [homepageSettings, setHomepageSettings] =
     useState<HomepageSettings | null>(null);
 
@@ -918,8 +918,7 @@ export default function Home() {
       const { data, error } = await supabase
         .from("guild_stats")
         .select("member_count")
-        .order("updated_at", { ascending: false })
-        .limit(1)
+        .eq("id", 1)
         .maybeSingle();
 
       if (error) {
@@ -931,6 +930,8 @@ export default function Home() {
 
       if (typeof memberCount === "number" || typeof memberCount === "string") {
         setGuildMemberCount(String(memberCount));
+      } else {
+        setGuildMemberCount("0");
       }
     }
 
@@ -1436,9 +1437,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:w-fit sm:grid-cols-[minmax(8.5rem,10rem)_minmax(8.5rem,10rem)]">
               {[
-                ["Niveau max", homepageSettings?.guildLevel ?? "20"],
+                ["Niveau de guilde", homepageSettings?.guildLevel ?? "20"],
                 ["Membres", guildMemberCount],
               ].map(([label, value]) => (
                 <div
