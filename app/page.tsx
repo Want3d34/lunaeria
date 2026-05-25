@@ -1583,7 +1583,7 @@ export default function Home() {
                       <p className="font-black text-violet-50">
                         {eventItem.title}
                       </p>
-                      <p className="mt-1 text-xs font-semibold text-violet-100/58">
+                      <p className="mt-1 text-xs text-slate-500">
                         {eventItem.date}
                       </p>
                       <p className="mt-1 text-xs leading-5 text-slate-500">
@@ -1634,7 +1634,7 @@ export default function Home() {
                         {activity.meta}
                       </p>
                       {activity.timestamp ? (
-                        <p className="mt-1 text-xs font-semibold text-violet-100/58">
+                        <p className="mt-1 text-xs text-slate-500">
                           Ajouté le {activity.timestamp}
                         </p>
                       ) : null}
