@@ -25,9 +25,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import NextLink from "next/link";
-import { createClient } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { supabase } from "../lib/supabase";
 
 type NavItem = {
   label: string;
@@ -123,11 +124,6 @@ const activityIcons: Record<ActivityItem["type"], LucideIcon> = {
   sale: WandSparkles,
 };
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
-
 type HomepageSettings = {
   heroTitle: string;
   heroSubtitle: string;
@@ -136,6 +132,12 @@ type HomepageSettings = {
   recruitmentIsOpen: boolean;
   recruitmentMessage: string;
   recruitmentServerName: string;
+};
+
+type DiscordProfile = {
+  discordId: string;
+  username: string;
+  avatar: string | null;
 };
 
 const homepageSettingsFallback: HomepageSettings = {
@@ -226,6 +228,81 @@ function DiscordIcon({ size = 18 }: { size?: number }) {
       />
     </svg>
   );
+}
+
+function getStringMetadataValue(
+  source: Record<string, unknown> | undefined,
+  keys: string[],
+) {
+  if (!source) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const value = source[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
+function getDiscordProfileFromUser(user: User): DiscordProfile | null {
+  const discordIdentity = user.identities?.find(
+    (identity) => identity.provider === "discord",
+  );
+
+  if (!discordIdentity) {
+    return null;
+  }
+
+  const identityData = discordIdentity.identity_data as
+    | Record<string, unknown>
+    | undefined;
+  const userMetadata = user.user_metadata as Record<string, unknown> | undefined;
+  const providerId =
+    "provider_id" in discordIdentity
+      ? String(discordIdentity.provider_id || "")
+      : "";
+  const discordId =
+    providerId ||
+    getStringMetadataValue(identityData, ["provider_id", "sub", "id"]) ||
+    getStringMetadataValue(userMetadata, ["provider_id", "sub", "discord_id"]);
+
+  if (!discordId) {
+    return null;
+  }
+
+  const username =
+    getStringMetadataValue(userMetadata, [
+      "custom_name",
+      "global_name",
+      "full_name",
+      "name",
+      "preferred_username",
+      "user_name",
+    ]) ||
+    getStringMetadataValue(identityData, [
+      "custom_name",
+      "global_name",
+      "full_name",
+      "name",
+      "preferred_username",
+      "user_name",
+    ]) ||
+    "Discord";
+
+  const avatar =
+    getStringMetadataValue(userMetadata, ["avatar_url", "picture"]) ||
+    getStringMetadataValue(identityData, ["avatar_url", "picture"]);
+
+  return {
+    discordId,
+    username,
+    avatar,
+  };
 }
 
 function PremiumCard({
@@ -521,6 +598,89 @@ export default function Home() {
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(() =>
     formatDateKey(new Date()),
   );
+  const [discordProfile, setDiscordProfile] = useState<DiscordProfile | null>(
+    null,
+  );
+  const [isDiscordAuthLoading, setIsDiscordAuthLoading] = useState(true);
+  const [isDiscordSubmitting, setIsDiscordSubmitting] = useState(false);
+  const [discordAuthError, setDiscordAuthError] = useState<string | null>(null);
+
+  const syncDiscordProfile = useCallback(
+    async (user: User | null, showMissingProfileError = false) => {
+      if (!user) {
+        setDiscordProfile(null);
+        return;
+      }
+
+      const profile = getDiscordProfileFromUser(user);
+
+      if (!profile) {
+        setDiscordProfile(null);
+
+        if (showMissingProfileError) {
+          setDiscordAuthError("Profil Discord introuvable.");
+        }
+
+        return;
+      }
+
+      setDiscordProfile(profile);
+
+      const { error } = await supabase.from("discord_profiles").upsert(
+        {
+          discord_id: profile.discordId,
+          username: profile.username,
+          avatar: profile.avatar,
+        },
+        { onConflict: "discord_id" },
+      );
+
+      if (error) {
+        setDiscordAuthError("Compte lié, synchronisation à réessayer.");
+        console.error(error);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadDiscordSession() {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (error) {
+        setDiscordAuthError("Session Discord indisponible.");
+        console.error(error);
+      } else {
+        await syncDiscordProfile(data.session?.user ?? null);
+      }
+
+      if (isMounted) {
+        setIsDiscordAuthLoading(false);
+      }
+    }
+
+    loadDiscordSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setDiscordAuthError(null);
+      void syncDiscordProfile(session?.user ?? null, true);
+      setIsDiscordSubmitting(false);
+      setIsDiscordAuthLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [syncDiscordProfile]);
 
   useEffect(() => {
     async function loadHomepageSettings() {
@@ -736,6 +896,50 @@ export default function Home() {
     day: "numeric",
     month: "long",
   });
+  const isDiscordBusy = isDiscordAuthLoading || isDiscordSubmitting;
+  const discordButtonLabel = isDiscordBusy
+    ? "Connexion..."
+    : discordProfile
+      ? "Compte Discord lié"
+      : "Lier avec Discord";
+
+  async function handleDiscordOAuth() {
+    if (discordProfile) {
+      return;
+    }
+
+    setDiscordAuthError(null);
+    setIsDiscordSubmitting(true);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "discord",
+      options: {
+        redirectTo: `${window.location.origin}${window.location.pathname}`,
+      },
+    });
+
+    if (error) {
+      setDiscordAuthError("Connexion Discord impossible.");
+      setIsDiscordSubmitting(false);
+      console.error(error);
+    }
+  }
+
+  async function handleDiscordSignOut() {
+    setDiscordAuthError(null);
+    setIsDiscordSubmitting(true);
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      setDiscordAuthError("Déconnexion impossible.");
+      console.error(error);
+    } else {
+      setDiscordProfile(null);
+    }
+
+    setIsDiscordSubmitting(false);
+  }
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
@@ -879,12 +1083,53 @@ export default function Home() {
               )}
               <div className="mt-9 flex flex-col gap-4 sm:flex-row">
                 {homepageSettings ? (
-                  <a
-                    href={homepageSettings.heroButtonLink}
-                    className="discord-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#b9a7ea] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#09071a] shadow-[inset_0_1px_0_rgba(237,233,254,0.48),0_0_18px_rgba(124,58,237,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.55),0_0_22px_rgba(167,139,250,0.22)] sm:w-auto sm:px-6 sm:tracking-[0.16em]"
-                  >
-                    <DiscordIcon /> {homepageSettings.heroButtonText}
-                  </a>
+                  <div className="w-full sm:w-auto">
+                    <button
+                      aria-busy={isDiscordBusy}
+                      className="discord-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#b9a7ea] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#09071a] shadow-[inset_0_1px_0_rgba(237,233,254,0.48),0_0_18px_rgba(124,58,237,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.55),0_0_22px_rgba(167,139,250,0.22)] disabled:cursor-wait disabled:opacity-80 sm:w-auto sm:px-6 sm:tracking-[0.16em]"
+                      disabled={isDiscordBusy}
+                      onClick={handleDiscordOAuth}
+                      type="button"
+                    >
+                      <DiscordIcon /> {discordButtonLabel}
+                    </button>
+                    {discordProfile ? (
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-bold text-violet-50/82">
+                        {discordProfile.avatar ? (
+                          <div
+                            aria-hidden="true"
+                            className="h-8 w-8 rounded-full border border-violet-100/20 object-cover shadow-[0_0_14px_rgba(139,92,246,0.18)]"
+                            style={{
+                              backgroundImage: `url(${discordProfile.avatar})`,
+                              backgroundPosition: "center",
+                              backgroundSize: "cover",
+                            }}
+                          />
+                        ) : (
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-violet-100/20 bg-violet-100/10">
+                            <DiscordIcon size={15} />
+                          </div>
+                        )}
+                        <span className="max-w-40 truncate">{discordProfile.username}</span>
+                        <span className="rounded-full border border-emerald-200/20 bg-emerald-300/10 px-2 py-1 text-[0.65rem] font-black uppercase tracking-[0.16em] text-emerald-100">
+                          Compte lié
+                        </span>
+                        <button
+                          className="rounded-full border border-violet-200/16 bg-violet-100/[0.055] px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.14em] text-violet-50/78 transition hover:border-violet-200/28 hover:bg-violet-200/10"
+                          disabled={isDiscordSubmitting}
+                          onClick={handleDiscordSignOut}
+                          type="button"
+                        >
+                          Déconnexion
+                        </button>
+                      </div>
+                    ) : null}
+                    {discordAuthError ? (
+                      <p className="mt-3 max-w-sm text-xs font-semibold text-rose-100/78">
+                        {discordAuthError}
+                      </p>
+                    ) : null}
+                  </div>
                 ) : (
                   <div className="h-14 w-full rounded-2xl bg-violet-100/[0.055] sm:w-56" aria-hidden="true" />
                 )}
