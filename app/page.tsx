@@ -320,12 +320,27 @@ function formatOnlineStatus(status: string) {
   return "En ligne";
 }
 
-function formatOnlineMemberActivity(activityName: string | null, activityType: string | null) {
-  if (!activityName?.trim()) {
+function formatOnlineMemberActivity(member: OnlineMember) {
+  const activityName = member.activityName?.trim();
+
+  if (!activityName) {
     return null;
   }
 
-  const normalizedType = activityType?.trim().toLowerCase();
+  const normalizedActivityName = activityName.toLowerCase();
+  const normalizedStatus = member.status.trim().toLowerCase();
+  const statusLabel = formatOnlineStatus(member.status).toLowerCase();
+
+  if (
+    normalizedActivityName === "en ligne" ||
+    normalizedActivityName === "online" ||
+    normalizedActivityName === normalizedStatus ||
+    normalizedActivityName === statusLabel
+  ) {
+    return null;
+  }
+
+  const normalizedType = member.activityType?.trim().toLowerCase();
 
   if (normalizedType === "playing" || normalizedType === "game" || normalizedType === "0") {
     return `Joue à ${activityName}`;
@@ -1464,10 +1479,7 @@ export default function Home() {
               ) : null}
               {isOnlineMembersLoaded
                 ? onlineMembers.map((member) => {
-                    const activityLabel = formatOnlineMemberActivity(
-                      member.activityName,
-                      member.activityType,
-                    );
+                    const activityLabel = formatOnlineMemberActivity(member);
 
                     return (
                       <div
