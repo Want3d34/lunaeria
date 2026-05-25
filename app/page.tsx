@@ -320,7 +320,7 @@ function formatOnlineStatus(status: string) {
   return "En ligne";
 }
 
-function formatDiscordActivity(activityName: string | null, activityType: string | null) {
+function formatOnlineMemberActivity(activityName: string | null, activityType: string | null) {
   if (!activityName?.trim()) {
     return null;
   }
@@ -348,16 +348,6 @@ function formatDiscordActivity(activityName: string | null, activityType: string
   }
 
   return activityName;
-}
-
-function formatOnlineMemberMeta(member: OnlineMember) {
-  const statusLabel = formatOnlineStatus(member.status);
-  const activityLabel = formatDiscordActivity(
-    member.activityName,
-    member.activityType,
-  );
-
-  return activityLabel ? `${statusLabel} · ${activityLabel}` : statusLabel;
 }
 
 function getDiscordProfileFromUser(user: User): DiscordProfile | null {
@@ -1473,39 +1463,48 @@ export default function Home() {
                 </div>
               ) : null}
               {isOnlineMembersLoaded
-                ? onlineMembers.map((member) => (
-                    <div
-                      key={member.discordId}
-                      className="flex items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-3 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
-                    >
-                      {member.avatarUrl ? (
-                        <div
-                          aria-hidden="true"
-                          className="size-10 shrink-0 rounded-xl border border-violet-100/14 bg-violet-200/10 shadow-[0_0_12px_rgba(124,58,237,0.11)]"
-                          style={{
-                            backgroundImage: `url(${member.avatarUrl})`,
-                            backgroundPosition: "center",
-                            backgroundSize: "cover",
-                          }}
-                        />
-                      ) : (
-                        <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-violet-100/14 bg-gradient-to-br from-violet-200 to-indigo-300 text-sm font-black text-[#09071a] shadow-[0_0_12px_rgba(124,58,237,0.11)]">
-                          {member.displayName.slice(0, 2)}
+                ? onlineMembers.map((member) => {
+                    const activityLabel = formatOnlineMemberActivity(
+                      member.activityName,
+                      member.activityType,
+                    );
+
+                    return (
+                      <div
+                        key={member.discordId}
+                        className="flex items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-3 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
+                      >
+                        {member.avatarUrl ? (
+                          <div
+                            aria-hidden="true"
+                            className="size-10 shrink-0 rounded-xl border border-violet-100/14 bg-violet-200/10 shadow-[0_0_12px_rgba(124,58,237,0.11)]"
+                            style={{
+                              backgroundImage: `url(${member.avatarUrl})`,
+                              backgroundPosition: "center",
+                              backgroundSize: "cover",
+                            }}
+                          />
+                        ) : (
+                          <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-violet-100/14 bg-gradient-to-br from-violet-200 to-indigo-300 text-sm font-black text-[#09071a] shadow-[0_0_12px_rgba(124,58,237,0.11)]">
+                            {member.displayName.slice(0, 2)}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-black text-violet-50">
+                            {member.displayName}
+                          </p>
+                          {activityLabel ? (
+                            <p className="truncate text-xs text-slate-400">
+                              {activityLabel}
+                            </p>
+                          ) : null}
                         </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-black text-violet-50">
-                          {member.displayName}
-                        </p>
-                        <p className="truncate text-xs text-slate-400">
-                          {formatOnlineMemberMeta(member)}
-                        </p>
+                        <span className="shrink-0 rounded-full border border-violet-100/10 bg-violet-200/7 px-3 py-1 text-xs font-bold text-violet-100 shadow-[0_0_8px_rgba(124,58,237,0.055)]">
+                          {formatOnlineStatus(member.status)}
+                        </span>
                       </div>
-                      <span className="shrink-0 rounded-full border border-violet-100/10 bg-violet-200/7 px-3 py-1 text-xs font-bold text-violet-100 shadow-[0_0_8px_rgba(124,58,237,0.055)]">
-                        {formatOnlineStatus(member.status)}
-                      </span>
-                    </div>
-                  ))
+                    );
+                  })
                 : null}
             </div>
           </PremiumCard>
