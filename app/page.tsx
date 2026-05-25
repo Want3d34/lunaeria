@@ -148,6 +148,12 @@ type DiscordProfileRow = {
   avatar?: string | null;
 };
 
+const discordDisplayNameFallback = "Compte lié";
+const invalidDiscordDisplayNames = new Set([
+  "discord",
+  "compte discord",
+]);
+
 const homepageSettingsFallback: HomepageSettings = {
   heroTitle: "LUNAERIA",
   heroSubtitle: "Portail de la Guilde Lunaeria",
@@ -257,6 +263,45 @@ function getStringMetadataValue(
   return null;
 }
 
+function getValidDiscordDisplayName(value: string | null | undefined) {
+  const displayName = value?.trim();
+
+  if (!displayName) {
+    return null;
+  }
+
+  if (invalidDiscordDisplayNames.has(displayName.toLowerCase())) {
+    return null;
+  }
+
+  return displayName;
+}
+
+function getValidDiscordMetadataDisplayName(
+  source: Record<string, unknown> | undefined,
+  keys: string[],
+) {
+  if (!source) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const value = source[key];
+
+    if (typeof value !== "string") {
+      continue;
+    }
+
+    const displayName = getValidDiscordDisplayName(value);
+
+    if (displayName) {
+      return displayName;
+    }
+  }
+
+  return null;
+}
+
 function getDiscordProfileFromUser(user: User): DiscordProfile | null {
   const discordIdentity = user.identities?.find(
     (identity) => identity.provider === "discord",
@@ -266,10 +311,10 @@ function getDiscordProfileFromUser(user: User): DiscordProfile | null {
     return null;
   }
 
+  const userMetadata = user.user_metadata as Record<string, unknown> | undefined;
   const identityData = discordIdentity.identity_data as
     | Record<string, unknown>
     | undefined;
-  const userMetadata = user.user_metadata as Record<string, unknown> | undefined;
   const providerId =
     "provider_id" in discordIdentity
       ? String(discordIdentity.provider_id || "")
@@ -284,21 +329,14 @@ function getDiscordProfileFromUser(user: User): DiscordProfile | null {
   }
 
   const username =
-    getStringMetadataValue(userMetadata, ["display_name"]) ||
-    getStringMetadataValue(identityData, ["display_name"]) ||
-    getStringMetadataValue(userMetadata, ["global_name"]) ||
-    getStringMetadataValue(identityData, ["global_name"]) ||
-    getStringMetadataValue(userMetadata, [
-      "username",
-      "user_name",
+    getValidDiscordMetadataDisplayName(userMetadata, [
+      "full_name",
+      "name",
+      "global_name",
       "preferred_username",
-    ]) ||
-    getStringMetadataValue(identityData, [
-      "username",
       "user_name",
-      "preferred_username",
-    ]) ||
-    "Discord";
+      "username",
+    ]) || discordDisplayNameFallback;
 
   const avatar =
     getStringMetadataValue(userMetadata, ["avatar_url", "picture"]) ||
@@ -647,9 +685,10 @@ export default function Home() {
       }
 
       const displayName =
-        existingProfile?.display_name?.trim() ||
-        existingProfile?.username?.trim() ||
-        profile.username;
+        getValidDiscordDisplayName(existingProfile?.display_name) ||
+        getValidDiscordDisplayName(existingProfile?.username) ||
+        getValidDiscordDisplayName(profile.username) ||
+        discordDisplayNameFallback;
       const avatar = existingProfile?.avatar?.trim() || profile.avatar;
 
       setDiscordProfile({
@@ -659,11 +698,17 @@ export default function Home() {
       });
 
       if (!existingProfile) {
-        const { error } = await supabase.from("discord_profiles").insert({
+        const oauthUsername = getValidDiscordDisplayName(profile.username);
+        const insertPayload: DiscordProfileRow = {
           discord_id: profile.discordId,
-          username: profile.username,
           avatar: profile.avatar,
-        });
+        };
+
+        if (oauthUsername) {
+          insertPayload.username = oauthUsername;
+        }
+
+        const { error } = await supabase.from("discord_profiles").insert(insertPayload);
 
         if (error) {
           setDiscordAuthError("Compte lié, synchronisation à réessayer.");
@@ -675,8 +720,10 @@ export default function Home() {
 
       const profilePatch: Partial<DiscordProfileRow> = {};
 
-      if (!existingProfile.username?.trim()) {
-        profilePatch.username = profile.username;
+      const oauthUsername = getValidDiscordDisplayName(profile.username);
+
+      if (!getValidDiscordDisplayName(existingProfile.username) && oauthUsername) {
+        profilePatch.username = oauthUsername;
       }
 
       if (!existingProfile.avatar?.trim() && profile.avatar) {
