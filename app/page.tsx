@@ -1583,7 +1583,7 @@ export default function Home() {
                       <p className="font-black text-violet-50">
                         {eventItem.title}
                       </p>
-                      <p className="mt-1 text-sm text-slate-400">
+                      <p className="mt-1 text-xs font-semibold text-violet-100/58">
                         {eventItem.date}
                       </p>
                       <p className="mt-1 text-xs leading-5 text-slate-500">
