@@ -1437,7 +1437,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid gap-3 sm:w-fit sm:grid-cols-[minmax(8.5rem,10rem)_minmax(8.5rem,10rem)]">
+            <div className="grid gap-3 sm:w-fit sm:grid-cols-[minmax(11.5rem,12.5rem)_minmax(8.5rem,10rem)]">
               {[
                 ["Niveau de guilde", homepageSettings?.guildLevel ?? "20"],
                 ["Membres", guildMemberCount],
@@ -1446,7 +1446,7 @@ export default function Home() {
                   key={label}
                   className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.045] p-4 shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_14px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-100/[0.06] hover:shadow-[inset_0_0_17px_rgba(196,181,253,0.04),0_0_13px_rgba(109,40,217,0.06)]"
                 >
-                  <p className="text-xs uppercase tracking-[0.22em] text-violet-100/74">
+                  <p className="whitespace-nowrap text-xs uppercase tracking-[0.22em] text-violet-100/74">
                     {label}
                   </p>
                   <p className="mt-2 text-2xl font-black text-violet-50 drop-shadow-[0_0_6px_rgba(196,181,253,0.15)]">
