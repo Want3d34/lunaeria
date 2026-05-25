@@ -67,6 +67,8 @@ export type BuildItem = {
   image: string;
   createdAt: string;
   views: number;
+  creatorDiscordId?: string;
+  creatorDisplayName?: string;
 };
 
 export type GalleryItem = {

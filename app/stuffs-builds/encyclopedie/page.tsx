@@ -1,21 +1,18 @@
 "use client";
 
-import { ArrowLeft, Eye, Search, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Eye, Search, ShieldCheck, SlidersHorizontal, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { dofusClasses, getClassImage, getElement } from "@/lib/stuffs-data";
 import { type BuildItem, useHomepageContent } from "@/lib/lunaeria-content";
+import { getSiteUrl } from "@/lib/site-url";
+import { supabase } from "@/lib/supabase";
 import { ChoiceChips, ElementChips, LunaeriaSelect } from "../_components";
 
 const modes = ["Tous", "PvM", "PvP"];
 const budgets = ["Tous", "Petit", "Moyen", "Gros"];
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
 
 function matchesBudgetFilter(buildBudget: string, selectedBudget: string) {
   if (selectedBudget === "Tous") {
@@ -40,6 +37,11 @@ export default function StuffEncyclopediePage() {
   const [className, setClassName] = useState("Tous");
   const [selectedElements, setSelectedElements] = useState<string[]>([]);
   const [budget, setBudget] = useState("Tous");
+  const [linkedDiscordProfile, setLinkedDiscordProfile] =
+    useState<LinkedDiscordProfile | null>(null);
+  const [isDiscordProfileLoaded, setIsDiscordProfileLoaded] = useState(false);
+  const [discordPrompt, setDiscordPrompt] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
   async function loadBuildsFromSupabase() {
     const { data, error } = await supabase
@@ -75,6 +77,8 @@ export default function StuffEncyclopediePage() {
       image: item.image || item.class_image || getClassImage(item.class_name),
       createdAt: item.created_at || new Date().toISOString(),
       views: item.views ?? 0,
+      creatorDiscordId: item.creator_discord_id || "",
+      creatorDisplayName: item.creator_display_name || "",
     }));
 
     setContent((current) => ({
@@ -87,6 +91,93 @@ export default function StuffEncyclopediePage() {
     loadBuildsFromSupabase();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    async function loadLinkedDiscordProfile() {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error(error);
+        setIsDiscordProfileLoaded(true);
+        return;
+      }
+
+      setLinkedDiscordProfile(
+        await getLinkedDiscordProfile(supabase, data.session?.user ?? null),
+      );
+      setIsDiscordProfileLoaded(true);
+    }
+
+    loadLinkedDiscordProfile();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      void getLinkedDiscordProfile(supabase, session?.user ?? null).then(
+        (profile) => {
+          setLinkedDiscordProfile(profile);
+          setIsDiscordProfileLoaded(true);
+        },
+      );
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleAddBuild() {
+    setDiscordPrompt("");
+
+    if (!isDiscordProfileLoaded) {
+      return;
+    }
+
+    if (linkedDiscordProfile) {
+      window.location.href = "/stuffs-builds/ajouter";
+      return;
+    }
+
+    setDiscordPrompt("Connecte ton compte Discord pour ajouter un stuff.");
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "discord",
+      options: {
+        redirectTo: `${getSiteUrl()}/auth/callback?next=/stuffs-builds/ajouter`,
+      },
+    });
+
+    if (error) {
+      console.error(error);
+      setDiscordPrompt("Connexion Discord impossible pour le moment.");
+    }
+  }
+
+  async function deleteBuild(build: BuildItem) {
+    setDeleteError("");
+
+    if (!linkedDiscordProfile?.discordId) {
+      setDeleteError("Connecte ton compte Discord pour supprimer ce stuff.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("builds")
+      .delete()
+      .eq("id", build.id)
+      .eq("creator_discord_id", linkedDiscordProfile.discordId);
+
+    if (error) {
+      console.error(error);
+      setDeleteError("Suppression impossible.");
+      return;
+    }
+
+    setContent((current) => ({
+      ...current,
+      builds: current.builds.filter((item) => item.id !== build.id),
+    }));
+  }
 
   const builds = useMemo(
     () =>
@@ -145,10 +236,20 @@ export default function StuffEncyclopediePage() {
                 </h1>
               </div>
             </div>
-            <Link className="discord-cta inline-flex min-h-12 items-center justify-center rounded-2xl border border-violet-200/18 bg-[linear-gradient(135deg,rgba(139,92,246,0.36),rgba(79,70,229,0.18))] px-5 text-sm font-black text-violet-50" href="/stuffs-builds/ajouter">
+            <button className="discord-cta inline-flex min-h-12 items-center justify-center rounded-2xl border border-violet-200/18 bg-[linear-gradient(135deg,rgba(139,92,246,0.36),rgba(79,70,229,0.18))] px-5 text-sm font-black text-violet-50 disabled:cursor-wait disabled:opacity-70" disabled={!isDiscordProfileLoaded} onClick={handleAddBuild} type="button">
               Ajouter un Stuff
-            </Link>
+            </button>
           </div>
+          {discordPrompt ? (
+            <p className="relative z-10 mt-4 rounded-2xl border border-violet-100/10 bg-violet-100/[0.045] px-4 py-3 text-sm font-bold text-violet-100/80">
+              {discordPrompt}
+            </p>
+          ) : null}
+          {deleteError ? (
+            <p className="relative z-10 mt-3 rounded-2xl border border-rose-200/12 bg-rose-300/[0.055] px-4 py-3 text-sm font-bold text-rose-100/82">
+              {deleteError}
+            </p>
+          ) : null}
         </header>
 
         <div className="mt-6 grid items-start gap-5 lg:grid-cols-[280px_1fr]">
@@ -224,6 +325,17 @@ export default function StuffEncyclopediePage() {
                   <ShieldCheck size={17} />
                   Voir le build
                 </a>
+                {linkedDiscordProfile?.discordId &&
+                build.creatorDiscordId === linkedDiscordProfile.discordId ? (
+                  <button
+                    className="relative z-10 mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200/14 bg-rose-300/[0.055] px-4 py-3 text-sm font-black text-rose-100 transition hover:border-rose-200/24 hover:bg-rose-300/[0.09]"
+                    onClick={() => deleteBuild(build)}
+                    type="button"
+                  >
+                    <Trash2 size={16} />
+                    Supprimer
+                  </button>
+                ) : null}
               </article>
             ))}
           </section>

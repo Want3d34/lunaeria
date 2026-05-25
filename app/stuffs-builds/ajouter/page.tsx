@@ -2,12 +2,14 @@
 
 import { ArrowLeft, Send } from "lucide-react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { useHomepageContent } from "@/lib/lunaeria-content";
+import { getSiteUrl } from "@/lib/site-url";
 import { dofusClasses, getClassImage, getElement } from "@/lib/stuffs-data";
+import { supabase } from "@/lib/supabase";
 import { ElementChips, LunaeriaSelect } from "../_components";
 
 const emptyDraft = {
@@ -24,11 +26,6 @@ const emptyDraft = {
   description: "",
 };
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
-
 function inputClass() {
   return "min-h-12 rounded-2xl border border-violet-100/10 bg-[#030512]/72 px-4 text-sm font-semibold text-violet-50 outline-none shadow-[inset_0_0_14px_rgba(196,181,253,0.025)] transition placeholder:text-slate-600 focus:border-violet-200/28";
 }
@@ -37,10 +34,69 @@ export default function AjouterStuffPage() {
   const router = useRouter();
   const { setContent } = useHomepageContent();
   const [draft, setDraft] = useState(emptyDraft);
+  const [linkedDiscordProfile, setLinkedDiscordProfile] =
+    useState<LinkedDiscordProfile | null>(null);
+  const [isDiscordProfileLoaded, setIsDiscordProfileLoaded] = useState(false);
+  const [authMessage, setAuthMessage] = useState("");
   const classImage = getClassImage(draft.className);
+
+  useEffect(() => {
+    async function loadLinkedDiscordProfile() {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error(error);
+        setIsDiscordProfileLoaded(true);
+        return;
+      }
+
+      setLinkedDiscordProfile(
+        await getLinkedDiscordProfile(supabase, data.session?.user ?? null),
+      );
+      setIsDiscordProfileLoaded(true);
+    }
+
+    loadLinkedDiscordProfile();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      void getLinkedDiscordProfile(supabase, session?.user ?? null).then(
+        (profile) => {
+          setLinkedDiscordProfile(profile);
+          setIsDiscordProfileLoaded(true);
+        },
+      );
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function connectDiscord() {
+    setAuthMessage("Connecte ton compte Discord pour ajouter un stuff.");
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "discord",
+      options: {
+        redirectTo: `${getSiteUrl()}/auth/callback?next=/stuffs-builds/ajouter`,
+      },
+    });
+
+    if (error) {
+      console.error(error);
+      setAuthMessage("Connexion Discord impossible pour le moment.");
+    }
+  }
 
   async function submitBuild(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!linkedDiscordProfile) {
+      await connectDiscord();
+      return;
+    }
 
     if (!draft.title.trim() || !draft.gamePseudo.trim()) {
       return;
@@ -50,7 +106,9 @@ export default function AjouterStuffPage() {
     const payload = {
       title: draft.title.trim(),
       game_pseudo: draft.gamePseudo.trim(),
-      discord_pseudo: draft.discordPseudo.trim(),
+      discord_pseudo: draft.discordPseudo.trim() || linkedDiscordProfile.displayName,
+      creator_discord_id: linkedDiscordProfile.discordId,
+      creator_display_name: linkedDiscordProfile.displayName,
       class_name: draft.className,
       class_image: classImage,
       elements,
@@ -100,6 +158,9 @@ export default function AjouterStuffPage() {
             image: data.image || data.class_image || getClassImage(data.class_name),
             createdAt: data.created_at || new Date().toISOString(),
             views: data.views ?? 0,
+            creatorDiscordId: data.creator_discord_id || linkedDiscordProfile.discordId,
+            creatorDisplayName:
+              data.creator_display_name || linkedDiscordProfile.displayName,
           },
           ...current.builds,
         ],
@@ -131,6 +192,23 @@ export default function AjouterStuffPage() {
               <h1 className="legend-title mt-2 text-4xl font-black text-violet-50">Ajouter un Stuff</h1>
             </div>
           </div>
+          {isDiscordProfileLoaded && !linkedDiscordProfile ? (
+            <div className="relative z-10 mb-5 rounded-2xl border border-violet-100/10 bg-violet-100/[0.045] p-4 text-sm font-bold text-violet-100/82">
+              <p>Connecte ton compte Discord pour ajouter un stuff.</p>
+              <button
+                className="discord-cta mt-3 inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/18 bg-[linear-gradient(135deg,rgba(139,92,246,0.36),rgba(79,70,229,0.18))] px-4 text-xs font-black text-violet-50"
+                onClick={connectDiscord}
+                type="button"
+              >
+                Lier avec Discord
+              </button>
+            </div>
+          ) : null}
+          {authMessage ? (
+            <p className="relative z-10 mb-5 rounded-2xl border border-violet-100/10 bg-violet-100/[0.045] px-4 py-3 text-sm font-bold text-violet-100/80">
+              {authMessage}
+            </p>
+          ) : null}
           <div className="relative z-10 grid gap-4 md:grid-cols-[220px_1fr]">
             <div className="grid place-items-center rounded-2xl border border-violet-100/18 bg-[#030512]/70 p-4 text-center text-sm font-black uppercase tracking-[0.16em] text-violet-100 shadow-[inset_0_0_14px_rgba(196,181,253,0.025)]">
               Image de classe
@@ -180,9 +258,9 @@ export default function AjouterStuffPage() {
                 selected={draft.elements}
               />
               <textarea className={`${inputClass()} min-h-32 py-3`} onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))} placeholder="Description" value={draft.description} />
-              <button className="discord-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-violet-200/18 bg-[linear-gradient(135deg,rgba(139,92,246,0.36),rgba(79,70,229,0.18))] px-5 text-sm font-black text-violet-50" type="submit">
+              <button className="discord-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-violet-200/18 bg-[linear-gradient(135deg,rgba(139,92,246,0.36),rgba(79,70,229,0.18))] px-5 text-sm font-black text-violet-50 disabled:cursor-wait disabled:opacity-70" disabled={!isDiscordProfileLoaded} type="submit">
                 <Send size={17} />
-                Publier le build
+                {linkedDiscordProfile ? "Publier le build" : "Lier Discord pour publier"}
               </button>
             </div>
           </div>
