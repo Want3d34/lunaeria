@@ -28,6 +28,7 @@ import NextLink from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { getSiteUrl } from "../lib/site-url";
 import { supabase } from "../lib/supabase";
 
 type NavItem = {
@@ -914,7 +915,7 @@ export default function Home() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "discord",
       options: {
-        redirectTo: `${window.location.origin}${window.location.pathname}`,
+        redirectTo: `${getSiteUrl()}/auth/callback?next=/`,
       },
     });
 
