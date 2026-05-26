@@ -1,6 +1,6 @@
 "use client";
 
-import { ScrollText, ShieldCheck, Sparkles } from "lucide-react";
+import { CheckCircle2, ScrollText, ShieldCheck, Sparkles } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
@@ -11,6 +11,8 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
+
+const REGULATION_ACCEPTANCE_KEY = "lunaeria-reglement-accepted";
 
 function splitRules(body: string) {
   const normalizedBody = body.replace(
@@ -31,15 +33,9 @@ export default function ReglementPage() {
   const { content } = useHomepageContent();
   const [regulationBody, setRegulationBody] = useState("");
   const [isRegulationLoaded, setIsRegulationLoaded] = useState(false);
+  const [isDiscordConnected, setIsDiscordConnected] = useState(false);
+  const [hasAcceptedRegulation, setHasAcceptedRegulation] = useState(false);
   const { introTitle, introText, sections } = splitRules(regulationBody);
-  const sidebarItems = [
-    { label: "Règlement", href: "#reglement", icon: ScrollText, active: true },
-    ...sections.slice(0, 6).map((section, index) => ({
-      label: section.split("\n").filter(Boolean)[0] || `Section ${index + 1}`,
-      href: `#regle-${index}`,
-      icon: index % 2 === 0 ? ShieldCheck : ScrollText,
-    })),
-  ];
 
   useEffect(() => {
     async function loadReglementFromSupabase() {
@@ -57,19 +53,81 @@ export default function ReglementPage() {
         return;
       }
 
-      if (!data) {
-        setRegulationBody(content.regulation.body);
-        setIsRegulationLoaded(true);
-        return;
-      }
-
-      setRegulationBody(data.body ?? content.regulation.body);
+      setRegulationBody(data?.body ?? content.regulation.body);
       setIsRegulationLoaded(true);
     }
 
     loadReglementFromSupabase();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    async function loadDiscordSession() {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const user = data.session?.user;
+      const hasDiscordIdentity = Boolean(
+        user?.identities?.some((identity) => identity.provider === "discord"),
+      );
+
+      setIsDiscordConnected(hasDiscordIdentity);
+
+      if (user?.id && typeof window !== "undefined") {
+        setHasAcceptedRegulation(
+          window.localStorage.getItem(`${REGULATION_ACCEPTANCE_KEY}:${user.id}`) ===
+            "true",
+        );
+      }
+    }
+
+    loadDiscordSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const hasDiscordIdentity = Boolean(
+        session?.user.identities?.some((identity) => identity.provider === "discord"),
+      );
+
+      setIsDiscordConnected(hasDiscordIdentity);
+
+      if (!session?.user.id || typeof window === "undefined") {
+        setHasAcceptedRegulation(false);
+        return;
+      }
+
+      setHasAcceptedRegulation(
+        window.localStorage.getItem(
+          `${REGULATION_ACCEPTANCE_KEY}:${session.user.id}`,
+        ) === "true",
+      );
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function acceptRegulation() {
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const userId = data.session?.user.id;
+
+    if (!userId || typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(`${REGULATION_ACCEPTANCE_KEY}:${userId}`, "true");
+    setHasAcceptedRegulation(true);
+  }
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
@@ -78,95 +136,133 @@ export default function ReglementPage() {
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
 
-      <PageSidebar items={sidebarItems} subtitle="Charte" title="LUNAE" />
+      <PageSidebar
+        items={[
+          { label: "Règlement", href: "#reglement", icon: ScrollText, active: true },
+        ]}
+        subtitle="Charte"
+        title="LUNAE"
+      />
 
       <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-5xl">
-        <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 text-center shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10" id="reglement">
-          <div className="relative z-10 mx-auto grid size-16 place-items-center rounded-3xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_22px_rgba(124,58,237,0.22)]">
-            <LunaeriaLogo size={35} />
-          </div>
-          <p className="relative z-10 mt-6 text-xs font-black uppercase tracking-[0.3em] text-violet-200">
-            Charte officielle
-          </p>
-          {isRegulationLoaded ? (
-            <>
-              <h1 className="legend-title relative z-10 mt-3 text-4xl font-black text-violet-50 sm:text-6xl">
-                Règlement
-              </h1>
+          <header
+            className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 text-center shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10"
+            id="reglement"
+          >
+            <div className="relative z-10 mx-auto grid size-16 place-items-center rounded-3xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_22px_rgba(124,58,237,0.22)]">
+              <LunaeriaLogo size={35} />
+            </div>
+            <p className="relative z-10 mt-6 text-xs font-black uppercase tracking-[0.3em] text-violet-200">
+              Charte officielle
+            </p>
+            <h1 className="legend-title relative z-10 mt-3 text-4xl font-black text-violet-50 sm:text-6xl">
+              Règlement
+            </h1>
+            {isRegulationLoaded && introText ? (
               <p className="relative z-10 mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-300">
                 {introText}
               </p>
-            </>
-          ) : (
-            <div className="relative z-10 mx-auto mt-5 max-w-3xl space-y-4" aria-hidden="true">
-              <div className="mx-auto h-12 w-2/3 rounded-2xl bg-violet-100/[0.055]" />
-              <div className="mx-auto h-5 w-4/5 rounded-full bg-violet-100/[0.04]" />
-            </div>
-          )}
-        </header>
+            ) : null}
+          </header>
 
-        <section className="mt-8 grid gap-5">
-          {!isRegulationLoaded ? (
-            <div className="grid gap-5" aria-hidden="true">
-              <div className="h-24 rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/70 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md" />
-              <div className="h-40 rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/50 backdrop-blur-md" />
-            </div>
-          ) : null}
-          {introTitle ? (
-            <div className="grid gap-5">
-              <article className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md">
-              <div className="relative z-10 flex items-center gap-3">
-                <Sparkles className="text-violet-100" size={20} />
-                <h2 className="text-xl font-black text-violet-50">
-                  {introTitle}
-                </h2>
+          <section className="mt-8 grid gap-6">
+            {!isRegulationLoaded ? (
+              <div className="grid gap-5" aria-hidden="true">
+                <div className="h-28 rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/70 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md" />
+                <div className="h-56 rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/50 backdrop-blur-md" />
               </div>
+            ) : null}
+
+            {introTitle ? (
+              <article className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md sm:p-7">
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="text-violet-100" size={20} />
+                    <h2 className="text-2xl font-black text-violet-50">
+                      {introTitle}
+                    </h2>
+                  </div>
+                  {introText ? (
+                    <p className="mt-5 text-base leading-8 text-slate-300">
+                      {introText}
+                    </p>
+                  ) : null}
+                </div>
               </article>
-            </div>
-          ) : null}
+            ) : null}
 
-          {sections.map((section, index) => {
-            const lines = section.split("\n").filter(Boolean);
-            const title = lines[0];
-            const bodyLines = lines.slice(1);
+            {sections.map((section, index) => {
+              const lines = section.split("\n").filter(Boolean);
+              const title = lines[0];
+              const bodyLines = lines.slice(1);
 
-            return (
-              <section
-                className="grid gap-5"
-                id={`regle-${index}`}
-                key={`${title}-${index}`}
-              >
-                <article className="premium-card rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/70 p-5 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-6">
-                  <div className="relative z-10 flex items-center gap-3">
-                    <div className="grid size-11 place-items-center rounded-2xl border border-violet-100/14 bg-violet-100/[0.055] text-violet-100">
-                      {index % 2 === 0 ? (
-                        <ShieldCheck size={19} />
-                      ) : (
-                        <ScrollText size={19} />
+              return (
+                <article
+                  className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-7"
+                  key={`${title}-${index}`}
+                >
+                  <div className="relative z-10">
+                    <div className="flex items-start gap-4">
+                      <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-100/14 bg-violet-100/[0.055] text-violet-100">
+                        {index % 2 === 0 ? (
+                          <ShieldCheck size={19} />
+                        ) : (
+                          <ScrollText size={19} />
+                        )}
+                      </div>
+                      <h2 className="pt-1 text-2xl font-black leading-tight text-violet-50">
+                        {title}
+                      </h2>
+                    </div>
+                    <div className="mt-6 space-y-4 text-[15px] leading-8 text-slate-300 sm:text-base sm:leading-8">
+                      {bodyLines.map((line) =>
+                        line.startsWith("-") ? (
+                          <p
+                            className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.025] px-4 py-3 text-violet-100/90 before:mr-3 before:text-violet-300 before:content-['•']"
+                            key={line}
+                          >
+                            {line.replace(/^- /, "")}
+                          </p>
+                        ) : (
+                          <p key={line}>{line}</p>
+                        ),
                       )}
                     </div>
-                    <h2 className="text-xl font-black text-violet-50">{title}</h2>
                   </div>
                 </article>
-                <div className="space-y-5 px-1 text-[15px] leading-8 text-slate-300 sm:px-4">
-                  {bodyLines.map((line) =>
-                    line.startsWith("-") ? (
-                      <p
-                        className="pl-4 text-violet-100/90 before:mr-3 before:text-violet-300 before:content-['•']"
-                        key={line}
-                      >
-                        {line.replace(/^- /, "")}
+              );
+            })}
+
+            {isDiscordConnected ? (
+              <div className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-5 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-6">
+                <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="text-violet-100" size={22} />
+                    <div>
+                      <p className="font-black text-violet-50">
+                        Validation du règlement
                       </p>
-                    ) : (
-                      <p key={line}>{line}</p>
-                    ),
-                  )}
+                      <p className="mt-1 text-sm text-slate-400">
+                        {hasAcceptedRegulation
+                          ? "Règlement validé avec ce compte Discord."
+                          : "Confirme que tu as lu et accepté la charte Lunaeria."}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    className="discord-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-violet-200/18 bg-[linear-gradient(135deg,rgba(139,92,246,0.36),rgba(79,70,229,0.18))] px-5 text-sm font-black text-violet-50 transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-70"
+                    disabled={hasAcceptedRegulation}
+                    onClick={acceptRegulation}
+                    type="button"
+                  >
+                    <CheckCircle2 size={18} />
+                    {hasAcceptedRegulation ? "Validé" : "Valider"}
+                  </button>
                 </div>
-              </section>
-            );
-          })}
-        </section>
+              </div>
+            ) : null}
+          </section>
         </div>
       </div>
     </main>

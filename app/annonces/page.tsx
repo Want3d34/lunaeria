@@ -2,7 +2,7 @@
 
 import { Bell } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
 
@@ -46,25 +46,17 @@ export default function AnnoncesPage() {
     loadAnnouncementsFromSupabase();
   }, []);
 
-  const sidebarItems = useMemo(
-    () => [
-      { label: "Toutes", href: "#annonces", icon: Bell, active: true },
-      ...announcements.slice(0, 6).map((announcement) => ({
-        label: announcement.title,
-        href: `#annonce-${announcement.id}`,
-        icon: Bell,
-      })),
-    ],
-    [announcements],
-  );
-
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
       <div className="aurora-bg fixed inset-0" />
       <div className="rune-grid fixed inset-0" />
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
-      <PageSidebar items={sidebarItems} subtitle="Annonces" title="LUNAE" />
+      <PageSidebar
+        items={[{ label: "Annonces", href: "#annonces", icon: Bell, active: true }]}
+        subtitle="Annonces"
+        title="LUNAE"
+      />
 
       <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-6xl">

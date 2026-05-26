@@ -218,7 +218,6 @@ export default function StuffEncyclopediePage() {
       <PageSidebar
         items={[
           { label: "Encyclopédie", href: "#builds", icon: ShieldCheck, active: true },
-          { label: "Filtres", href: "#filtres", icon: SlidersHorizontal },
         ]}
         subtitle="Builds"
         title="STUFFS"

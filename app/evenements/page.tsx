@@ -2,7 +2,7 @@
 
 import { CalendarDays } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
 
@@ -50,18 +50,6 @@ export default function EvenementsPage() {
     loadEventsFromSupabase();
   }, []);
 
-  const sidebarItems = useMemo(
-    () => [
-      { label: "Tous", href: "#evenements", icon: CalendarDays, active: true },
-      ...events.slice(0, 6).map((eventItem) => ({
-        label: eventItem.title,
-        href: `#event-${eventItem.id}`,
-        icon: CalendarDays,
-      })),
-    ],
-    [events],
-  );
-
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
       <div className="aurora-bg fixed inset-0" />
@@ -70,7 +58,14 @@ export default function EvenementsPage() {
       <div className="fog-veil fixed inset-0" />
 
       <PageSidebar
-        items={sidebarItems}
+        items={[
+          {
+            label: "Évènements",
+            href: "#evenements",
+            icon: CalendarDays,
+            active: true,
+          },
+        ]}
         subtitle="Calendrier"
         title="EVENTS"
       />

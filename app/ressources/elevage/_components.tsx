@@ -89,7 +89,7 @@ export function BreedingTreePage({ species }: { species: BreedingSpecies }) {
 
       <PageSidebar
         items={[
-          ...species.generations.slice(0, 8).map((generation) => ({
+          ...species.generations.slice(0, 10).map((generation) => ({
             label: `Gén. ${generation.generation}`,
             href: `#generation-${generation.generation}`,
             icon: GitBranch,

@@ -65,7 +65,6 @@ export default function LiensUtilesPage() {
       <PageSidebar
         items={[
           { label: "Généraux", href: "#general", icon: Database, active: true },
-          { label: "Guides", href: "#specific", icon: BookOpen },
         ]}
         subtitle="Bibliothèque"
         title="LIENS"
