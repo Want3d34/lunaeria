@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowLeft, Eye, Search, ShieldCheck, SlidersHorizontal, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { Eye, Search, ShieldCheck, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import { PageSidebar } from "@/components/page-sidebar";
 import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { dofusClasses, getClassImage, getElement } from "@/lib/stuffs-data";
 import { type BuildItem, useHomepageContent } from "@/lib/lunaeria-content";
@@ -215,13 +215,18 @@ export default function StuffEncyclopediePage() {
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link className="inline-flex items-center gap-2 text-sm font-black text-violet-100 transition hover:text-violet-50" href="/">
-          <ArrowLeft size={17} />
-          Retour au hub
-        </Link>
+      <PageSidebar
+        items={[
+          { label: "Encyclopédie", href: "#builds", icon: ShieldCheck, active: true },
+          { label: "Filtres", href: "#filtres", icon: SlidersHorizontal },
+        ]}
+        subtitle="Builds"
+        title="STUFFS"
+      />
 
-        <header className="premium-card mt-6 rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10">
+      <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-8">
+        <div className="mx-auto max-w-7xl">
+        <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10">
           <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-5">
               <div className="grid size-16 place-items-center rounded-3xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820]">
@@ -253,7 +258,7 @@ export default function StuffEncyclopediePage() {
         </header>
 
         <div className="mt-6 grid items-start gap-5 lg:grid-cols-[280px_1fr]">
-          <aside className="premium-card h-fit overflow-visible rounded-[1.5rem] border border-violet-200/10 bg-[#06091b]/72 p-5 backdrop-blur-md">
+          <aside className="premium-card h-fit overflow-visible rounded-[1.5rem] border border-violet-200/10 bg-[#06091b]/72 p-5 backdrop-blur-md" id="filtres">
             <div className="relative z-10 mb-5 flex items-center gap-3">
               <SlidersHorizontal className="text-violet-100" size={19} />
               <h2 className="font-black text-violet-50">Filtres</h2>
@@ -293,7 +298,7 @@ export default function StuffEncyclopediePage() {
             </div>
           </aside>
 
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" id="builds">
             {builds.map((build) => (
               <article className="premium-card rounded-[1.35rem] border border-violet-100/9 bg-[#06091b]/72 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.35)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/18" key={build.id}>
                 <div className="relative z-10 flex gap-4">
@@ -339,6 +344,7 @@ export default function StuffEncyclopediePage() {
               </article>
             ))}
           </section>
+        </div>
         </div>
       </div>
     </main>

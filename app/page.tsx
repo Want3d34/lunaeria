@@ -75,6 +75,7 @@ const legacyNavItems: NavItem[] = [
     ],
   },
   { label: "Annonces", icon: Megaphone, href: "/annonces" },
+  { label: "Évènements", icon: CalendarDays, href: "/evenements" },
   { label: "Règlement", icon: ScrollText, href: "/reglement" },
   { label: "Liens utiles", icon: Link, href: "/liens-utiles" },
 ];
@@ -113,6 +114,7 @@ const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
     ],
   },
   { label: "Annonces", icon: Megaphone, href: "/annonces" },
+  { label: "Évènements", icon: CalendarDays, href: "/evenements" },
   { label: "Règlement", icon: ScrollText, href: "/reglement" },
   { label: "Liens utiles", icon: Link, href: "/liens-utiles" },
 ]);

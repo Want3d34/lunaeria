@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowLeft, Send } from "lucide-react";
-import Link from "next/link";
+import { Send, ShieldCheck } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import { PageSidebar } from "@/components/page-sidebar";
 import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { useHomepageContent } from "@/lib/lunaeria-content";
 import { getSiteUrl } from "@/lib/site-url";
@@ -177,12 +177,22 @@ export default function AjouterStuffPage() {
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link className="inline-flex items-center gap-2 text-sm font-black text-violet-100 transition hover:text-violet-50" href="/stuffs-builds/encyclopedie">
-          <ArrowLeft size={17} />
-          Retour à l&apos;encyclopédie
-        </Link>
-        <form className="premium-card mt-6 rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-6 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-8" onSubmit={submitBuild}>
+      <PageSidebar
+        items={[
+          {
+            label: "Encyclopédie",
+            href: "/stuffs-builds/encyclopedie",
+            icon: ShieldCheck,
+          },
+          { label: "Ajouter", href: "#ajouter", icon: Send, active: true },
+        ]}
+        subtitle="Builds"
+        title="STUFFS"
+      />
+
+      <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-8">
+        <div className="mx-auto max-w-5xl">
+        <form className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-6 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-8" id="ajouter" onSubmit={submitBuild}>
           <div className="relative z-10 mb-6 flex items-center gap-5">
             <div className="grid size-16 place-items-center rounded-3xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820]">
               <LunaeriaLogo size={35} />
@@ -265,6 +275,7 @@ export default function AjouterStuffPage() {
             </div>
           </div>
         </form>
+        </div>
       </div>
     </main>
   );

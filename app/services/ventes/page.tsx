@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
   Coins,
   ImagePlus,
   PackageOpen,
@@ -12,10 +11,10 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import { PageSidebar } from "@/components/page-sidebar";
 import { useHomepageContent } from "@/lib/lunaeria-content";
 
 const emptySale = {
@@ -122,18 +121,18 @@ export default function VentesPage() {
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <PageSidebar
+        items={[{ label: "Ventes", href: "#ventes", icon: ShoppingBag, active: true }]}
+        subtitle="Services"
+        title="MARCHÉ"
+      />
+
+      <div className="relative z-10 min-h-screen px-4 py-6 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-6">
+        <div className="mx-auto max-w-7xl">
         <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-6 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-8">
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <Link
-                className="inline-flex items-center gap-2 text-sm font-black text-violet-100 transition hover:text-violet-50"
-                href="/"
-              >
-                <ArrowLeft size={17} />
-                Retour au hub
-              </Link>
-              <div className="mt-6 flex items-center gap-4">
+              <div className="flex items-center gap-4">
                 <div className="grid size-14 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2)]">
                   <LunaeriaLogo size={31} />
                 </div>
@@ -161,7 +160,7 @@ export default function VentesPage() {
           </div>
         </header>
 
-        <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="ventes">
           {content.sales.map((sale) => (
             <article
               className="premium-card rounded-[1.35rem] border border-violet-100/9 bg-[#06091b]/72 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.35)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/18"
@@ -212,6 +211,7 @@ export default function VentesPage() {
             </article>
           ))}
         </section>
+        </div>
       </div>
 
       {isModalOpen ? (

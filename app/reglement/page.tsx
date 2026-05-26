@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowLeft, ScrollText, ShieldCheck, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { ScrollText, ShieldCheck, Sparkles } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import { PageSidebar } from "@/components/page-sidebar";
 import { useHomepageContent } from "@/lib/lunaeria-content";
 
 const supabase = createClient(
@@ -32,6 +32,14 @@ export default function ReglementPage() {
   const [regulationBody, setRegulationBody] = useState("");
   const [isRegulationLoaded, setIsRegulationLoaded] = useState(false);
   const { introTitle, introText, sections } = splitRules(regulationBody);
+  const sidebarItems = [
+    { label: "Règlement", href: "#reglement", icon: ScrollText, active: true },
+    ...sections.slice(0, 6).map((section, index) => ({
+      label: section.split("\n").filter(Boolean)[0] || `Section ${index + 1}`,
+      href: `#regle-${index}`,
+      icon: index % 2 === 0 ? ShieldCheck : ScrollText,
+    })),
+  ];
 
   useEffect(() => {
     async function loadReglementFromSupabase() {
@@ -70,16 +78,11 @@ export default function ReglementPage() {
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link
-          className="inline-flex items-center gap-2 text-sm font-black text-violet-100 transition hover:text-violet-50"
-          href="/"
-        >
-          <ArrowLeft size={17} />
-          Retour au hub
-        </Link>
+      <PageSidebar items={sidebarItems} subtitle="Charte" title="LUNAE" />
 
-        <header className="premium-card mt-6 rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 text-center shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10">
+      <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-8">
+        <div className="mx-auto max-w-5xl">
+        <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 text-center shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10" id="reglement">
           <div className="relative z-10 mx-auto grid size-16 place-items-center rounded-3xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_22px_rgba(124,58,237,0.22)]">
             <LunaeriaLogo size={35} />
           </div>
@@ -131,6 +134,7 @@ export default function ReglementPage() {
             return (
               <section
                 className="grid gap-5"
+                id={`regle-${index}`}
                 key={`${title}-${index}`}
               >
                 <article className="premium-card rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/70 p-5 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-6">
@@ -163,6 +167,7 @@ export default function ReglementPage() {
             );
           })}
         </section>
+        </div>
       </div>
     </main>
   );

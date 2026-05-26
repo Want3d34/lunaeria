@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowLeft,
   BookOpen,
   Compass,
   Database,
@@ -9,10 +8,10 @@ import {
   Map,
   Sparkles,
 } from "lucide-react";
-import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import { PageSidebar } from "@/components/page-sidebar";
 import { type UsefulLink, type UsefulLinkSection } from "@/lib/lunaeria-content";
 
 const sectionLabels: Record<UsefulLinkSection, string> = {
@@ -63,16 +62,18 @@ export default function LiensUtilesPage() {
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link
-          className="inline-flex items-center gap-2 text-sm font-black text-violet-100 transition hover:text-violet-50"
-          href="/"
-        >
-          <ArrowLeft size={17} />
-          Retour au hub
-        </Link>
+      <PageSidebar
+        items={[
+          { label: "Généraux", href: "#general", icon: Database, active: true },
+          { label: "Guides", href: "#specific", icon: BookOpen },
+        ]}
+        subtitle="Bibliothèque"
+        title="LIENS"
+      />
 
-        <header className="premium-card mt-6 rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10">
+      <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-8">
+        <div className="mx-auto max-w-7xl">
+        <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10">
           <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="grid size-16 place-items-center rounded-3xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_22px_rgba(124,58,237,0.22)]">
               <LunaeriaLogo size={35} />
@@ -93,7 +94,7 @@ export default function LiensUtilesPage() {
         </header>
 
         {(Object.keys(sectionLabels) as UsefulLinkSection[]).map((section) => (
-          <section className="mt-8" key={section}>
+          <section className="mt-8" id={section} key={section}>
             <h2 className="mb-4 text-xl font-black text-violet-50">
               {sectionLabels[section]}
             </h2>
@@ -130,6 +131,7 @@ export default function LiensUtilesPage() {
             </div>
           </section>
         ))}
+        </div>
       </div>
     </main>
   );
