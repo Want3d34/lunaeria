@@ -1,11 +1,10 @@
 "use client";
 
-import { CheckCircle2, ScrollText, Sparkles } from "lucide-react";
+import { CheckCircle2, ScrollText } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
-import { useHomepageContent } from "@/lib/lunaeria-content";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,101 +13,89 @@ const supabase = createClient(
 
 const REGULATION_ACCEPTANCE_KEY = "lunaeria-reglement-accepted";
 
-function splitRules(body: string) {
-  const normalizedBody = body.replace(
-    "Bienvenue dans Lunaeria",
-    "Bienvenue chez Lunaeria",
-  );
-  const blocks = normalizedBody
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean);
-
-  const firstSectionIndex = blocks.findIndex((block) =>
-    /^\s*\d+\.\s/.test(block),
-  );
-  const introBlocks =
-    firstSectionIndex >= 0 ? blocks.slice(0, firstSectionIndex) : blocks;
-  const [introTitle, ...introTextBlocks] = introBlocks.filter(
-    (block) => !block.toLowerCase().includes("officiel"),
-  );
-  const introText = introTextBlocks.join("\n\n");
-  const contentBlocks =
-    firstSectionIndex >= 0 ? blocks.slice(firstSectionIndex) : blocks.slice(3);
-  const sections: { title: string; lines: string[] }[] = [];
-
-  for (const block of contentBlocks) {
-    const isSectionTitle =
-      /^\d+\.\s/.test(block) || block.toLowerCase() === "valeurs de lunaeria";
-
-    if (isSectionTitle || sections.length === 0) {
-      sections.push({ title: block, lines: [] });
-      continue;
-    }
-
-    sections[sections.length - 1].lines.push(
-      ...block
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean),
-    );
-  }
-
-  return { introTitle, introText, sections };
-}
-
-function RegulationLine({ line }: { line: string }) {
-  if (line.endsWith(":")) {
-    return (
-      <div className="mt-6 flex items-center gap-3 rounded-2xl border border-violet-100/10 bg-violet-100/[0.035] px-4 py-3 text-violet-50">
-        <ScrollText className="shrink-0 text-violet-100" size={18} />
-        <p className="font-black">{line}</p>
-      </div>
-    );
-  }
-
-  if (line.startsWith("-")) {
-    return (
-      <p className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.025] px-4 py-3 text-violet-100/90 before:mr-3 before:text-violet-300 before:content-['•']">
-        {line.replace(/^- /, "")}
-      </p>
-    );
-  }
-
-  return <p>{line}</p>;
-}
+const regulationSections = [
+  {
+    title: "1. Respect & Comportement",
+    paragraphs: [
+      "Le respect est obligatoire envers tous les membres.",
+      "Aucun propos insultant, discriminatoire, agressif ou toxique ne sera toléré.",
+      "Les conflits doivent être réglés calmement et en privé avec un responsable si nécessaire.",
+      "La politesse est essentielle : un bonjour, merci ou au revoir ne coûte rien.",
+      "Toute attitude nuisible à l’ambiance de la guilde pourra entraîner des sanctions.",
+    ],
+  },
+  {
+    title: "2. Esprit de Guilde",
+    paragraphs: [
+      "Lunaeria est une guilde d’entraide avant tout.",
+      "Participer à la vie de la guilde est important : discussions, activités, aide, événements.",
+      "L’égoïsme excessif et les comportements opportunistes ne correspondent pas à nos valeurs.",
+      "Chacun progresse à son rythme, dans le respect des autres.",
+    ],
+  },
+  {
+    title: "⚔️ 3. Activité & Participation",
+    paragraphs: [
+      "Une activité régulière est demandée.",
+      "Une absence prolongée sans prévenir peut entraîner une exclusion afin de garder une guilde active.",
+      "Les membres sont encouragés à participer aux sorties, donjons, événements et projets de guilde.",
+      "Les périodes d’essai sont observées attentivement afin de vérifier l’intégration et l’état d’esprit du joueur.",
+    ],
+  },
+  {
+    title: "️ 4. Période d’Essai",
+    paragraphs: [
+      "Toute nouvelle recrue passe par une période d’essai minimale d’une semaine.",
+      "Cette période sert à évaluer :",
+    ],
+    items: [
+      "Le comportement",
+      "La mentalité",
+      "L’implication",
+      "La compatibilité avec les valeurs de Lunaeria",
+      "Une bonne ambiance compte autant que le niveau ou l’optimisation",
+    ],
+  },
+  {
+    title: "5. Discord & Communication",
+    paragraphs: [
+      "Le Discord est un espace important de la guilde.",
+      "Les règles de respect y sont identiques à celles en jeu.",
+      "Le spam, les provocations inutiles ou les comportements dérangeants ne sont pas acceptés.",
+      "Les annonces importantes doivent être lues régulièrement.",
+    ],
+  },
+  {
+    title: "6. Sanctions",
+    paragraphs: ["Selon la gravité des faits :"],
+    items: [
+      "Rappel à l’ordre",
+      "Avertissement",
+      "Retrait de certains droits",
+      "Bannissement définitif",
+    ],
+    footer:
+      "Les décisions du staff sont prises dans l’intérêt de la stabilité et de l’ambiance de la guilde.",
+  },
+  {
+    title: "Valeurs de Lunaeria",
+    paragraphs: ["Chez Lunaeria nous privilégions :"],
+    items: [
+      "La loyauté",
+      "Le respect",
+      "L’entraide",
+      "La maturité",
+      "La bonne humeur",
+      "La progression collective",
+    ],
+    footer:
+      "Une guilde solide ne se construit pas uniquement avec des personnages puissants, mais surtout avec de bonnes personnes.",
+  },
+];
 
 export default function ReglementPage() {
-  const { content } = useHomepageContent();
-  const [regulationBody, setRegulationBody] = useState("");
-  const [isRegulationLoaded, setIsRegulationLoaded] = useState(false);
   const [isDiscordConnected, setIsDiscordConnected] = useState(false);
   const [hasAcceptedRegulation, setHasAcceptedRegulation] = useState(false);
-  const { introTitle, introText, sections } = splitRules(regulationBody);
-
-  useEffect(() => {
-    async function loadReglementFromSupabase() {
-      const { data, error } = await supabase
-        .from("reglement")
-        .select("*")
-        .order("id", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) {
-        console.error(error);
-        setRegulationBody(content.regulation.body);
-        setIsRegulationLoaded(true);
-        return;
-      }
-
-      setRegulationBody(data?.body ?? content.regulation.body);
-      setIsRegulationLoaded(true);
-    }
-
-    loadReglementFromSupabase();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     async function loadDiscordSession() {
@@ -210,54 +197,66 @@ export default function ReglementPage() {
             </h1>
           </header>
 
-          <section className="mt-8 grid gap-6">
-            {!isRegulationLoaded ? (
-              <div className="grid gap-5" aria-hidden="true">
-                <div className="h-28 rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/70 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md" />
-                <div className="h-56 rounded-[1.4rem] border border-violet-200/10 bg-[#06091b]/50 backdrop-blur-md" />
+          <section className="mt-8 grid gap-7">
+            <article className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md sm:p-8">
+              <div className="relative z-10 space-y-5 text-base leading-8 text-slate-300">
+                <h2 className="text-2xl font-black text-violet-50">
+                  Règlement Officiel de la Guilde Lunaeria
+                </h2>
+                <p className="font-bold text-violet-50">Bienvenue dans Lunaeria</p>
+                <p>
+                  Lunaeria est une guilde basée sur l’entraide, le respect, la
+                  progression collective et une bonne ambiance durable.
+                </p>
+                <p>
+                  Chaque membre représente l’image de la guilde : nous demandons
+                  donc un comportement exemplaire envers les autres joueurs comme
+                  envers les membres internes.
+                </p>
               </div>
-            ) : null}
+            </article>
 
-            {introTitle && introText ? (
-              <article className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md sm:p-7">
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="text-violet-100" size={20} />
-                    <h2 className="text-2xl font-black text-violet-50">
-                      {introTitle}
-                    </h2>
-                  </div>
-                  {introText ? (
-                    <p className="mt-5 text-base leading-8 text-slate-300">
-                      {introText}
-                    </p>
-                  ) : null}
-                </div>
-              </article>
-            ) : null}
-
-            {sections.map((section) => (
-              <article
-                className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-7"
-                key={section.title}
-              >
-                <div className="relative z-10">
-                  <div className="flex items-start gap-4">
-                    <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-100/14 bg-violet-100/[0.055] text-violet-100">
-                      <ScrollText size={19} />
-                    </div>
-                    <h2 className="pt-1 text-2xl font-black leading-tight text-violet-50">
+            <article className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md sm:p-8">
+              <div className="relative z-10 space-y-8">
+                {regulationSections.map((section, index) => (
+                  <section
+                    className="space-y-4 border-b border-violet-100/10 pb-8 last:border-b-0 last:pb-0"
+                    key={section.title}
+                  >
+                    <h2 className="text-2xl font-black leading-tight text-violet-50">
                       {section.title}
                     </h2>
-                  </div>
-                  <div className="mt-6 space-y-4 text-[15px] leading-8 text-slate-300 sm:text-base sm:leading-8">
-                    {section.lines.map((line) => (
-                      <RegulationLine key={`${section.title}-${line}`} line={line} />
-                    ))}
-                  </div>
-                </div>
-              </article>
-            ))}
+                    <div className="space-y-4 text-[15px] leading-8 text-slate-300 sm:text-base sm:leading-8">
+                      {section.paragraphs.map((paragraph) => (
+                        <p key={`${section.title}-${paragraph}`}>{paragraph}</p>
+                      ))}
+                      {section.items?.length ? (
+                        <div className="grid gap-3 pt-1">
+                          {section.items.map((item) => (
+                            <p
+                              className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.025] px-4 py-3 text-violet-100/90 before:mr-3 before:text-violet-300 before:content-['•']"
+                              key={`${section.title}-${item}`}
+                            >
+                              {item}
+                            </p>
+                          ))}
+                        </div>
+                      ) : null}
+                      {section.footer ? <p>{section.footer}</p> : null}
+                    </div>
+                    {index < regulationSections.length - 1 ? (
+                      <div className="pt-2 text-center text-violet-100/35">
+                        ---
+                      </div>
+                    ) : null}
+                  </section>
+                ))}
+
+                <p className="text-2xl font-black text-violet-50">
+                  Bienvenue dans l’aventure Lunaeria
+                </p>
+              </div>
+            </article>
 
             {isDiscordConnected ? (
               <div className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-5 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-6">
