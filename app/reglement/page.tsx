@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, ScrollText, ShieldCheck, Sparkles } from "lucide-react";
+import { CheckCircle2, ScrollText, Sparkles } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
@@ -24,9 +24,48 @@ function splitRules(body: string) {
     .map((block) => block.trim())
     .filter(Boolean);
 
-  const [, introTitle, introText, ...sections] = blocks;
+  const [, introTitle, introText, ...contentBlocks] = blocks;
+  const sections: { title: string; lines: string[] }[] = [];
+
+  for (const block of contentBlocks) {
+    const isSectionTitle =
+      /^\d+\.\s/.test(block) || block.toLowerCase() === "valeurs de lunaeria";
+
+    if (isSectionTitle || sections.length === 0) {
+      sections.push({ title: block, lines: [] });
+      continue;
+    }
+
+    sections[sections.length - 1].lines.push(
+      ...block
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean),
+    );
+  }
 
   return { introTitle, introText, sections };
+}
+
+function RegulationLine({ line }: { line: string }) {
+  if (line.endsWith(":")) {
+    return (
+      <div className="mt-6 flex items-center gap-3 rounded-2xl border border-violet-100/10 bg-violet-100/[0.035] px-4 py-3 text-violet-50">
+        <ScrollText className="shrink-0 text-violet-100" size={18} />
+        <p className="font-black">{line}</p>
+      </div>
+    );
+  }
+
+  if (line.startsWith("-")) {
+    return (
+      <p className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.025] px-4 py-3 text-violet-100/90 before:mr-3 before:text-violet-300 before:content-['•']">
+        {line.replace(/^- /, "")}
+      </p>
+    );
+  }
+
+  return <p>{line}</p>;
 }
 
 export default function ReglementPage() {
@@ -159,11 +198,6 @@ export default function ReglementPage() {
             <h1 className="legend-title relative z-10 mt-3 text-4xl font-black text-violet-50 sm:text-6xl">
               Règlement
             </h1>
-            {isRegulationLoaded && introText ? (
-              <p className="relative z-10 mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-300">
-                {introText}
-              </p>
-            ) : null}
           </header>
 
           <section className="mt-8 grid gap-6">
@@ -174,7 +208,7 @@ export default function ReglementPage() {
               </div>
             ) : null}
 
-            {introTitle ? (
+            {introTitle && introText ? (
               <article className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.38)] backdrop-blur-md sm:p-7">
                 <div className="relative z-10">
                   <div className="flex items-center gap-3">
@@ -192,47 +226,28 @@ export default function ReglementPage() {
               </article>
             ) : null}
 
-            {sections.map((section, index) => {
-              const lines = section.split("\n").filter(Boolean);
-              const title = lines[0];
-              const bodyLines = lines.slice(1);
-
-              return (
-                <article
-                  className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-7"
-                  key={`${title}-${index}`}
-                >
-                  <div className="relative z-10">
-                    <div className="flex items-start gap-4">
-                      <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-100/14 bg-violet-100/[0.055] text-violet-100">
-                        {index % 2 === 0 ? (
-                          <ShieldCheck size={19} />
-                        ) : (
-                          <ScrollText size={19} />
-                        )}
-                      </div>
-                      <h2 className="pt-1 text-2xl font-black leading-tight text-violet-50">
-                        {title}
-                      </h2>
+            {sections.map((section) => (
+              <article
+                className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-6 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-7"
+                key={section.title}
+              >
+                <div className="relative z-10">
+                  <div className="flex items-start gap-4">
+                    <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-100/14 bg-violet-100/[0.055] text-violet-100">
+                      <ScrollText size={19} />
                     </div>
-                    <div className="mt-6 space-y-4 text-[15px] leading-8 text-slate-300 sm:text-base sm:leading-8">
-                      {bodyLines.map((line) =>
-                        line.startsWith("-") ? (
-                          <p
-                            className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.025] px-4 py-3 text-violet-100/90 before:mr-3 before:text-violet-300 before:content-['•']"
-                            key={line}
-                          >
-                            {line.replace(/^- /, "")}
-                          </p>
-                        ) : (
-                          <p key={line}>{line}</p>
-                        ),
-                      )}
-                    </div>
+                    <h2 className="pt-1 text-2xl font-black leading-tight text-violet-50">
+                      {section.title}
+                    </h2>
                   </div>
-                </article>
-              );
-            })}
+                  <div className="mt-6 space-y-4 text-[15px] leading-8 text-slate-300 sm:text-base sm:leading-8">
+                    {section.lines.map((line) => (
+                      <RegulationLine key={`${section.title}-${line}`} line={line} />
+                    ))}
+                  </div>
+                </div>
+              </article>
+            ))}
 
             {isDiscordConnected ? (
               <div className="premium-card rounded-[1.6rem] border border-violet-200/10 bg-[#06091b]/70 p-5 shadow-[0_18px_54px_rgba(0,0,0,0.34)] backdrop-blur-md sm:p-6">
