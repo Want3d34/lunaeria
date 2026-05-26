@@ -174,10 +174,12 @@ const regulationSections = [
 export default function ReglementPage() {
   const [isDiscordConnected, setIsDiscordConnected] = useState(false);
   const [hasAcceptedRegulation, setHasAcceptedRegulation] = useState(false);
+  const [isValidationLoaded, setIsValidationLoaded] = useState(false);
   const [discordValidationProfile, setDiscordValidationProfile] =
     useState<DiscordValidationProfile | null>(null);
 
   async function loadRegulationValidation(user: User | null | undefined) {
+    setIsValidationLoaded(false);
     const profile = getDiscordValidationProfile(user);
 
     setDiscordValidationProfile(profile);
@@ -185,15 +187,8 @@ export default function ReglementPage() {
 
     if (!profile) {
       setHasAcceptedRegulation(false);
+      setIsValidationLoaded(true);
       return;
-    }
-
-    if (typeof window !== "undefined") {
-      setHasAcceptedRegulation(
-        window.localStorage.getItem(
-          `${REGULATION_ACCEPTANCE_KEY}:${profile.discordUserId}`,
-        ) === "true",
-      );
     }
 
     const { data, error } = await supabase
@@ -205,12 +200,14 @@ export default function ReglementPage() {
     if (error) {
       console.error(error);
       setHasAcceptedRegulation(false);
+      setIsValidationLoaded(true);
       return;
     }
 
     const isValidated = Boolean(data);
 
     setHasAcceptedRegulation(isValidated);
+    setIsValidationLoaded(true);
 
     if (isValidated && typeof window !== "undefined") {
       window.localStorage.setItem(
@@ -394,13 +391,21 @@ export default function ReglementPage() {
                     </div>
                   </div>
                   <button
-                    className="discord-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-violet-200/18 bg-[linear-gradient(135deg,rgba(139,92,246,0.36),rgba(79,70,229,0.18))] px-5 text-sm font-black text-violet-50 transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-70"
-                    disabled={hasAcceptedRegulation}
+                    className={`discord-cta inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border px-5 text-sm font-black text-violet-50 transition hover:-translate-y-0.5 disabled:cursor-default disabled:opacity-80 ${
+                      hasAcceptedRegulation
+                        ? "border-emerald-200/24 bg-emerald-500/22 shadow-[0_0_22px_rgba(16,185,129,0.16)]"
+                        : "border-rose-200/24 bg-rose-500/24 shadow-[0_0_22px_rgba(244,63,94,0.15)]"
+                    }`}
+                    disabled={hasAcceptedRegulation || !isValidationLoaded}
                     onClick={acceptRegulation}
                     type="button"
                   >
-                    <CheckCircle2 size={18} />
-                    {hasAcceptedRegulation ? "Validé" : "Valider"}
+                    {hasAcceptedRegulation ? <CheckCircle2 size={18} /> : null}
+                    {hasAcceptedRegulation
+                      ? "Validé"
+                      : isValidationLoaded
+                        ? "Valider"
+                        : "Vérification..."}
                   </button>
                 </div>
               </div>
