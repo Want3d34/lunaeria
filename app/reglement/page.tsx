@@ -24,7 +24,20 @@ function splitRules(body: string) {
     .map((block) => block.trim())
     .filter(Boolean);
 
-  const [, introTitle, introText, ...contentBlocks] = blocks;
+  const firstSectionIndex = blocks.findIndex(
+    (block) => /^\d+\.\s/.test(block) || block.toLowerCase() === "valeurs de lunaeria",
+  );
+  const titleOffset = blocks[0]?.toLowerCase().startsWith("règlement officiel")
+    ? 1
+    : 0;
+  const introBlocks =
+    firstSectionIndex > titleOffset
+      ? blocks.slice(titleOffset, firstSectionIndex)
+      : [];
+  const [introTitle, ...introTextBlocks] = introBlocks;
+  const introText = introTextBlocks.join("\n\n");
+  const contentBlocks =
+    firstSectionIndex >= 0 ? blocks.slice(firstSectionIndex) : [];
   const sections: { title: string; lines: string[] }[] = [];
 
   for (const block of contentBlocks) {
