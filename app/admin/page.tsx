@@ -774,6 +774,7 @@ export default function AdminPage() {
       title: eventDraft.title.trim(),
       date: eventDraft.date.trim(),
       description: eventDraft.description.trim() || "Détails à compléter.",
+      published: true,
     };
 
     const { error } = editingEventId
