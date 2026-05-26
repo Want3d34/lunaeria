@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, ScrollText } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
@@ -12,6 +12,84 @@ const supabase = createClient(
 );
 
 const REGULATION_ACCEPTANCE_KEY = "lunaeria-reglement-accepted";
+
+type DiscordValidationProfile = {
+  discordUserId: string;
+  discordUsername: string;
+};
+
+function getStringMetadataValue(
+  source: Record<string, unknown> | undefined,
+  keys: string[],
+) {
+  if (!source) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const value = source[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
+function getDiscordValidationProfile(
+  user: User | null | undefined,
+): DiscordValidationProfile | null {
+  if (!user) {
+    return null;
+  }
+
+  const discordIdentity = user.identities?.find(
+    (identity) => identity.provider === "discord",
+  );
+
+  if (!discordIdentity) {
+    return null;
+  }
+
+  const userMetadata = user.user_metadata as Record<string, unknown> | undefined;
+  const identityData = discordIdentity.identity_data as
+    | Record<string, unknown>
+    | undefined;
+  const providerId =
+    "provider_id" in discordIdentity
+      ? String(discordIdentity.provider_id || "")
+      : "";
+  const discordUserId =
+    providerId ||
+    getStringMetadataValue(identityData, ["provider_id", "sub", "id"]) ||
+    getStringMetadataValue(userMetadata, ["provider_id", "sub", "discord_id"]);
+
+  if (!discordUserId) {
+    return null;
+  }
+
+  const discordUsername =
+    getStringMetadataValue(userMetadata, [
+      "full_name",
+      "name",
+      "global_name",
+      "preferred_username",
+      "user_name",
+      "username",
+    ]) ||
+    getStringMetadataValue(identityData, [
+      "full_name",
+      "name",
+      "global_name",
+      "preferred_username",
+      "user_name",
+      "username",
+    ]) ||
+    "Compte Discord";
+
+  return { discordUserId, discordUsername };
+}
 
 const regulationSections = [
   {
@@ -96,6 +174,51 @@ const regulationSections = [
 export default function ReglementPage() {
   const [isDiscordConnected, setIsDiscordConnected] = useState(false);
   const [hasAcceptedRegulation, setHasAcceptedRegulation] = useState(false);
+  const [discordValidationProfile, setDiscordValidationProfile] =
+    useState<DiscordValidationProfile | null>(null);
+
+  async function loadRegulationValidation(user: User | null | undefined) {
+    const profile = getDiscordValidationProfile(user);
+
+    setDiscordValidationProfile(profile);
+    setIsDiscordConnected(Boolean(profile));
+
+    if (!profile) {
+      setHasAcceptedRegulation(false);
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      setHasAcceptedRegulation(
+        window.localStorage.getItem(
+          `${REGULATION_ACCEPTANCE_KEY}:${profile.discordUserId}`,
+        ) === "true",
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("reglement_validations")
+      .select("id")
+      .eq("discord_user_id", profile.discordUserId)
+      .maybeSingle();
+
+    if (error) {
+      console.error(error);
+      setHasAcceptedRegulation(false);
+      return;
+    }
+
+    const isValidated = Boolean(data);
+
+    setHasAcceptedRegulation(isValidated);
+
+    if (isValidated && typeof window !== "undefined") {
+      window.localStorage.setItem(
+        `${REGULATION_ACCEPTANCE_KEY}:${profile.discordUserId}`,
+        "true",
+      );
+    }
+  }
 
   useEffect(() => {
     async function loadDiscordSession() {
@@ -106,19 +229,7 @@ export default function ReglementPage() {
         return;
       }
 
-      const user = data.session?.user;
-      const hasDiscordIdentity = Boolean(
-        user?.identities?.some((identity) => identity.provider === "discord"),
-      );
-
-      setIsDiscordConnected(hasDiscordIdentity);
-
-      if (user?.id && typeof window !== "undefined") {
-        setHasAcceptedRegulation(
-          window.localStorage.getItem(`${REGULATION_ACCEPTANCE_KEY}:${user.id}`) ===
-            "true",
-        );
-      }
+      await loadRegulationValidation(data.session?.user);
     }
 
     loadDiscordSession();
@@ -126,22 +237,7 @@ export default function ReglementPage() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      const hasDiscordIdentity = Boolean(
-        session?.user.identities?.some((identity) => identity.provider === "discord"),
-      );
-
-      setIsDiscordConnected(hasDiscordIdentity);
-
-      if (!session?.user.id || typeof window === "undefined") {
-        setHasAcceptedRegulation(false);
-        return;
-      }
-
-      setHasAcceptedRegulation(
-        window.localStorage.getItem(
-          `${REGULATION_ACCEPTANCE_KEY}:${session.user.id}`,
-        ) === "true",
-      );
+      void loadRegulationValidation(session?.user);
     });
 
     return () => subscription.unsubscribe();
@@ -155,13 +251,36 @@ export default function ReglementPage() {
       return;
     }
 
-    const userId = data.session?.user.id;
+    const profile =
+      discordValidationProfile ?? getDiscordValidationProfile(data.session?.user);
 
-    if (!userId || typeof window === "undefined") {
+    if (!profile) {
       return;
     }
 
-    window.localStorage.setItem(`${REGULATION_ACCEPTANCE_KEY}:${userId}`, "true");
+    const { error: validationError } = await supabase
+      .from("reglement_validations")
+      .upsert(
+        {
+          discord_user_id: profile.discordUserId,
+          discord_username: profile.discordUsername,
+          validated_at: new Date().toISOString(),
+        },
+        { onConflict: "discord_user_id" },
+      );
+
+    if (validationError) {
+      console.error(validationError);
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        `${REGULATION_ACCEPTANCE_KEY}:${profile.discordUserId}`,
+        "true",
+      );
+    }
+
     setHasAcceptedRegulation(true);
   }
 
