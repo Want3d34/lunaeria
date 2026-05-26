@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 function Sidebar({ activeSlug }: { activeSlug: string }) {
   return (
-    <aside className="sidebar-shell fixed left-0 top-0 z-30 flex h-24 w-full flex-row items-center gap-3 overflow-x-auto border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
+    <aside className="sidebar-shell fixed left-0 top-0 z-30 flex h-28 w-full flex-row items-center gap-3 overflow-x-auto border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-5 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
       <Link
         className="relative z-10 flex shrink-0 items-center justify-center gap-3 rounded-[1.35rem] border border-violet-200/9 bg-violet-100/[0.028] p-2 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),inset_0_0_16px_rgba(196,181,253,0.025),0_0_16px_rgba(76,29,149,0.055)] lg:mb-7 lg:w-full lg:p-3 lg:justify-start"
         href="/"
@@ -74,18 +74,18 @@ function Sidebar({ activeSlug }: { activeSlug: string }) {
         </div>
       </Link>
 
-      <nav className="relative z-10 flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:overflow-y-auto lg:overflow-x-visible lg:pr-1">
+      <nav className="relative z-10 flex min-w-0 flex-1 flex-row gap-2.5 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:gap-2 lg:overflow-y-auto lg:overflow-x-visible lg:pr-1">
         <Link
-          className="group/nav relative flex h-12 min-w-14 items-center justify-center gap-3 overflow-hidden rounded-2xl border border-transparent px-3 text-sm font-bold text-slate-400 transition duration-300 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100 lg:w-full lg:justify-start"
+          className="group/nav relative flex h-16 min-w-[4.7rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-[1.35rem] border border-transparent px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400 transition duration-300 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100 lg:h-12 lg:min-w-14 lg:w-full lg:flex-row lg:justify-start lg:gap-3 lg:rounded-2xl lg:px-3 lg:py-0 lg:text-sm lg:font-bold lg:normal-case lg:tracking-normal"
           href="/"
         >
           <Home className="shrink-0" size={19} />
-          <span className="hidden flex-1 text-left lg:inline">Accueil</span>
+          <span className="block max-w-[4.2rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">Accueil</span>
         </Link>
 
-        <div className="group/nav relative flex h-12 min-w-14 items-center justify-center gap-3 overflow-hidden rounded-2xl border border-violet-200/16 bg-[linear-gradient(90deg,rgba(124,58,237,0.13),rgba(91,33,182,0.055))] px-3 text-sm font-bold text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)] lg:w-full lg:justify-start">
+        <div className="group/nav relative flex h-16 min-w-[4.7rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-[1.35rem] border border-violet-200/16 bg-[linear-gradient(90deg,rgba(124,58,237,0.13),rgba(91,33,182,0.055))] px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)] lg:h-12 lg:min-w-14 lg:w-full lg:flex-row lg:justify-start lg:gap-3 lg:rounded-2xl lg:px-3 lg:py-0 lg:text-sm lg:font-bold lg:normal-case lg:tracking-normal">
           <BriefcaseBusiness className="shrink-0" size={19} />
-          <span className="hidden flex-1 text-left lg:inline">Métiers</span>
+          <span className="block max-w-[4.2rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">Métiers</span>
         </div>
 
         {professions.map((profession) => {
@@ -93,7 +93,7 @@ function Sidebar({ activeSlug }: { activeSlug: string }) {
 
           return (
             <Link
-              className={`group/nav relative flex h-12 min-w-[3.5rem] items-center justify-center gap-2 overflow-hidden rounded-2xl border px-3 text-sm font-bold transition duration-300 lg:hidden ${
+              className={`group/nav relative flex h-16 min-w-[4.7rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-[1.35rem] border px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] transition duration-300 lg:hidden ${
                 profession.slug === activeSlug
                   ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)]"
                   : "border-transparent text-slate-400 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
@@ -103,7 +103,9 @@ function Sidebar({ activeSlug }: { activeSlug: string }) {
               title={profession.name.fr}
             >
               <ProfessionIcon className="shrink-0" size={19} />
-              <span className="sr-only">{profession.name.fr}</span>
+              <span className="block max-w-[4.2rem] text-center leading-3">
+                {profession.name.fr}
+              </span>
             </Link>
           );
         })}
@@ -241,7 +243,7 @@ export default async function MetierPage({ params }: PageProps) {
 
       <Sidebar activeSlug={profession.slug} />
 
-      <div className="relative z-10 min-h-screen p-3 pt-28 sm:p-5 sm:pt-30 lg:ml-72 lg:p-8 lg:pt-8">
+      <div className="relative z-10 min-h-screen p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:p-8 lg:pt-8">
         <section className="premium-card relative overflow-hidden rounded-[1.45rem] border border-violet-200/9 bg-[#06091b]/76 p-5 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)] backdrop-blur-md sm:rounded-[2.1rem] sm:p-10">
           <div className="relative z-10 grid gap-8 xl:grid-cols-[1fr_360px]">
             <div>

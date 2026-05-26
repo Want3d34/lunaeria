@@ -21,11 +21,11 @@ export function LunaeriaSelect({
 
   return (
     <div className={`relative overflow-visible grid gap-2 ${isOpen ? "z-[99999]" : "z-40"}`}>
-      <span className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+      <span className="text-xs font-black uppercase tracking-[0.16em] text-violet-200 sm:tracking-[0.18em]">
         {label}
       </span>
       <button
-        className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-violet-100/10 bg-[#030512]/72 px-3 text-left text-sm font-bold text-violet-50 outline-none shadow-[inset_0_0_14px_rgba(196,181,253,0.025)] transition hover:border-violet-200/22 hover:bg-[#06091b]/86"
+        className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-violet-100/10 bg-[#030512]/72 px-4 text-left text-sm font-bold text-violet-50 outline-none shadow-[inset_0_0_14px_rgba(196,181,253,0.025)] transition hover:border-violet-200/22 hover:bg-[#06091b]/86 sm:min-h-11 sm:px-3"
         onClick={() => setIsOpen((current) => !current)}
         type="button"
       >
@@ -41,7 +41,7 @@ export function LunaeriaSelect({
         >
           {options.map((option) => (
             <button
-              className={`flex min-h-10 w-full items-center justify-between rounded-xl px-3 text-left text-sm font-bold transition ${
+              className={`flex min-h-11 w-full items-center justify-between rounded-xl px-3.5 text-left text-sm font-bold transition sm:min-h-10 sm:px-3 ${
                 option === value
                   ? "bg-violet-100/[0.09] text-violet-50"
                   : "text-slate-400 hover:bg-violet-100/[0.055] hover:text-violet-100"
@@ -76,16 +76,16 @@ export function ChoiceChips({
 }) {
   return (
     <div className="grid gap-2">
-      <span className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+      <span className="text-xs font-black uppercase tracking-[0.16em] text-violet-200 sm:tracking-[0.18em]">
         {label}
       </span>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2.5 sm:gap-2">
         {options.map((option) => {
           const active = option === value;
 
           return (
             <button
-              className={`rounded-full border px-3 py-2 text-xs font-black uppercase tracking-[0.14em] transition ${
+              className={`min-h-11 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.12em] transition sm:min-h-0 sm:px-3 sm:tracking-[0.14em] ${
                 active
                   ? "border-violet-200/24 bg-violet-100/[0.09] text-violet-50 shadow-[0_0_14px_rgba(124,58,237,0.14)]"
                   : "border-violet-100/10 bg-[#030512]/60 text-slate-400 hover:border-violet-200/18 hover:text-violet-100"
@@ -114,13 +114,13 @@ export function ElementChips({
 }) {
   return (
     <div className="grid gap-2">
-      <span className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+      <span className="text-xs font-black uppercase tracking-[0.16em] text-violet-200 sm:tracking-[0.18em]">
         Élément
       </span>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2.5 sm:gap-2">
         {includeAll ? (
           <button
-            className={`rounded-full border px-3 py-2 text-xs font-black uppercase tracking-[0.14em] transition ${
+            className={`min-h-11 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.12em] transition sm:min-h-0 sm:px-3 sm:tracking-[0.14em] ${
               selected.length === 0
                 ? "border-violet-200/22 bg-violet-100/[0.08] text-violet-50"
                 : "border-violet-100/10 bg-[#030512]/60 text-slate-400 hover:text-violet-100"
@@ -136,7 +136,7 @@ export function ElementChips({
 
           return (
             <button
-              className={`rounded-full border px-3 py-2 text-xs font-black uppercase tracking-[0.14em] transition ${
+              className={`min-h-11 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.12em] transition sm:min-h-0 sm:px-3 sm:tracking-[0.14em] ${
                 active
                   ? "bg-violet-100/[0.08] shadow-[0_0_14px_rgba(124,58,237,0.12)]"
                   : "bg-[#030512]/60"

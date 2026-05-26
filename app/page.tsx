@@ -571,18 +571,18 @@ function NavChildrenList({
 }) {
   return (
     <div className="overflow-hidden">
-      <div className="ml-3 mt-2 space-y-2 border-l border-violet-100/12 pl-3">
+      <div className="space-y-2.5 lg:ml-3 lg:mt-2 lg:space-y-2 lg:border-l lg:border-violet-100/12 lg:pl-3">
         {children?.map((child) =>
           child.children?.length ? (
-            <div key={child.label}>
-              <div className="mb-2 flex h-10 items-center rounded-xl border border-violet-200/10 bg-violet-100/[0.035] px-3 text-xs font-black uppercase tracking-[0.16em] text-violet-100">
+            <div className="rounded-2xl border border-violet-100/8 bg-[#030512]/42 p-2 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0" key={child.label}>
+              <div className="mb-2 flex min-h-11 items-center rounded-xl border border-violet-200/10 bg-violet-100/[0.035] px-3 text-xs font-black uppercase tracking-[0.16em] text-violet-100 lg:h-10 lg:min-h-0">
                 <span className="mr-3 h-1.5 w-1.5 rounded-full bg-current opacity-70 shadow-[0_0_5px_currentColor]" />
                 {child.label}
               </div>
-              <div className="ml-3 space-y-2 border-l border-violet-100/10 pl-3">
+              <div className="grid gap-2 pl-2 lg:ml-3 lg:block lg:space-y-2 lg:border-l lg:border-violet-100/10 lg:pl-3">
                 {child.children.map((nestedChild) => (
                   <NextLink
-                    className={`group/sub relative flex h-10 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.16em] transition duration-300 ${
+                    className={`group/sub relative flex min-h-11 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.14em] transition duration-300 lg:h-10 lg:min-h-0 lg:tracking-[0.16em] ${
                       nestedChild.href === pathname || nestedChild.active
                         ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_0_12px_rgba(196,181,253,0.045),0_0_11px_rgba(109,40,217,0.06)]"
                         : "border-transparent text-slate-500 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
@@ -598,7 +598,7 @@ function NavChildrenList({
             </div>
           ) : (
             <NextLink
-              className={`group/sub relative flex h-10 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.16em] transition duration-300 ${
+              className={`group/sub relative flex min-h-11 items-center rounded-xl border px-3 text-xs font-black uppercase tracking-[0.14em] transition duration-300 lg:h-10 lg:min-h-0 lg:tracking-[0.16em] ${
                 child.href === pathname || child.active
                   ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_0_12px_rgba(196,181,253,0.045),0_0_11px_rgba(109,40,217,0.06)]"
                   : "border-transparent text-slate-500 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
@@ -633,7 +633,7 @@ function SidebarNavItem({
     item.active ||
     (Boolean(item.href) && pathname === item.href) ||
     (hasChildren && open);
-  const controlClassName = `group/nav relative flex h-12 min-w-14 items-center justify-center gap-3 overflow-visible rounded-2xl border px-3 text-sm font-bold transition duration-300 lg:w-full lg:overflow-hidden lg:justify-start ${
+  const controlClassName = `group/nav relative flex h-16 min-w-[4.7rem] items-center justify-center gap-1 overflow-visible rounded-[1.35rem] border px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] transition duration-300 lg:h-12 lg:min-w-14 lg:w-full lg:flex-row lg:justify-start lg:gap-3 lg:overflow-hidden lg:rounded-2xl lg:px-3 lg:py-0 lg:text-sm lg:font-bold lg:normal-case lg:tracking-normal ${
     isActive
       ? "border-violet-200/20 bg-[linear-gradient(90deg,rgba(124,58,237,0.16),rgba(91,33,182,0.07))] text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.055),0_0_16px_rgba(139,92,246,0.1)]"
       : "border-transparent text-slate-400 hover:border-violet-200/18 hover:bg-violet-100/[0.055] hover:text-violet-50 hover:shadow-[0_0_16px_rgba(139,92,246,0.095)]"
@@ -645,13 +645,15 @@ function SidebarNavItem({
         className="shrink-0 transition duration-300 group-hover/nav:scale-105 group-hover/nav:drop-shadow-[0_0_6px_rgba(196,181,253,0.26)]"
         size={19}
       />
-      <span className="hidden flex-1 text-left lg:inline">{item.label}</span>
+      <span className="block max-w-[4.2rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">
+        {item.label}
+      </span>
       {hasChildren ? (
         <ChevronDown
-          className={`hidden text-violet-100/58 transition duration-300 lg:block ${
+          className={`absolute right-1.5 top-1.5 text-violet-100/58 transition duration-300 lg:static lg:block ${
             open ? "rotate-180" : ""
           }`}
-          size={16}
+          size={14}
         />
       ) : null}
     </>
@@ -1279,18 +1281,18 @@ export default function Home() {
       <div className="star-veil fixed inset-0 opacity-42" />
       <div className="fog-veil fixed inset-0" />
 
-      <aside className="sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
-        <div className="relative z-10 -mt-2 flex shrink-0 items-center justify-center py-0 lg:mb-2 lg:w-full">
+      <aside className="sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-28 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
+        <div className="relative z-10 flex w-20 shrink-0 items-center justify-center py-0 lg:-mt-2 lg:mb-2 lg:w-full">
           <img
             src="/newlogo.png"
             alt="Lunaeria"
-            className="relative z-10 w-[136%] max-w-none object-contain drop-shadow-[0_0_12px_rgba(167,139,250,0.16)]"
+            className="relative z-10 w-full max-w-none object-contain drop-shadow-[0_0_12px_rgba(167,139,250,0.16)] lg:w-[136%]"
           />
         </div>
 
         <div className="relative z-10 mx-auto mb-3 hidden h-px w-4/5 overflow-hidden rounded-full bg-gradient-to-r from-transparent via-violet-200/28 to-transparent shadow-[0_0_14px_rgba(167,139,250,0.18)] lg:block" />
 
-        <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 flex-row gap-2 overflow-x-auto overflow-y-visible pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-col lg:overflow-visible lg:pr-0">
+        <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 snap-x flex-row gap-2.5 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:snap-none lg:flex-col lg:gap-0 lg:overflow-visible lg:p-0 lg:pr-0">
           {navItems.map((item) => (
             <SidebarNavItem
               item={item}
@@ -1312,7 +1314,7 @@ export default function Home() {
         </nav>
 
         {activeMobileSection ? (
-          <div className="fixed left-3 right-3 top-[6.75rem] z-[99999] max-h-[calc(100svh-8rem)] overflow-y-auto rounded-2xl border border-violet-200/12 bg-[#050719]/98 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.75)] backdrop-blur-md lg:hidden">
+          <div className="fixed left-3 right-3 top-[7.75rem] z-[99999] max-h-[calc(100svh-8.75rem)] overflow-y-auto overscroll-contain rounded-[1.35rem] border border-violet-200/12 bg-[#050719]/98 p-3 shadow-[0_24px_70px_rgba(0,0,0,0.75)] backdrop-blur-md lg:hidden">
             <NavChildrenList pathname={pathname}>
               {activeMobileSection.children}
             </NavChildrenList>
@@ -1330,7 +1332,7 @@ export default function Home() {
         </div>
       </aside>
 
-      <div className="relative z-0 min-h-screen max-w-full p-3 pt-28 sm:p-5 sm:pt-30 lg:ml-72 lg:max-w-none lg:p-8">
+      <div className="relative z-0 min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-8">
         <section className="hero-shell relative min-h-[520px] overflow-hidden rounded-[1.45rem] border border-violet-200/9 bg-slate-950 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)] sm:rounded-[2.1rem] lg:min-h-[560px]">
           <div className="hero-artwork absolute inset-0 bg-[url('/fond.png')] bg-cover bg-[center_42%]" />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,5,18,0.82)_0%,rgba(7,8,25,0.54)_34%,rgba(8,7,24,0.07)_74%,rgba(4,5,18,0.16)_100%)]" />
