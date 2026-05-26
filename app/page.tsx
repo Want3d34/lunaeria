@@ -710,6 +710,7 @@ export default function Home() {
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
   const [selectedAnnouncement, setSelectedAnnouncement] =
     useState<AnnouncementItem | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(() =>
@@ -1586,25 +1587,37 @@ export default function Home() {
               ) : null}
               {isDynamicContentLoaded ? events.map((eventItem, index) => {
                 const Icon = eventIcons[index % eventIcons.length];
+                const isLongEvent =
+                  eventItem.description.trim().length > 170 ||
+                  eventItem.description.includes("\n");
 
                 return (
                   <div
                     key={eventItem.id}
-                    className="flex items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:items-center sm:gap-4"
+                    className="flex max-h-60 min-h-40 items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:gap-4"
                   >
-                    <div className="grid size-11 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                    <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
                       <Icon size={19} />
                     </div>
-                    <div>
-                      <p className="font-black text-violet-50">
+                    <div className="flex min-w-0 flex-1 flex-col self-stretch">
+                      <p className="line-clamp-2 font-black leading-5 text-violet-50">
                         {eventItem.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
                         {eventItem.date}
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                      <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
                         {eventItem.description}
                       </p>
+                      {isLongEvent ? (
+                        <button
+                          className="mt-auto pt-4 text-left text-xs font-black uppercase tracking-[0.16em] text-violet-200 transition hover:text-violet-50"
+                          onClick={() => setSelectedEvent(eventItem)}
+                          type="button"
+                        >
+                          Lire la suite →
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 );
@@ -1949,6 +1962,41 @@ export default function Home() {
             </div>
             <div className="relative z-10 mt-5 max-h-[60vh] overflow-y-auto rounded-2xl border border-violet-100/10 bg-[#030512]/64 p-4 text-sm leading-7 text-slate-300 shadow-[inset_0_0_18px_rgba(196,181,253,0.024)] sm:p-5 sm:text-base sm:leading-8">
               {selectedAnnouncement.content}
+            </div>
+          </article>
+        </div>
+      ) : null}
+
+      {selectedEvent ? (
+        <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-4 backdrop-blur-md">
+          <button
+            aria-label="Fermer l'évènement"
+            className="absolute inset-0"
+            onClick={() => setSelectedEvent(null)}
+            type="button"
+          />
+          <article className="relative z-10 max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-violet-200/14 bg-[#06091b]/94 p-5 shadow-[0_42px_120px_rgba(0,0,0,0.72),0_0_30px_rgba(76,29,149,0.14)] sm:p-6">
+            <button
+              aria-label="Fermer l'évènement"
+              className="absolute right-4 top-4 z-20 grid size-10 place-items-center rounded-xl border border-violet-100/12 bg-[#030512]/80 text-violet-100 backdrop-blur-md transition hover:bg-violet-100/[0.08]"
+              onClick={() => setSelectedEvent(null)}
+              type="button"
+            >
+              <X size={18} />
+            </button>
+            <div className="relative z-10 pr-12">
+              <span className="text-xs font-black uppercase tracking-[0.24em] text-violet-200">
+                Évènement
+              </span>
+              <h2 className="mt-3 break-words text-2xl font-black leading-tight text-violet-50 sm:text-3xl">
+                {selectedEvent.title}
+              </h2>
+              <p className="mt-2 text-sm font-bold text-[#e8dcbd]">
+                {selectedEvent.date}
+              </p>
+            </div>
+            <div className="relative z-10 mt-5 max-h-[60vh] overflow-y-auto rounded-2xl border border-violet-100/10 bg-[#030512]/64 p-4 text-sm leading-7 text-slate-300 shadow-[inset_0_0_18px_rgba(196,181,253,0.024)] sm:p-5 sm:text-base sm:leading-8">
+              {selectedEvent.description}
             </div>
           </article>
         </div>
