@@ -27,11 +27,12 @@ function splitRules(body: string) {
   const firstSectionIndex = blocks.findIndex((block) =>
     /^\s*\d+\.\s/.test(block),
   );
-  const introTitle = blocks[1] ?? "";
-  const introText =
-    firstSectionIndex > 2
-      ? blocks.slice(2, firstSectionIndex).join("\n\n")
-      : blocks[2] ?? "";
+  const introBlocks =
+    firstSectionIndex >= 0 ? blocks.slice(0, firstSectionIndex) : blocks;
+  const [introTitle, ...introTextBlocks] = introBlocks.filter(
+    (block) => !block.toLowerCase().includes("officiel"),
+  );
+  const introText = introTextBlocks.join("\n\n");
   const contentBlocks =
     firstSectionIndex >= 0 ? blocks.slice(firstSectionIndex) : blocks.slice(3);
   const sections: { title: string; lines: string[] }[] = [];
