@@ -708,6 +708,8 @@ export default function Home() {
   const [isOnlineMembersLoaded, setIsOnlineMembersLoaded] = useState(false);
   const [isGalleryLoaded, setIsGalleryLoaded] = useState(false);
   const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
+  const [selectedAnnouncement, setSelectedAnnouncement] =
+    useState<AnnouncementItem | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(() =>
@@ -1464,7 +1466,7 @@ export default function Home() {
             icon={Bell}
             className="xl:col-span-2"
           >
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid items-start gap-3 md:grid-cols-2">
               {!isDynamicContentLoaded
                 ? [0, 1].map((item) => (
                     <ContentSkeleton className="min-h-[154px]" key={item} />
@@ -1475,22 +1477,36 @@ export default function Home() {
                   Aucune annonce publiée pour le moment.
                 </div>
               ) : null}
-              {isDynamicContentLoaded ? homepageAnnouncements.map((item) => (
-                <article
-                  key={item.id}
-                  className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-4 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
-                >
-                  <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
-                    {item.category}
-                  </span>
-                  <h3 className="mt-3 text-sm font-black text-violet-50">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
-                    {item.content}
-                  </p>
-                </article>
-              )) : null}
+              {isDynamicContentLoaded ? homepageAnnouncements.map((item) => {
+                const isLongAnnouncement =
+                  item.content.trim().length > 170 || item.content.includes("\n");
+
+                return (
+                  <article
+                    key={item.id}
+                    className="flex max-h-60 min-h-40 flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-4 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
+                  >
+                    <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
+                      {item.category}
+                    </span>
+                    <h3 className="mt-3 line-clamp-2 text-sm font-black leading-5 text-violet-50">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 overflow-hidden text-sm leading-6 text-slate-300 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                      {item.content}
+                    </p>
+                    {isLongAnnouncement ? (
+                      <button
+                        className="mt-auto pt-4 text-left text-xs font-black uppercase tracking-[0.16em] text-violet-200 transition hover:text-violet-50"
+                        onClick={() => setSelectedAnnouncement(item)}
+                        type="button"
+                      >
+                        Lire la suite
+                      </button>
+                    ) : null}
+                  </article>
+                );
+              }) : null}
             </div>
           </PremiumCard>
 
@@ -1903,6 +1919,38 @@ export default function Home() {
               </aside>
             </div>
           </div>
+        </div>
+      ) : null}
+
+      {selectedAnnouncement ? (
+        <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-4 backdrop-blur-md">
+          <button
+            aria-label="Fermer l'annonce"
+            className="absolute inset-0"
+            onClick={() => setSelectedAnnouncement(null)}
+            type="button"
+          />
+          <article className="relative z-10 max-h-[88vh] w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-violet-200/14 bg-[#06091b]/94 p-5 shadow-[0_42px_120px_rgba(0,0,0,0.72),0_0_30px_rgba(76,29,149,0.14)] sm:p-6">
+            <button
+              aria-label="Fermer l'annonce"
+              className="absolute right-4 top-4 z-20 grid size-10 place-items-center rounded-xl border border-violet-100/12 bg-[#030512]/80 text-violet-100 backdrop-blur-md transition hover:bg-violet-100/[0.08]"
+              onClick={() => setSelectedAnnouncement(null)}
+              type="button"
+            >
+              <X size={18} />
+            </button>
+            <div className="relative z-10 pr-12">
+              <span className="text-xs font-black uppercase tracking-[0.24em] text-violet-200">
+                {selectedAnnouncement.category}
+              </span>
+              <h2 className="mt-3 break-words text-2xl font-black leading-tight text-violet-50 sm:text-3xl">
+                {selectedAnnouncement.title}
+              </h2>
+            </div>
+            <div className="relative z-10 mt-5 max-h-[60vh] overflow-y-auto rounded-2xl border border-violet-100/10 bg-[#030512]/64 p-4 text-sm leading-7 text-slate-300 shadow-[inset_0_0_18px_rgba(196,181,253,0.024)] sm:p-5 sm:text-base sm:leading-8">
+              {selectedAnnouncement.content}
+            </div>
+          </article>
         </div>
       ) : null}
 
