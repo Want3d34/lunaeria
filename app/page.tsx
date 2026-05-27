@@ -1555,51 +1555,58 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mt-6 grid gap-6 xl:grid-cols-3">
+        <section className="mt-6 grid items-start gap-6 xl:grid-cols-3">
           <PremiumCard
-            title="Dernières annonces"
-            icon={Bell}
+            title="Prochains events"
+            icon={CalendarDays}
             className="xl:col-span-2"
           >
-            <div className="grid items-start gap-3 md:grid-cols-2">
+            <div className="space-y-3">
               {!isDynamicContentLoaded
-                ? [0, 1].map((item) => (
-                    <ContentSkeleton className="min-h-[154px]" key={item} />
+                ? [0, 1, 2].map((item) => (
+                    <ContentSkeleton className="min-h-[86px]" key={item} />
                   ))
                 : null}
-              {isDynamicContentLoaded && homepageAnnouncements.length === 0 ? (
-                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 md:col-span-2">
-                  Aucune annonce publiée pour le moment.
+              {isDynamicContentLoaded && events.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                  Aucun événement planifié.
                 </div>
               ) : null}
-              {isDynamicContentLoaded ? homepageAnnouncements.map((item) => {
-                const isLongAnnouncement =
-                  item.content.trim().length > 170 || item.content.includes("\n");
+              {isDynamicContentLoaded ? events.map((eventItem, index) => {
+                const Icon = eventIcons[index % eventIcons.length];
+                const isLongEvent =
+                  eventItem.description.trim().length > 170 ||
+                  eventItem.description.includes("\n");
 
                 return (
-                  <article
-                    key={item.id}
-                    className="flex max-h-60 min-h-40 flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-4 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
+                  <div
+                    key={eventItem.id}
+                    className="flex max-h-60 min-h-40 items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:gap-4"
                   >
-                    <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
-                      {item.category}
-                    </span>
-                    <h3 className="mt-3 line-clamp-2 text-sm font-black leading-5 text-violet-50">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 overflow-hidden text-sm leading-6 text-slate-300 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
-                      {item.content}
-                    </p>
-                    {isLongAnnouncement ? (
-                      <button
-                        className="mt-auto pt-4 text-left text-xs font-black uppercase tracking-[0.16em] text-violet-200 transition hover:text-violet-50"
-                        onClick={() => setSelectedAnnouncement(item)}
-                        type="button"
-                      >
-                        Lire la suite
-                      </button>
-                    ) : null}
-                  </article>
+                    <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                      <Icon size={19} />
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col self-stretch">
+                      <p className="line-clamp-2 font-black leading-5 text-violet-50">
+                        {eventItem.title}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {eventItem.date}
+                      </p>
+                      <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                        {eventItem.description}
+                      </p>
+                      {isLongEvent ? (
+                        <button
+                          className="mt-auto pt-4 text-left text-xs font-black uppercase tracking-[0.16em] text-violet-200 transition hover:text-violet-50"
+                          onClick={() => setSelectedEvent(eventItem)}
+                          type="button"
+                        >
+                          Lire la suite →
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
                 );
               }) : null}
             </div>
@@ -1662,58 +1669,51 @@ export default function Home() {
           </PremiumCard>
         </section>
 
-        <section className="mt-6 grid gap-6 xl:grid-cols-5">
+        <section className="mt-6 grid items-start gap-6 xl:grid-cols-5">
           <PremiumCard
-            title="Prochains events"
-            icon={CalendarDays}
+            title="Dernières annonces"
+            icon={Bell}
             className="xl:col-span-2"
           >
-            <div className="space-y-3">
+            <div className="grid items-start gap-3 md:grid-cols-2">
               {!isDynamicContentLoaded
-                ? [0, 1, 2].map((item) => (
-                    <ContentSkeleton className="min-h-[86px]" key={item} />
+                ? [0, 1].map((item) => (
+                    <ContentSkeleton className="min-h-[154px]" key={item} />
                   ))
                 : null}
-              {isDynamicContentLoaded && events.length === 0 ? (
-                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
-                  Aucun événement planifié.
+              {isDynamicContentLoaded && homepageAnnouncements.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 md:col-span-2">
+                  Aucune annonce publiée pour le moment.
                 </div>
               ) : null}
-              {isDynamicContentLoaded ? events.map((eventItem, index) => {
-                const Icon = eventIcons[index % eventIcons.length];
-                const isLongEvent =
-                  eventItem.description.trim().length > 170 ||
-                  eventItem.description.includes("\n");
+              {isDynamicContentLoaded ? homepageAnnouncements.map((item) => {
+                const isLongAnnouncement =
+                  item.content.trim().length > 170 || item.content.includes("\n");
 
                 return (
-                  <div
-                    key={eventItem.id}
-                    className="flex max-h-60 min-h-40 items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:gap-4"
+                  <article
+                    key={item.id}
+                    className="flex max-h-60 min-h-40 flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-4 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
                   >
-                    <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
-                      <Icon size={19} />
-                    </div>
-                    <div className="flex min-w-0 flex-1 flex-col self-stretch">
-                      <p className="line-clamp-2 font-black leading-5 text-violet-50">
-                        {eventItem.title}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {eventItem.date}
-                      </p>
-                      <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
-                        {eventItem.description}
-                      </p>
-                      {isLongEvent ? (
-                        <button
-                          className="mt-auto pt-4 text-left text-xs font-black uppercase tracking-[0.16em] text-violet-200 transition hover:text-violet-50"
-                          onClick={() => setSelectedEvent(eventItem)}
-                          type="button"
-                        >
-                          Lire la suite →
-                        </button>
-                      ) : null}
-                    </div>
-                  </div>
+                    <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
+                      {item.category}
+                    </span>
+                    <h3 className="mt-3 line-clamp-2 text-sm font-black leading-5 text-violet-50">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 overflow-hidden text-sm leading-6 text-slate-300 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                      {item.content}
+                    </p>
+                    {isLongAnnouncement ? (
+                      <button
+                        className="mt-auto pt-4 text-left text-xs font-black uppercase tracking-[0.16em] text-violet-200 transition hover:text-violet-50"
+                        onClick={() => setSelectedAnnouncement(item)}
+                        type="button"
+                      >
+                        Lire la suite
+                      </button>
+                    ) : null}
+                  </article>
                 );
               }) : null}
             </div>

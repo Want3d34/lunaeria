@@ -1136,9 +1136,9 @@ export default function AdminPage() {
         </div>
       ) : null}
 
-      <div className="relative z-10 grid min-h-screen lg:grid-cols-[290px_1fr]">
-        <aside className="sidebar-shell relative border-b border-violet-200/8 bg-[#040719]/88 p-4 shadow-[24px_0_76px_rgba(0,0,0,0.48),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:min-h-screen lg:border-b-0 lg:border-r lg:p-5">
-          <div className="relative z-10 flex items-center gap-3 rounded-[1.55rem] border border-violet-200/10 bg-violet-100/[0.032] p-3 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),0_0_16px_rgba(76,29,149,0.055)]">
+      <div className="relative z-10 grid min-h-screen lg:grid-cols-[300px_1fr]">
+        <aside className="sidebar-shell relative border-b border-violet-200/8 bg-[#040719]/90 p-4 shadow-[24px_0_76px_rgba(0,0,0,0.48),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:sticky lg:top-0 lg:min-h-screen lg:border-b-0 lg:border-r lg:p-5">
+          <div className="relative z-10 flex items-center gap-3 rounded-[1.55rem] border border-violet-200/12 bg-violet-100/[0.04] p-3 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),0_0_16px_rgba(76,29,149,0.055)]">
             <div className="grid size-12 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)]">
               <LunaeriaLogo size={28} />
             </div>
@@ -1152,7 +1152,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <nav className="relative z-10 mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
+          <nav className="relative z-10 mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1 lg:gap-2.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.key;
@@ -1178,7 +1178,7 @@ export default function AdminPage() {
             })}
           </nav>
 
-          <div className="relative z-10 mt-5 rounded-[1.45rem] border border-violet-100/10 bg-[#030512]/64 p-4">
+          <div className="relative z-10 mt-5 rounded-[1.45rem] border border-violet-100/10 bg-[#030512]/70 p-4 shadow-[inset_0_0_18px_rgba(196,181,253,0.02)]">
             <div className="flex items-center gap-3">
               <div className="grid size-10 place-items-center rounded-2xl border border-violet-100/12 bg-violet-100/[0.045] text-violet-100">
                 <LockKeyhole size={17} />
@@ -1255,8 +1255,8 @@ export default function AdminPage() {
               </div>
             </section>
           ) : (
-            <div className="mx-auto max-w-7xl">
-              <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/72 p-6 shadow-[0_42px_120px_rgba(0,0,0,0.5),0_0_28px_rgba(76,29,149,0.075)] backdrop-blur-md sm:p-8">
+            <div className="mx-auto max-w-[92rem]">
+              <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[linear-gradient(180deg,rgba(8,12,35,0.86),rgba(4,7,25,0.72))] p-6 shadow-[0_42px_120px_rgba(0,0,0,0.5),0_0_28px_rgba(76,29,149,0.075)] backdrop-blur-md sm:p-8">
                 <div className="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
                   <div className="max-w-3xl">
                     <p className="text-xs font-black uppercase tracking-[0.3em] text-violet-200">
@@ -1284,14 +1284,14 @@ export default function AdminPage() {
                 </div>
               </header>
 
-              <AdminSection className="mt-5" id="overview">
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <AdminSection className="mt-6" id="overview">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {stats.map((stat) => {
                     const Icon = stat.icon;
 
                     return (
                       <article
-                        className="premium-card rounded-[1.35rem] border border-violet-200/9 bg-[#06091b]/66 p-4 shadow-[0_18px_48px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/18"
+                        className="premium-card rounded-[1.35rem] border border-violet-200/9 bg-[#06091b]/70 p-5 shadow-[0_18px_48px_rgba(0,0,0,0.3)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/18"
                         key={stat.label}
                       >
                         <div className="relative z-10 flex items-start justify-between gap-3">
@@ -1314,7 +1314,7 @@ export default function AdminPage() {
                 </div>
               </AdminSection>
 
-              <div className="mt-5 grid gap-5 xl:grid-cols-2">
+              <div className="mt-6 grid items-start gap-6 xl:grid-cols-2">
                 <AdminSection className="xl:col-span-2" id="accueil">
                   <AdminCard
                     action={
@@ -1440,7 +1440,7 @@ export default function AdminPage() {
                     icon={Megaphone}
                     title="Annonces"
                   >
-                    <form className="grid gap-3" onSubmit={submitAnnouncement}>
+                    <form className="grid gap-4" onSubmit={submitAnnouncement}>
                       <div className="grid gap-3 sm:grid-cols-[1fr_150px]">
                         <AdminInput
                           onChange={(event) =>
@@ -1493,7 +1493,7 @@ export default function AdminPage() {
                       </div>
                     </form>
 
-                    <div className="mt-5 grid gap-3">
+                    <div className="mt-6 grid gap-3">
                       {content.announcements.map((item) => (
                         <article
                           className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/16"
@@ -1546,7 +1546,7 @@ export default function AdminPage() {
                     icon={CalendarDays}
                     title="Evénements"
                   >
-                    <form className="grid gap-3" onSubmit={submitEvent}>
+                    <form className="grid gap-4" onSubmit={submitEvent}>
                       <div className="grid gap-3 sm:grid-cols-2">
                         <AdminInput
                           onChange={(event) =>
@@ -1599,7 +1599,7 @@ export default function AdminPage() {
                       </div>
                     </form>
 
-                    <div className="mt-5 grid gap-3">
+                    <div className="mt-6 grid gap-3">
                       {content.events.map((item) => (
                         <article
                           className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/16"
@@ -1708,7 +1708,7 @@ export default function AdminPage() {
                     icon={Images}
                     title="Galerie"
                   >
-                    <form className="grid gap-3" onSubmit={submitGallery}>
+                    <form className="grid gap-4" onSubmit={submitGallery}>
                       <div className="grid gap-3 md:grid-cols-[160px_1fr]">
                         <label className="grid min-h-40 cursor-pointer place-items-center overflow-hidden rounded-2xl border border-dashed border-violet-100/18 bg-[#030512]/70 p-3 text-center text-xs text-violet-100">
                           {galleryDraft.image ? (
@@ -1791,7 +1791,7 @@ export default function AdminPage() {
                       </div>
                     </form>
 
-                    <div className="mt-5 grid gap-3 md:grid-cols-2">
+                    <div className="mt-6 grid gap-3 md:grid-cols-2">
                       {content.gallery.map((item) => (
                         <article
                           className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4"
@@ -1854,7 +1854,7 @@ export default function AdminPage() {
                     icon={ShieldCheck}
                     title="Stuff & Build"
                   >
-                    <form className="grid gap-3" onSubmit={submitBuild}>
+                    <form className="grid gap-4" onSubmit={submitBuild}>
                       <div className="grid gap-3 md:grid-cols-[130px_1fr]">
                         <label className="grid cursor-pointer place-items-center rounded-2xl border border-dashed border-violet-100/18 bg-[#030512]/70 p-3 text-center text-xs text-violet-100">
                           <ImagePlus className="mb-2" size={20} />
@@ -2042,7 +2042,7 @@ export default function AdminPage() {
                       </div>
                     </form>
 
-                    <div className="mt-5 grid gap-3">
+                    <div className="mt-6 grid gap-3">
                       {content.builds.map((build) => (
                         <article
                           className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4"
@@ -2118,7 +2118,7 @@ export default function AdminPage() {
                     icon={LinkIcon}
                     title="Liens utiles"
                   >
-                    <form className="grid gap-3" onSubmit={submitUsefulLink}>
+                    <form className="grid gap-4" onSubmit={submitUsefulLink}>
                       <div className="grid gap-3 lg:grid-cols-[1fr_1fr_170px]">
                         <AdminInput
                           onChange={(event) =>
@@ -2184,7 +2184,7 @@ export default function AdminPage() {
                       </div>
                     </form>
 
-                    <div className="mt-5 grid gap-3 md:grid-cols-2">
+                    <div className="mt-6 grid gap-3 md:grid-cols-2">
                       {content.usefulLinks.map((link) => (
                         <article
                           className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4"

@@ -5,7 +5,6 @@ import {
   FlaskConical,
   Gem,
   Home,
-  Sparkles,
   Swords,
   Waves,
   Wheat,
@@ -153,6 +152,10 @@ function ItemImage({ alt, src, size = "lg" }: { alt: string; src: string; size?:
   );
 }
 
+function getProfessionImageUrl(imageUrl: string) {
+  return imageUrl.replace(/\.jpg$/i, ".png");
+}
+
 function IngredientRow({ ingredient }: { ingredient: Ingredient }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.035] p-3 shadow-[inset_0_0_12px_rgba(196,181,253,0.018)] transition duration-300 hover:border-violet-200/14 hover:bg-violet-100/[0.052]">
@@ -247,9 +250,6 @@ export default async function MetierPage({ params }: PageProps) {
         <section className="premium-card relative overflow-hidden rounded-[1.45rem] border border-violet-200/9 bg-[#06091b]/76 p-5 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)] backdrop-blur-md sm:rounded-[2.1rem] sm:p-10">
           <div className="relative z-10 grid gap-8 xl:grid-cols-[1fr_360px]">
             <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-200/13 bg-violet-200/7 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100">
-                <Sparkles size={14} /> Données DofusDB
-              </div>
               <div className="flex flex-wrap items-center gap-5">
                 <div className="grid size-16 place-items-center rounded-[1.35rem] border border-violet-200/15 bg-[linear-gradient(145deg,rgba(196,181,253,0.14),rgba(76,29,149,0.08))] text-violet-50 shadow-[inset_0_1px_18px_rgba(196,181,253,0.045),0_0_24px_rgba(109,40,217,0.09)] sm:size-20 sm:rounded-[1.6rem]">
                   <Icon className="size-7 sm:size-[34px]" />
@@ -273,7 +273,7 @@ export default async function MetierPage({ params }: PageProps) {
                 <ItemImage
                   alt={profession.name.fr}
                   size="sm"
-                  src={profession.imageUrl}
+                  src={getProfessionImageUrl(profession.imageUrl)}
                 />
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.24em] text-violet-200">
