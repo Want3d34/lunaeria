@@ -20,40 +20,41 @@ body {
 
 .aurora-bg {
   background:
-    linear-gradient(145deg, rgba(9, 8, 28, 0.58) 0%, rgba(4, 8, 24, 0.88) 42%, rgba(10, 5, 24, 0.72) 100%),
-    radial-gradient(ellipse at 22% 12%, rgba(88, 54, 168, 0.13), transparent 58%),
-    radial-gradient(ellipse at 78% 4%, rgba(54, 69, 156, 0.08), transparent 54%),
+    linear-gradient(145deg, rgba(8, 8, 26, 0.64) 0%, rgba(4, 8, 23, 0.9) 42%, rgba(9, 6, 23, 0.78) 100%),
+    radial-gradient(ellipse at 20% 10%, rgba(88, 54, 168, 0.085), transparent 64%),
+    radial-gradient(ellipse at 82% 8%, rgba(54, 69, 156, 0.055), transparent 62%),
+    radial-gradient(ellipse at 50% 100%, rgba(76, 29, 149, 0.045), transparent 68%),
     linear-gradient(135deg, #020410 0%, #05091e 52%, #090518 100%);
 }
 
 .rune-grid {
   background:
-    linear-gradient(180deg, rgba(196, 181, 253, 0.016), transparent 38%),
-    linear-gradient(115deg, transparent 0%, rgba(92, 70, 180, 0.028) 48%, transparent 100%);
-  opacity: 0.32;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.62), transparent 92%);
+    linear-gradient(180deg, rgba(196, 181, 253, 0.01), transparent 42%),
+    linear-gradient(115deg, transparent 0%, rgba(92, 70, 180, 0.016) 48%, transparent 100%);
+  opacity: 0.24;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.54), transparent 90%);
 }
 
 .star-veil {
   background-image:
-    radial-gradient(circle, rgba(196, 181, 253, 0.06) 0 0.7px, transparent 1px),
-    radial-gradient(circle, rgba(129, 140, 248, 0.035) 0 0.7px, transparent 1px);
+    radial-gradient(circle, rgba(196, 181, 253, 0.042) 0 0.65px, transparent 1px),
+    radial-gradient(circle, rgba(129, 140, 248, 0.026) 0 0.65px, transparent 1px);
   background-position:
     0 0,
     88px 42px;
   background-size:
     230px 230px,
     340px 340px;
-  opacity: 0.28;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 86%);
+  opacity: 0.22;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.62), transparent 84%);
 }
 
 .fog-veil {
   background:
-    linear-gradient(180deg, rgba(237, 233, 254, 0.018), transparent 44%),
-    linear-gradient(90deg, rgba(76, 29, 149, 0.045), transparent 36%, rgba(49, 46, 129, 0.032));
-  filter: blur(18px);
-  opacity: 0.22;
+    linear-gradient(180deg, rgba(237, 233, 254, 0.01), transparent 48%),
+    linear-gradient(90deg, rgba(76, 29, 149, 0.026), transparent 40%, rgba(49, 46, 129, 0.02));
+  filter: blur(14px);
+  opacity: 0.16;
 }
 
 .sidebar-shell::before,
@@ -67,17 +68,17 @@ body {
 
 .sidebar-shell::before {
   background:
-    linear-gradient(180deg, rgba(196, 181, 253, 0.034), transparent 25%),
-    linear-gradient(90deg, rgba(99, 102, 241, 0.024), transparent 13%, transparent 88%, rgba(124, 58, 237, 0.038)),
-    radial-gradient(circle at top, rgba(109, 40, 217, 0.065), transparent 50%);
+    linear-gradient(180deg, rgba(196, 181, 253, 0.024), transparent 30%),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.016), transparent 16%, transparent 88%, rgba(124, 58, 237, 0.024)),
+    radial-gradient(circle at top, rgba(109, 40, 217, 0.044), transparent 56%);
 }
 
 .sidebar-premium::before {
-  opacity: 0.34;
+  opacity: 0.24;
   background:
-    radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.12), transparent 34%),
-    radial-gradient(circle at 15% 32%, rgba(99, 102, 241, 0.08), transparent 28%),
-    radial-gradient(circle at 85% 72%, rgba(168, 85, 247, 0.07), transparent 30%);
+    radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.078), transparent 38%),
+    radial-gradient(circle at 15% 32%, rgba(99, 102, 241, 0.052), transparent 32%),
+    radial-gradient(circle at 85% 72%, rgba(168, 85, 247, 0.044), transparent 34%);
   animation: sidebarAuraDrift 16s ease-in-out infinite alternate;
 }
 
@@ -100,10 +101,10 @@ body {
 
 .premium-card::before {
   background:
-    linear-gradient(115deg, rgba(196, 181, 253, 0.045), transparent 19%, transparent 70%, rgba(129, 140, 248, 0.02)),
-    radial-gradient(circle at 14% 0%, rgba(124, 58, 237, 0.06), transparent 38%),
-    radial-gradient(circle at 92% 100%, rgba(99, 102, 241, 0.024), transparent 34%);
-  opacity: 0.68;
+    linear-gradient(115deg, rgba(196, 181, 253, 0.026), transparent 22%, transparent 72%, rgba(129, 140, 248, 0.014)),
+    radial-gradient(circle at 16% 0%, rgba(124, 58, 237, 0.036), transparent 42%),
+    radial-gradient(circle at 92% 100%, rgba(99, 102, 241, 0.016), transparent 38%);
+  opacity: 0.52;
   transition: opacity 400ms ease, transform 500ms ease;
 }
 
@@ -114,24 +115,24 @@ body {
   inset: 1px;
   border-radius: inherit;
   box-shadow:
-    inset 0 1px 0 rgba(196, 181, 253, 0.04),
-    inset 0 0 22px rgba(196, 181, 253, 0.022),
-    inset 0 -28px 58px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 rgba(196, 181, 253, 0.032),
+    inset 0 0 18px rgba(196, 181, 253, 0.014),
+    inset 0 -24px 52px rgba(0, 0, 0, 0.28);
 }
 
 .premium-card:hover::before {
-  opacity: 0.78;
-  transform: translate3d(0, -2px, 0);
+  opacity: 0.62;
+  transform: translate3d(0, -1px, 0);
 }
 
 .hero-shell::before {
   z-index: 1;
   background:
-    linear-gradient(115deg, rgba(196, 181, 253, 0.026), transparent 20%, transparent 72%),
-    radial-gradient(circle at 18% 72%, rgba(196, 181, 253, 0.052), transparent 20%),
-    radial-gradient(circle at 22% 26%, rgba(196, 181, 253, 0.018), transparent 17%);
+    linear-gradient(115deg, rgba(196, 181, 253, 0.018), transparent 22%, transparent 74%),
+    radial-gradient(circle at 18% 72%, rgba(196, 181, 253, 0.034), transparent 24%),
+    radial-gradient(circle at 22% 26%, rgba(196, 181, 253, 0.012), transparent 20%);
   mix-blend-mode: soft-light;
-  opacity: 0.42;
+  opacity: 0.34;
 }
 
 .hero-artwork {
@@ -142,13 +143,13 @@ body {
 
 .hero-light {
   background:
-    radial-gradient(circle at 24% 70%, rgba(196, 181, 253, 0.065), transparent 25%),
-    radial-gradient(circle at 40% 38%, rgba(124, 58, 237, 0.045), transparent 42%),
+    radial-gradient(circle at 24% 70%, rgba(196, 181, 253, 0.044), transparent 30%),
+    radial-gradient(circle at 40% 38%, rgba(124, 58, 237, 0.03), transparent 46%),
     linear-gradient(90deg, rgba(2, 4, 16, 0.12), transparent 42%, rgba(2, 4, 16, 0.1)),
     linear-gradient(0deg, rgba(2, 4, 16, 0.52), transparent 62%);
   box-shadow:
     inset 0 0 36px rgba(99, 102, 241, 0.01),
-    inset 0 0 82px rgba(76, 29, 149, 0.06);
+    inset 0 0 72px rgba(76, 29, 149, 0.038);
 }
 
 .hero-depth {
@@ -159,7 +160,7 @@ body {
   box-shadow:
     inset 0 0 34px rgba(99, 102, 241, 0.01),
     inset 0 -84px 110px rgba(2, 4, 16, 0.62),
-    inset 0 0 76px rgba(76, 29, 149, 0.06);
+    inset 0 0 68px rgba(76, 29, 149, 0.04);
 }
 
 @media (min-width: 1536px) {
@@ -176,9 +177,9 @@ body {
 
 .legend-title {
   text-shadow:
-    0 0 6px rgba(237, 233, 254, 0.14),
-    0 0 16px rgba(196, 181, 253, 0.25),
-    0 0 34px rgba(124, 58, 237, 0.16),
+    0 0 5px rgba(237, 233, 254, 0.1),
+    0 0 14px rgba(196, 181, 253, 0.18),
+    0 0 28px rgba(124, 58, 237, 0.1),
     0 12px 34px rgba(0, 0, 0, 0.9);
 }
 
@@ -191,7 +192,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, transparent, rgba(237, 233, 254, 0.16), transparent);
+  background: linear-gradient(120deg, transparent, rgba(237, 233, 254, 0.1), transparent);
   transform: translateX(-120%);
   transition: transform 600ms ease;
 }
