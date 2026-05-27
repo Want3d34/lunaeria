@@ -51,6 +51,21 @@ function getSaleImageSrc(imageUrl: string) {
   return "/file.svg";
 }
 
+function isPublicSaleImageUrl(imageUrl: string) {
+  const value = imageUrl.trim();
+
+  if (!value.startsWith("https://")) {
+    return false;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.pathname.includes("/storage/v1/object/public/ventes/");
+  } catch {
+    return false;
+  }
+}
+
 export default function VentesPage() {
   const { content, setContent } = useHomepageContent();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -105,18 +120,21 @@ export default function VentesPage() {
 
     if (imageFile) {
       try {
-        imageUrl = await Promise.race([
-          uploadPublicImage(supabase, "ventes", imageFile, draft.itemName),
-          new Promise<string>((resolve) => {
-            window.setTimeout(() => {
-              console.warn("Upload image vente trop long, publication sans image.");
-              resolve("/file.svg");
-            }, 12000);
-          }),
-        ]);
+        const uploadedImageUrl = await uploadPublicImage(
+          supabase,
+          "ventes",
+          imageFile,
+          draft.itemName,
+        );
+
+        if (!isPublicSaleImageUrl(uploadedImageUrl)) {
+          throw new Error(`URL image vente invalide: ${uploadedImageUrl}`);
+        }
+
+        imageUrl = uploadedImageUrl;
       } catch (error) {
         console.error("Erreur upload image vente:", error);
-        imageUrl = "/file.svg";
+        return;
       }
     }
 
