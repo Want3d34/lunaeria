@@ -184,6 +184,28 @@ body {
   z-index: 1;
 }
 
+.homepage-layout-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.homepage-layout-item {
+  min-height: calc(var(--home-rows, 5) * 3.75rem);
+}
+
+@media (min-width: 1280px) {
+  .homepage-layout-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .homepage-layout-item {
+    grid-column: span var(--home-columns, 6) / span var(--home-columns, 6);
+    min-height: calc(var(--home-rows, 5) * 4.25rem);
+  }
+}
+
 @keyframes aurora-shift {
   from {
     filter: none;

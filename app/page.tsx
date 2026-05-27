@@ -26,7 +26,12 @@ import {
 import NextLink from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  normalizeHomepageLayout,
+  type HomepageLayoutBlockKey,
+  type HomepageLayoutItem,
+} from "@/lib/homepage-layout";
 import { getSiteUrl } from "../lib/site-url";
 import { supabase } from "../lib/supabase";
 
@@ -135,6 +140,7 @@ type HomepageSettings = {
   recruitmentIsOpen: boolean;
   recruitmentMessage: string;
   recruitmentServerName: string;
+  layout: HomepageLayoutItem[];
 };
 
 type DiscordProfile = {
@@ -177,6 +183,7 @@ const homepageSettingsFallback: HomepageSettings = {
   recruitmentIsOpen: false,
   recruitmentMessage: "",
   recruitmentServerName: "Lunaeria",
+  layout: normalizeHomepageLayout(null),
 };
 
 type GalleryItem = {
@@ -544,6 +551,13 @@ function formatAlmanaxDate(dateKey: string) {
   const formattedDate = frenchDateFormatter.format(new Date(year, month - 1, day));
 
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+}
+
+function homepageLayoutStyle(item: HomepageLayoutItem): CSSProperties {
+  return {
+    "--home-columns": item.columns,
+    "--home-rows": item.rows,
+  } as CSSProperties;
 }
 
 function parseEventDate(date: string) {
@@ -963,6 +977,7 @@ export default function Home() {
           data.recruitment_message ?? "",
         recruitmentServerName:
           data.recruitment_server_name ?? "Lunaeria",
+        layout: normalizeHomepageLayout(data.layout_config),
       });
     }
 
@@ -1306,6 +1321,377 @@ export default function Home() {
     setIsDiscordSubmitting(false);
   }
 
+  const homepageLayout = homepageSettings?.layout ?? homepageSettingsFallback.layout;
+
+  function renderHomepageLayoutBlock(blockKey: HomepageLayoutBlockKey) {
+    switch (blockKey) {
+      case "events":
+        return (
+          <PremiumCard title="Prochains events" icon={CalendarDays} className="h-full">
+            <div className="space-y-3">
+              {!isDynamicContentLoaded
+                ? [0, 1, 2].map((item) => (
+                    <ContentSkeleton className="min-h-[86px]" key={item} />
+                  ))
+                : null}
+              {isDynamicContentLoaded && events.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                  Aucun événement planifié.
+                </div>
+              ) : null}
+              {isDynamicContentLoaded ? events.map((eventItem, index) => {
+                const Icon = eventIcons[index % eventIcons.length];
+                const isLongEvent =
+                  eventItem.description.trim().length > 170 ||
+                  eventItem.description.includes("\n");
+
+                return (
+                  <div
+                    key={eventItem.id}
+                    className="flex max-h-60 min-h-40 items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:gap-4"
+                  >
+                    <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                      <Icon size={19} />
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col self-stretch">
+                      <p className="line-clamp-2 font-black leading-5 text-violet-50">
+                        {eventItem.title}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {eventItem.date}
+                      </p>
+                      <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                        {eventItem.description}
+                      </p>
+                      {isLongEvent ? (
+                        <button
+                          className="mt-auto pt-4 text-left text-xs font-black uppercase tracking-[0.16em] text-violet-200 transition hover:text-violet-50"
+                          onClick={() => setSelectedEvent(eventItem)}
+                          type="button"
+                        >
+                          Lire la suite →
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              }) : null}
+            </div>
+          </PremiumCard>
+        );
+
+      case "online":
+        return (
+          <PremiumCard title="Membres en ligne" icon={Users} className="h-full">
+            <div className="lunae-scrollbar max-h-[30rem] space-y-3 overflow-y-auto pr-1">
+              {!isOnlineMembersLoaded
+                ? [0, 1, 2].map((item) => (
+                    <ContentSkeleton className="min-h-[66px]" key={item} />
+                  ))
+                : null}
+              {isOnlineMembersLoaded && onlineMembers.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                  Aucun membre en ligne pour le moment.
+                </div>
+              ) : null}
+              {isOnlineMembersLoaded
+                ? onlineMembers.map((member) => {
+                    const activityLabel = formatOnlineMemberActivity(member);
+
+                    return (
+                      <div
+                        key={member.discordId}
+                        className="flex min-h-[4.65rem] items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-3.5 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
+                      >
+                        {member.avatarUrl ? (
+                          <div
+                            aria-hidden="true"
+                            className="size-10 shrink-0 rounded-xl border border-violet-100/14 bg-violet-200/10 shadow-[0_0_12px_rgba(124,58,237,0.11)]"
+                            style={{
+                              backgroundImage: `url(${member.avatarUrl})`,
+                              backgroundPosition: "center",
+                              backgroundSize: "cover",
+                            }}
+                          />
+                        ) : (
+                          <div className="grid size-10 shrink-0 place-items-center rounded-xl border border-violet-100/14 bg-gradient-to-br from-violet-200 to-indigo-300 text-sm font-black text-[#09071a] shadow-[0_0_12px_rgba(124,58,237,0.11)]">
+                            {member.displayName.slice(0, 2)}
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-black text-violet-50">
+                            {member.displayName}
+                          </p>
+                          {activityLabel ? (
+                            <p className="truncate text-xs text-slate-400">
+                              {activityLabel}
+                            </p>
+                          ) : null}
+                        </div>
+                        <span className="shrink-0 rounded-full border border-violet-100/10 bg-violet-200/7 px-3 py-1 text-xs font-bold text-violet-100 shadow-[0_0_8px_rgba(124,58,237,0.055)]">
+                          {formatOnlineStatus(member.status)}
+                        </span>
+                      </div>
+                    );
+                  })
+                : null}
+            </div>
+          </PremiumCard>
+        );
+
+      case "announcements":
+        return (
+          <PremiumCard title="Dernières annonces" icon={Bell} className="h-full">
+            <div className="grid items-start gap-4 md:grid-cols-2">
+              {!isDynamicContentLoaded
+                ? [0, 1].map((item) => (
+                    <ContentSkeleton className="min-h-[190px]" key={item} />
+                  ))
+                : null}
+              {isDynamicContentLoaded && homepageAnnouncements.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 md:col-span-2">
+                  Aucune annonce publiée pour le moment.
+                </div>
+              ) : null}
+              {isDynamicContentLoaded ? homepageAnnouncements.map((item) => {
+                const isLongAnnouncement =
+                  item.content.trim().length > 170 || item.content.includes("\n");
+
+                return (
+                  <article
+                    key={item.id}
+                    className="flex max-h-72 min-h-[13rem] flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-5 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
+                  >
+                    <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
+                      {item.category}
+                    </span>
+                    <h3 className="mt-3 line-clamp-2 text-sm font-black leading-5 text-violet-50">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 overflow-hidden text-sm leading-6 text-slate-300 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                      {item.content}
+                    </p>
+                    {isLongAnnouncement ? (
+                      <button
+                        className="mt-auto pt-4 text-left text-xs font-black uppercase tracking-[0.16em] text-violet-200 transition hover:text-violet-50"
+                        onClick={() => setSelectedAnnouncement(item)}
+                        type="button"
+                      >
+                        Lire la suite
+                      </button>
+                    ) : null}
+                  </article>
+                );
+              }) : null}
+            </div>
+          </PremiumCard>
+        );
+
+      case "activity":
+        return (
+          <PremiumCard title="Activité récente" icon={Layers3} className="h-full">
+            <div className="space-y-4">
+              {!isDynamicContentLoaded
+                ? [0, 1, 2].map((item) => (
+                    <ContentSkeleton className="min-h-[104px]" key={item} />
+                  ))
+                : null}
+              {isDynamicContentLoaded && activityItems.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                  Aucune activité récente.
+                </div>
+              ) : null}
+              {isDynamicContentLoaded ? activityItems.map((activity, index) => {
+                const ActivityIcon = activityIcons[activity.type];
+
+                return (
+                  <div
+                    className="flex min-h-[6.1rem] items-center gap-4 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052]"
+                    key={`${activity.label}-${activity.title}-${index}`}
+                  >
+                    <div className="grid size-10 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                      <ActivityIcon size={17} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+                        {activity.label}
+                      </p>
+                      <p className="mt-1 truncate font-black text-violet-50">
+                        {activity.title}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {activity.meta}
+                      </p>
+                      {activity.timestamp ? (
+                        <p className="mt-1 text-xs text-slate-500">
+                          Ajouté le {activity.timestamp}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              }) : null}
+            </div>
+          </PremiumCard>
+        );
+
+      case "almanax":
+        return (
+          <PremiumCard title="Almanax Lunaeria" icon={CalendarDays} className="h-full">
+            <div className="rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.085),rgba(76,29,149,0.065))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
+              <div className="flex items-start gap-4">
+                <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-violet-200/12 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                  {almanaxEntry?.tribute?.item?.image_urls?.icon ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt={almanaxEntry?.tribute?.item?.name ?? "Offrande Almanax"}
+                      className="size-14 object-contain"
+                      src={almanaxEntry?.tribute?.item?.image_urls?.icon}
+                    />
+                  ) : (
+                    <Sparkles size={22} />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-200">
+                    {formatAlmanaxDate(almanaxEntry?.date ?? almanaxDate)}
+                  </p>
+                  <p className="mt-2 text-sm font-black leading-5 text-violet-50">
+                    {isAlmanaxLoading
+                      ? "Chargement du bonus..."
+                      : almanaxEntry?.bonus?.type?.name ?? "Bonus du jour"}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 space-y-4 text-sm">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-200/80">
+                    Bonus
+                  </p>
+                  <p className="mt-2 overflow-hidden leading-5 text-violet-50/76 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:5]">
+                    {isAlmanaxLoading
+                      ? "Récupération des données Almanax."
+                      : almanaxEntry?.bonus?.description ?? almanaxError ?? "Bonus non disponible."}
+                  </p>
+                </div>
+                <div className="grid gap-3">
+                  <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-200/80">
+                      Offrande
+                    </p>
+                    <p className="mt-1 overflow-hidden text-sm font-black leading-5 text-violet-50 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+                      {almanaxEntry?.tribute
+                        ? `${almanaxEntry?.tribute?.quantity ?? 1} x ${
+                            almanaxEntry?.tribute?.item?.name ?? "Objet requis"
+                          }`
+                        : isAlmanaxLoading
+                          ? "Chargement..."
+                          : "Non disponible"}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-200/80">
+                      Récompense
+                    </p>
+                    <p className="mt-1 text-sm font-black leading-5 text-violet-50">
+                      {typeof almanaxEntry?.reward_kamas === "number"
+                        ? `${kamasFormatter.format(almanaxEntry?.reward_kamas ?? 0)} kamas`
+                        : isAlmanaxLoading
+                          ? "Chargement..."
+                          : "Non disponible"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <button
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-3 text-xs font-black uppercase tracking-[0.11em] text-violet-100 transition hover:border-violet-200/22 hover:bg-violet-200/[0.08] disabled:cursor-wait disabled:opacity-60"
+                  disabled={isAlmanaxLoading}
+                  onClick={() => setAlmanaxDate((current) => shiftDateKey(current, -1))}
+                  type="button"
+                >
+                  <ChevronLeft size={17} />
+                  Précédent
+                </button>
+                <button
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-violet-200/12 bg-[#b9a7ea] px-3 text-xs font-black uppercase tracking-[0.11em] text-[#09071a] transition hover:bg-[#c9b9f2] disabled:cursor-wait disabled:opacity-70"
+                  disabled={isAlmanaxLoading}
+                  onClick={() => setAlmanaxDate((current) => shiftDateKey(current, 1))}
+                  type="button"
+                >
+                  Suivant
+                  <ChevronRight size={17} />
+                </button>
+              </div>
+            </div>
+          </PremiumCard>
+        );
+
+      case "gallery":
+        return (
+          <PremiumCard title="Galerie" icon={Images} className="h-full">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {!isGalleryLoaded
+                ? [0, 1, 2, 3].map((item) => (
+                    <div
+                      aria-hidden="true"
+                      className="min-h-44 rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] shadow-[0_22px_54px_rgba(0,0,0,0.28)]"
+                      key={item}
+                    />
+                  ))
+                : null}
+              {isGalleryLoaded && galleryItems.length === 0 ? (
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 sm:col-span-2 xl:col-span-4">
+                  Aucune image publiée pour le moment.
+                </div>
+              ) : null}
+              {isGalleryLoaded ? galleryItems.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
+                >
+                  {item.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt={item.title}
+                      className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
+                      src={item.image}
+                    />
+                  ) : (
+                    <div
+                      className={`absolute inset-0 ${galleryPlaceholder(index)} transition duration-700 group-hover/gallery:scale-110`}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/18 to-transparent" />
+                  <div className="absolute inset-0 opacity-0 shadow-[inset_0_0_26px_rgba(196,181,253,0.075)] transition duration-500 group-hover/gallery:opacity-100" />
+                  <div className="absolute left-4 top-4 rounded-full border border-violet-100/12 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-100 backdrop-blur-sm">
+                    {item.category}
+                  </div>
+                  <div className="absolute bottom-0 p-4">
+                    <p className="text-sm font-black text-violet-50">{item.title}</p>
+                    <p className="mt-1 text-xs text-slate-300">
+                      {item.description}
+                    </p>
+                  </div>
+                  {item.image ? (
+                    <button
+                      aria-label={`Ouvrir ${item.title}`}
+                      className="absolute inset-0"
+                      onClick={() => setSelectedGalleryItem(item)}
+                      type="button"
+                    />
+                  ) : null}
+                </div>
+              )) : null}
+            </div>
+          </PremiumCard>
+        );
+
+      default:
+        return null;
+    }
+  }
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
       <style jsx global>{`
@@ -1555,6 +1941,20 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="homepage-layout-grid mt-6">
+          {homepageLayout.map((item) => (
+            <div
+              className="homepage-layout-item"
+              key={item.key}
+              style={homepageLayoutStyle(item)}
+            >
+              {renderHomepageLayoutBlock(item.key)}
+            </div>
+          ))}
+        </section>
+
+        {false ? (
+          <>
         <section className="mt-6 grid items-start gap-6 xl:grid-cols-3">
           <PremiumCard
             title="Prochains events"
@@ -1779,9 +2179,9 @@ export default function Home() {
                   {almanaxEntry?.tribute?.item?.image_urls?.icon ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      alt={almanaxEntry.tribute.item.name ?? "Offrande Almanax"}
+                      alt={almanaxEntry?.tribute?.item?.name ?? "Offrande Almanax"}
                       className="size-14 object-contain"
-                      src={almanaxEntry.tribute.item.image_urls.icon}
+                      src={almanaxEntry?.tribute?.item?.image_urls?.icon}
                     />
                   ) : (
                     <Sparkles size={22} />
@@ -1818,8 +2218,8 @@ export default function Home() {
                     </p>
                     <p className="mt-1 overflow-hidden text-sm font-black leading-5 text-violet-50 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
                       {almanaxEntry?.tribute
-                        ? `${almanaxEntry.tribute.quantity ?? 1} x ${
-                            almanaxEntry.tribute.item?.name ?? "Objet requis"
+                        ? `${almanaxEntry?.tribute?.quantity ?? 1} x ${
+                            almanaxEntry?.tribute?.item?.name ?? "Objet requis"
                           }`
                         : isAlmanaxLoading
                           ? "Chargement..."
@@ -1833,7 +2233,7 @@ export default function Home() {
                     </p>
                     <p className="mt-1 text-sm font-black leading-5 text-violet-50">
                       {typeof almanaxEntry?.reward_kamas === "number"
-                        ? `${kamasFormatter.format(almanaxEntry.reward_kamas)} kamas`
+                        ? `${kamasFormatter.format(almanaxEntry?.reward_kamas ?? 0)} kamas`
                         : isAlmanaxLoading
                           ? "Chargement..."
                           : "Non disponible"}
@@ -1922,6 +2322,8 @@ export default function Home() {
             )) : null}
           </div>
         </PremiumCard>
+          </>
+        ) : null}
       </div>
 
       {isCalendarOpen ? (

@@ -5,15 +5,18 @@ import {
   CalendarDays,
   CheckCircle2,
   FileText,
+  GripVertical,
   Home,
   ImagePlus,
   Images,
   Link as LinkIcon,
+  LayoutGrid,
   Loader2,
   LockKeyhole,
   Megaphone,
   Pencil,
   Plus,
+  RotateCcw,
   Save,
   Settings,
   ShieldCheck,
@@ -34,6 +37,12 @@ import {
   type UsefulLink,
   useHomepageContent,
 } from "@/lib/lunaeria-content";
+import {
+  homepageLayoutDefaults,
+  normalizeHomepageLayout,
+  serializeHomepageLayout,
+  type HomepageLayoutBlockKey,
+} from "@/lib/homepage-layout";
 import { dofusClasses, dofusElements, getClassImage, getElement } from "@/lib/stuffs-data";
 import {
   AdminButton,
@@ -53,6 +62,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { key: "overview", label: "Vue d'ensemble", icon: Home },
   { key: "accueil", label: "Accueil", icon: Home },
+  { key: "layout-homepage", label: "Éditeur HomePage", icon: LayoutGrid },
   { key: "annonces", label: "Annonces", icon: Megaphone },
   { key: "evenements", label: "Evénements", icon: CalendarDays },
   { key: "ventes", label: "Ventes", icon: ShoppingBag },
@@ -94,6 +104,7 @@ type HomepageSettingsRow = {
   recruitment_is_open: boolean | null;
   recruitment_message: string | null;
   recruitment_server_name: string | null;
+  layout_config: unknown;
 };
 
 const emptyEvent = {
@@ -143,6 +154,11 @@ export default function AdminPage() {
   const [toast, setToast] = useState("");
   const [heroDraft, setHeroDraft] = useState(content.hero);
   const [recruitmentDraft, setRecruitmentDraft] = useState(content.recruitment);
+  const [homepageLayoutDraft, setHomepageLayoutDraft] = useState(() =>
+    normalizeHomepageLayout(null),
+  );
+  const [draggedLayoutKey, setDraggedLayoutKey] =
+    useState<HomepageLayoutBlockKey | null>(null);
   const [announcementDraft, setAnnouncementDraft] = useState(emptyAnnouncement);
   const [editingAnnouncementId, setEditingAnnouncementId] = useState<string | null>(
     null,
@@ -527,6 +543,7 @@ export default function AdminPage() {
 
     setHeroDraft(nextHero);
     setRecruitmentDraft(nextRecruitment);
+    setHomepageLayoutDraft(normalizeHomepageLayout(data.layout_config));
     setContent((current) => ({
       ...current,
       hero: nextHero,
@@ -700,6 +717,75 @@ export default function AdminPage() {
       recruitment: recruitmentDraft,
     }));
     notify("Accueil sauvegardé");
+  }
+
+  function updateHomepageLayoutItem(
+    key: HomepageLayoutBlockKey,
+    patch: { columns?: number; rows?: number },
+  ) {
+    setHomepageLayoutDraft((current) =>
+      serializeHomepageLayout(
+        current.map((item) =>
+          item.key === key
+            ? {
+                ...item,
+                columns: patch.columns ?? item.columns,
+                rows: patch.rows ?? item.rows,
+              }
+            : item,
+        ),
+      ),
+    );
+  }
+
+  function moveHomepageLayoutItem(
+    sourceKey: HomepageLayoutBlockKey,
+    targetKey: HomepageLayoutBlockKey,
+  ) {
+    if (sourceKey === targetKey) {
+      return;
+    }
+
+    setHomepageLayoutDraft((current) => {
+      const nextLayout = [...current];
+      const sourceIndex = nextLayout.findIndex((item) => item.key === sourceKey);
+      const targetIndex = nextLayout.findIndex((item) => item.key === targetKey);
+
+      if (sourceIndex < 0 || targetIndex < 0) {
+        return current;
+      }
+
+      const [movedItem] = nextLayout.splice(sourceIndex, 1);
+      nextLayout.splice(targetIndex, 0, movedItem);
+
+      return serializeHomepageLayout(nextLayout);
+    });
+  }
+
+  async function persistHomepageLayout(layout = homepageLayoutDraft) {
+    const nextLayout = serializeHomepageLayout(layout);
+    setHomepageLayoutDraft(nextLayout);
+
+    const { error } = await supabase
+      .from("homepage_settings")
+      .upsert({
+        id: 1,
+        layout_config: nextLayout,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (error) {
+      console.error(error);
+      notify("Erreur sauvegarde layout");
+      return;
+    }
+
+    notify("Layout HomePage sauvegardé");
+  }
+
+  async function resetHomepageLayout() {
+    const defaultLayout = serializeHomepageLayout(homepageLayoutDefaults);
+    await persistHomepageLayout(defaultLayout);
   }
 
   async function submitAnnouncement(event: FormEvent<HTMLFormElement>) {
@@ -1425,6 +1511,122 @@ export default function AdminPage() {
                         <span className="mt-5 inline-flex rounded-full border border-violet-100/10 bg-violet-100/[0.045] px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-violet-100">
                           {heroDraft.buttonText || "Bouton vide"}
                         </span>
+                      </div>
+                    </div>
+                  </AdminCard>
+                </AdminSection>
+
+                <AdminSection id="layout-homepage">
+                  <AdminCard
+                    action={
+                      <div className="flex flex-wrap gap-2">
+                        <AdminButton
+                          onClick={resetHomepageLayout}
+                          type="button"
+                          variant="ghost"
+                        >
+                          <RotateCcw size={17} />
+                          Réinitialiser
+                        </AdminButton>
+                        <AdminButton
+                          onClick={() => persistHomepageLayout()}
+                          type="button"
+                        >
+                          <Save size={17} />
+                          Sauvegarder
+                        </AdminButton>
+                      </div>
+                    }
+                    icon={LayoutGrid}
+                    title="Éditeur HomePage"
+                  >
+                    <div className="rounded-[1.45rem] border border-violet-100/10 bg-[#030512]/66 p-4 shadow-[inset_0_0_18px_rgba(196,181,253,0.026)]">
+                      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-black text-violet-50">
+                            Prévisualisation des blocs publics
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-slate-400">
+                            Glisser-déposer pour déplacer. Ajuster largeur et hauteur avec les contrôles.
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-violet-100/10 bg-violet-100/[0.045] px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-violet-200">
+                          {homepageLayoutDraft.length} blocs
+                        </span>
+                      </div>
+
+                      <div className="grid gap-3 xl:grid-cols-6">
+                        {homepageLayoutDraft.map((item) => (
+                          <div
+                            className="group rounded-2xl border border-violet-100/10 bg-[linear-gradient(145deg,rgba(139,92,246,0.105),rgba(3,5,18,0.88))] p-3 shadow-[0_18px_45px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:border-violet-200/22"
+                            draggable
+                            key={item.key}
+                            onDragEnd={() => setDraggedLayoutKey(null)}
+                            onDragOver={(event) => event.preventDefault()}
+                            onDragStart={() => setDraggedLayoutKey(item.key)}
+                            onDrop={() => {
+                              if (draggedLayoutKey) {
+                                moveHomepageLayoutItem(draggedLayoutKey, item.key);
+                              }
+                              setDraggedLayoutKey(null);
+                            }}
+                            style={{
+                              gridColumn: `span ${item.columns} / span ${item.columns}`,
+                              minHeight: `${item.rows * 34}px`,
+                            }}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-black text-violet-50">
+                                  {item.label}
+                                </p>
+                                <p className="mt-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-200/70">
+                                  {item.columns}/6 colonnes · {item.rows} lignes
+                                </p>
+                              </div>
+                              <button
+                                aria-label={`Déplacer ${item.label}`}
+                                className="grid size-9 shrink-0 cursor-grab place-items-center rounded-xl border border-violet-100/10 bg-[#030512]/70 text-violet-100 active:cursor-grabbing"
+                                type="button"
+                              >
+                                <GripVertical size={17} />
+                              </button>
+                            </div>
+
+                            <div className="mt-4 grid gap-3">
+                              <label className="grid gap-2 text-xs font-bold text-slate-300">
+                                Largeur
+                                <input
+                                  className="accent-violet-300"
+                                  max={6}
+                                  min={1}
+                                  onChange={(event) =>
+                                    updateHomepageLayoutItem(item.key, {
+                                      columns: Number(event.target.value),
+                                    })
+                                  }
+                                  type="range"
+                                  value={item.columns}
+                                />
+                              </label>
+                              <label className="grid gap-2 text-xs font-bold text-slate-300">
+                                Hauteur
+                                <input
+                                  className="accent-violet-300"
+                                  max={12}
+                                  min={3}
+                                  onChange={(event) =>
+                                    updateHomepageLayoutItem(item.key, {
+                                      rows: Number(event.target.value),
+                                    })
+                                  }
+                                  type="range"
+                                  value={item.rows}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </AdminCard>
