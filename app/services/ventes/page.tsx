@@ -88,19 +88,22 @@ export default function VentesPage() {
       return;
     }
 
-    let imageUrl = draft.imageUrl || "/file.svg";
+    let imageUrl = "/file.svg";
 
     if (imageFile) {
       try {
-        imageUrl = await uploadPublicImage(
-          supabase,
-          "ventes",
-          imageFile,
-          draft.itemName,
-        );
+        imageUrl = await Promise.race([
+          uploadPublicImage(supabase, "ventes", imageFile, draft.itemName),
+          new Promise<string>((resolve) => {
+            window.setTimeout(() => {
+              console.warn("Upload image vente trop long, publication sans image.");
+              resolve("/file.svg");
+            }, 12000);
+          }),
+        ]);
       } catch (error) {
         console.error("Erreur upload image vente:", error);
-        return;
+        imageUrl = "/file.svg";
       }
     }
 

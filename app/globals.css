@@ -191,15 +191,21 @@ body {
 
 .homepage-fixed-card {
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.homepage-fixed-layout .premium-card:hover {
+  transform: none;
 }
 
 .homepage-fixed-card--announcements {
-  height: 31rem;
+  height: auto;
+  min-height: 24rem;
 }
 
 .homepage-fixed-card--events {
-  height: 23rem;
+  height: auto;
+  min-height: 20rem;
 }
 
 .homepage-fixed-card--split {
@@ -231,11 +237,13 @@ body {
   }
 
   .homepage-fixed-card--announcements {
-    height: 30rem;
+    height: 24rem;
+    min-height: 0;
   }
 
   .homepage-fixed-card--events {
-    height: 21rem;
+    height: 19rem;
+    min-height: 0;
   }
 
   .homepage-fixed-card--split {
