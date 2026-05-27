@@ -1613,7 +1613,7 @@ export default function Home() {
           </PremiumCard>
 
           <PremiumCard title="Membres en ligne" icon={Users}>
-            <div className="lunae-scrollbar max-h-[22rem] space-y-3 overflow-y-auto pr-1 sm:max-h-[24rem]">
+            <div className="lunae-scrollbar min-h-[22rem] max-h-[28rem] space-y-3 overflow-y-auto pr-1 sm:min-h-[24rem] sm:max-h-[30rem]">
               {!isOnlineMembersLoaded
                 ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[66px]" key={item} />
@@ -1631,7 +1631,7 @@ export default function Home() {
                     return (
                       <div
                         key={member.discordId}
-                        className="flex items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-3 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
+                        className="flex min-h-[4.65rem] items-center gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-3.5 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)]"
                       >
                         {member.avatarUrl ? (
                           <div
@@ -1675,10 +1675,10 @@ export default function Home() {
             icon={Bell}
             className="xl:col-span-2"
           >
-            <div className="grid items-start gap-3 md:grid-cols-2">
+            <div className="grid min-h-[24rem] items-start gap-4 md:grid-cols-2">
               {!isDynamicContentLoaded
                 ? [0, 1].map((item) => (
-                    <ContentSkeleton className="min-h-[154px]" key={item} />
+                    <ContentSkeleton className="min-h-[190px]" key={item} />
                   ))
                 : null}
               {isDynamicContentLoaded && homepageAnnouncements.length === 0 ? (
@@ -1693,7 +1693,7 @@ export default function Home() {
                 return (
                   <article
                     key={item.id}
-                    className="flex max-h-60 min-h-40 flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-4 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
+                    className="flex max-h-72 min-h-[13rem] flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-5 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
                   >
                     <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
                       {item.category}
@@ -1724,10 +1724,10 @@ export default function Home() {
             icon={Layers3}
             className="xl:col-span-2"
           >
-            <div className="space-y-3">
+            <div className="min-h-[24rem] space-y-4">
               {!isDynamicContentLoaded
                 ? [0, 1, 2].map((item) => (
-                    <ContentSkeleton className="min-h-[82px]" key={item} />
+                    <ContentSkeleton className="min-h-[104px]" key={item} />
                   ))
                 : null}
               {isDynamicContentLoaded && activityItems.length === 0 ? (
@@ -1740,7 +1740,7 @@ export default function Home() {
 
                 return (
                   <div
-                    className="flex items-center gap-4 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052]"
+                    className="flex min-h-[6.1rem] items-center gap-4 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052]"
                     key={`${activity.label}-${activity.title}-${index}`}
                   >
                     <div className="grid size-10 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
