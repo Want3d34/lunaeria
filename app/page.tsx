@@ -1327,8 +1327,12 @@ export default function Home() {
     switch (blockKey) {
       case "events":
         return (
-          <PremiumCard title="Prochains events" icon={CalendarDays} className="h-full">
-            <div className="space-y-3">
+          <PremiumCard
+            title="Prochains events"
+            icon={CalendarDays}
+            className="flex h-full min-h-0 flex-col overflow-hidden"
+          >
+            <div className="homepage-layout-scroll min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               {!isDynamicContentLoaded
                 ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[86px]" key={item} />
@@ -1382,8 +1386,12 @@ export default function Home() {
 
       case "online":
         return (
-          <PremiumCard title="Membres en ligne" icon={Users} className="h-full">
-            <div className="lunae-scrollbar max-h-[30rem] space-y-3 overflow-y-auto pr-1">
+          <PremiumCard
+            title="Membres en ligne"
+            icon={Users}
+            className="flex h-full min-h-0 flex-col overflow-hidden"
+          >
+            <div className="homepage-layout-scroll min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               {!isOnlineMembersLoaded
                 ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[66px]" key={item} />
@@ -1441,8 +1449,12 @@ export default function Home() {
 
       case "announcements":
         return (
-          <PremiumCard title="Dernières annonces" icon={Bell} className="h-full">
-            <div className="grid items-start gap-4 md:grid-cols-2">
+          <PremiumCard
+            title="Dernières annonces"
+            icon={Bell}
+            className="flex h-full min-h-0 flex-col overflow-hidden"
+          >
+            <div className="homepage-layout-scroll grid min-h-0 flex-1 items-start gap-4 overflow-y-auto pr-1 md:grid-cols-2">
               {!isDynamicContentLoaded
                 ? [0, 1].map((item) => (
                     <ContentSkeleton className="min-h-[190px]" key={item} />
@@ -1489,8 +1501,12 @@ export default function Home() {
 
       case "activity":
         return (
-          <PremiumCard title="Activité récente" icon={Layers3} className="h-full">
-            <div className="space-y-4">
+          <PremiumCard
+            title="Activité récente"
+            icon={Layers3}
+            className="flex h-full min-h-0 flex-col overflow-hidden"
+          >
+            <div className="homepage-layout-scroll min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
               {!isDynamicContentLoaded
                 ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[104px]" key={item} />
@@ -1537,8 +1553,12 @@ export default function Home() {
 
       case "almanax":
         return (
-          <PremiumCard title="Almanax Lunaeria" icon={CalendarDays} className="h-full">
-            <div className="rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.085),rgba(76,29,149,0.065))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
+          <PremiumCard
+            title="Almanax Lunaeria"
+            icon={CalendarDays}
+            className="flex h-full min-h-0 flex-col overflow-hidden"
+          >
+            <div className="homepage-layout-scroll min-h-0 flex-1 overflow-y-auto rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.085),rgba(76,29,149,0.065))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
               <div className="flex items-start gap-4">
                 <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-violet-200/12 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
                   {almanaxEntry?.tribute?.item?.image_urls?.icon ? (
@@ -1629,8 +1649,12 @@ export default function Home() {
 
       case "gallery":
         return (
-          <PremiumCard title="Galerie" icon={Images} className="h-full">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <PremiumCard
+            title="Galerie"
+            icon={Images}
+            className="flex h-full min-h-0 flex-col overflow-hidden"
+          >
+            <div className="homepage-layout-scroll grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-4">
               {!isGalleryLoaded
                 ? [0, 1, 2, 3].map((item) => (
                     <div

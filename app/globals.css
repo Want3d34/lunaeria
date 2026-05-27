@@ -192,7 +192,17 @@ body {
 }
 
 .homepage-layout-item {
-  min-height: calc(var(--home-rows, 5) * 3.75rem);
+  height: calc(var(--home-rows, 5) * 3.75rem);
+  min-height: 24rem;
+}
+
+.homepage-layout-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.homepage-layout-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 @media (min-width: 1280px) {
@@ -202,7 +212,8 @@ body {
 
   .homepage-layout-item {
     grid-column: span var(--home-columns, 6) / span var(--home-columns, 6);
-    min-height: calc(var(--home-rows, 5) * 4.25rem);
+    height: calc(var(--home-rows, 5) * 4.25rem);
+    min-height: 24rem;
   }
 }
 
