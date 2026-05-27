@@ -7,7 +7,6 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Gem,
   Home as HomeIcon,
   Images,
   Layers3,
@@ -160,6 +159,15 @@ const invalidDiscordDisplayNames = new Set([
   "compte discord",
 ]);
 
+const almanaxApiBaseUrl = "https://api.dofusdu.de/dofus3/v1/fr/almanax";
+const frenchDateFormatter = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "long",
+  weekday: "long",
+  year: "numeric",
+});
+const kamasFormatter = new Intl.NumberFormat("fr-FR");
+
 const homepageSettingsFallback: HomepageSettings = {
   heroTitle: "LUNAERIA",
   heroSubtitle: "Portail de la Guilde Lunaeria",
@@ -225,6 +233,27 @@ type ActivityItem = {
   meta: string;
   type: "announcement" | "build" | "event" | "sale";
   timestamp?: string | null;
+};
+
+type AlmanaxEntry = {
+  date: string;
+  bonus?: {
+    description?: string;
+    type?: {
+      name?: string;
+    };
+  };
+  reward_kamas?: number;
+  tribute?: {
+    item?: {
+      name?: string;
+      image_urls?: {
+        icon?: string;
+        sd?: string;
+      };
+    };
+    quantity?: number;
+  };
 };
 
 function DiscordIcon({ size = 18 }: { size?: number }) {
@@ -501,6 +530,22 @@ function formatDateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function shiftDateKey(dateKey: string, days: number) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  date.setDate(date.getDate() + days);
+
+  return formatDateKey(date);
+}
+
+function formatAlmanaxDate(dateKey: string) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const formattedDate = frenchDateFormatter.format(new Date(year, month - 1, day));
+
+  return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+}
+
 function parseEventDate(date: string) {
   const value = date.trim();
 
@@ -715,6 +760,11 @@ export default function Home() {
   const [selectedAnnouncement, setSelectedAnnouncement] =
     useState<AnnouncementItem | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [todayAlmanaxDate] = useState(() => formatDateKey(new Date()));
+  const [almanaxDate, setAlmanaxDate] = useState(() => formatDateKey(new Date()));
+  const [almanaxEntry, setAlmanaxEntry] = useState<AlmanaxEntry | null>(null);
+  const [isAlmanaxLoading, setIsAlmanaxLoading] = useState(true);
+  const [almanaxError, setAlmanaxError] = useState<string | null>(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(() =>
@@ -919,6 +969,47 @@ export default function Home() {
 
     loadHomepageSettings();
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadAlmanax() {
+      setIsAlmanaxLoading(true);
+      setAlmanaxError(null);
+
+      try {
+        const response = await fetch(`${almanaxApiBaseUrl}/${almanaxDate}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Almanax API ${response.status}`);
+        }
+
+        const data = (await response.json()) as AlmanaxEntry;
+        setAlmanaxEntry(data);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        console.error(error);
+        setAlmanaxEntry(null);
+        setAlmanaxError("Almanax indisponible pour le moment.");
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsAlmanaxLoading(false);
+        }
+      }
+    }
+
+    loadAlmanax();
+
+    return () => {
+      controller.abort();
+    };
+  }, [almanaxDate]);
 
   useEffect(() => {
     async function loadGuildStats() {
@@ -1678,26 +1769,104 @@ export default function Home() {
             </div>
           </PremiumCard>
 
-          <PremiumCard title="Booster le serveur Discord" icon={Gem}>
-            <div className="rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.075),rgba(76,29,149,0.06))] p-5 shadow-[inset_0_0_16px_rgba(196,181,253,0.035),0_0_13px_rgba(76,29,149,0.055)]">
-              <p className="text-sm font-bold text-violet-100/86">
-                Soutenir Lunaeria
-              </p>
-              <p className="mt-3 text-sm leading-6 text-violet-50/70">
-                Les boosts aident à améliorer le Discord Lunaeria, renforcer la
-                visibilité de la guilde et soutenir les espaces communautaires.
-              </p>
-              {homepageSettings ? (
-                <a
-                  className="discord-cta mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-violet-200/18 bg-[#b9a7ea] px-5 text-sm font-black uppercase tracking-[0.14em] text-[#09071a] transition duration-300 hover:-translate-y-1 hover:bg-[#c9b9f2]"
-                  href={homepageSettings.heroButtonLink}
+          <PremiumCard title="Almanax Lunaeria" icon={CalendarDays}>
+            <div className="rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.075),rgba(76,29,149,0.06))] p-4 shadow-[inset_0_0_16px_rgba(196,181,253,0.035),0_0_13px_rgba(76,29,149,0.055)] sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl border border-violet-200/12 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+                  {almanaxEntry?.tribute?.item?.image_urls?.icon ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt={almanaxEntry.tribute.item.name ?? "Offrande Almanax"}
+                      className="size-12 object-contain"
+                      src={almanaxEntry.tribute.item.image_urls.icon}
+                    />
+                  ) : (
+                    <Sparkles size={22} />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-violet-200">
+                    {formatAlmanaxDate(almanaxEntry?.date ?? almanaxDate)}
+                  </p>
+                  <p className="mt-2 overflow-hidden text-sm font-black leading-5 text-violet-50 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+                    {isAlmanaxLoading
+                      ? "Chargement du bonus..."
+                      : almanaxEntry?.bonus?.type?.name ?? "Bonus du jour"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-3 text-sm">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-200/80">
+                    Bonus
+                  </p>
+                  <p className="mt-1 overflow-hidden leading-5 text-violet-50/72 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                    {isAlmanaxLoading
+                      ? "Récupération des données Almanax."
+                      : almanaxEntry?.bonus?.description ?? almanaxError ?? "Bonus non disponible."}
+                  </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-200/80">
+                      Offrande
+                    </p>
+                    <p className="mt-1 truncate text-sm font-black text-violet-50">
+                      {almanaxEntry?.tribute
+                        ? `${almanaxEntry.tribute.quantity ?? 1} x ${
+                            almanaxEntry.tribute.item?.name ?? "Objet requis"
+                          }`
+                        : isAlmanaxLoading
+                          ? "Chargement..."
+                          : "Non disponible"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-200/80">
+                      Récompense
+                    </p>
+                    <p className="mt-1 truncate text-sm font-black text-violet-50">
+                      {typeof almanaxEntry?.reward_kamas === "number"
+                        ? `${kamasFormatter.format(almanaxEntry.reward_kamas)} kamas`
+                        : isAlmanaxLoading
+                          ? "Chargement..."
+                          : "Non disponible"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                <button
+                  aria-label="Jour précédent"
+                  className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-2 text-violet-100 transition hover:border-violet-200/22 hover:bg-violet-200/[0.08] disabled:cursor-wait disabled:opacity-60"
+                  disabled={isAlmanaxLoading}
+                  onClick={() => setAlmanaxDate((current) => shiftDateKey(current, -1))}
+                  type="button"
                 >
-                  <DiscordIcon />
-                  Booster le Discord
-                </a>
-              ) : (
-                <div className="mt-5 h-12 w-full rounded-2xl bg-violet-100/[0.045]" aria-hidden="true" />
-              )}
+                  <ChevronLeft size={17} />
+                </button>
+                <button
+                  className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-violet-200/14 bg-[#b9a7ea] px-3 text-xs font-black uppercase tracking-[0.12em] text-[#09071a] transition hover:bg-[#c9b9f2] disabled:cursor-wait disabled:opacity-70"
+                  disabled={isAlmanaxLoading || almanaxDate === todayAlmanaxDate}
+                  onClick={() => setAlmanaxDate(todayAlmanaxDate)}
+                  type="button"
+                >
+                  Aujourd&apos;hui
+                </button>
+                <button
+                  aria-label="Jour suivant"
+                  className="inline-flex min-h-10 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-2 text-violet-100 transition hover:border-violet-200/22 hover:bg-violet-200/[0.08] disabled:cursor-wait disabled:opacity-60"
+                  disabled={isAlmanaxLoading}
+                  onClick={() => setAlmanaxDate((current) => shiftDateKey(current, 1))}
+                  type="button"
+                >
+                  <ChevronRight size={17} />
+                </button>
+              </div>
             </div>
           </PremiumCard>
         </section>
