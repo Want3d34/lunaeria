@@ -553,10 +553,14 @@ function formatAlmanaxDate(dateKey: string) {
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 }
 
-function homepageLayoutStyle(item: HomepageLayoutItem): CSSProperties {
+function homepageLayoutStyle(
+  item: HomepageLayoutItem,
+  referenceRows: number,
+): CSSProperties {
   return {
     "--home-columns": item.columns,
     "--home-rows": item.rows,
+    "--home-reference-rows": referenceRows,
   } as CSSProperties;
 }
 
@@ -1323,6 +1327,8 @@ export default function Home() {
   }
 
   const homepageLayout = homepageSettings?.layout ?? homepageSettingsFallback.layout;
+  const homepageLayoutReferenceRows =
+    homepageLayout.find((item) => item.key === "almanax")?.rows ?? 6;
 
   function renderHomepageLayoutBlock(blockKey: HomepageLayoutBlockKey) {
     switch (blockKey) {
@@ -1981,9 +1987,9 @@ export default function Home() {
         <section className="homepage-layout-grid mt-6">
           {homepageLayout.map((item) => (
             <div
-              className="homepage-layout-item"
+              className={`homepage-layout-item homepage-layout-item--${item.key}`}
               key={item.key}
-              style={homepageLayoutStyle(item)}
+              style={homepageLayoutStyle(item, homepageLayoutReferenceRows)}
             >
               {renderHomepageLayoutBlock(item.key)}
             </div>

@@ -195,6 +195,12 @@ body {
   min-height: calc(var(--home-rows, 5) * 3.75rem);
 }
 
+.homepage-layout-item--announcements,
+.homepage-layout-item--activity,
+.homepage-layout-item--online {
+  min-height: calc(max(var(--home-rows, 5), var(--home-reference-rows, 6)) * 3.75rem);
+}
+
 .homepage-layout-scroll {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -212,6 +218,12 @@ body {
   .homepage-layout-item {
     grid-column: span var(--home-columns, 6) / span var(--home-columns, 6);
     min-height: calc(var(--home-rows, 5) * 4.25rem);
+  }
+
+  .homepage-layout-item--announcements,
+  .homepage-layout-item--activity,
+  .homepage-layout-item--online {
+    min-height: calc(max(var(--home-rows, 5), var(--home-reference-rows, 6)) * 4.25rem);
   }
 }
 

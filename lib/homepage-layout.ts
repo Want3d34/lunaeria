@@ -15,10 +15,10 @@ export type HomepageLayoutItem = {
 };
 
 export const homepageLayoutDefaults: HomepageLayoutItem[] = [
-  { key: "announcements", label: "Dernières annonces", columns: 4, rows: 6, order: 0 },
-  { key: "online", label: "Membres en ligne", columns: 2, rows: 6, order: 1 },
+  { key: "announcements", label: "Dernières annonces", columns: 4, rows: 7, order: 0 },
+  { key: "online", label: "Membres en ligne", columns: 2, rows: 7, order: 1 },
   { key: "events", label: "Prochains events", columns: 4, rows: 5, order: 2 },
-  { key: "activity", label: "Activité récente", columns: 2, rows: 6, order: 3 },
+  { key: "activity", label: "Activité récente", columns: 2, rows: 7, order: 3 },
   { key: "almanax", label: "Almanax", columns: 2, rows: 6, order: 4 },
   { key: "gallery", label: "Galerie", columns: 4, rows: 6, order: 5 },
 ];
