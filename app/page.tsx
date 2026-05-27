@@ -26,12 +26,7 @@ import {
 import NextLink from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
-import {
-  normalizeHomepageLayout,
-  type HomepageLayoutBlockKey,
-  type HomepageLayoutItem,
-} from "@/lib/homepage-layout";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { getSiteUrl } from "../lib/site-url";
 import { supabase } from "../lib/supabase";
 
@@ -131,6 +126,14 @@ const activityIcons: Record<ActivityItem["type"], LucideIcon> = {
   sale: WandSparkles,
 };
 
+type HomepageLayoutBlockKey =
+  | "events"
+  | "online"
+  | "announcements"
+  | "activity"
+  | "almanax"
+  | "gallery";
+
 type HomepageSettings = {
   heroTitle: string;
   heroSubtitle: string;
@@ -140,7 +143,6 @@ type HomepageSettings = {
   recruitmentIsOpen: boolean;
   recruitmentMessage: string;
   recruitmentServerName: string;
-  layout: HomepageLayoutItem[];
 };
 
 type DiscordProfile = {
@@ -183,7 +185,6 @@ const homepageSettingsFallback: HomepageSettings = {
   recruitmentIsOpen: false,
   recruitmentMessage: "",
   recruitmentServerName: "Lunaeria",
-  layout: normalizeHomepageLayout(null),
 };
 
 type GalleryItem = {
@@ -551,17 +552,6 @@ function formatAlmanaxDate(dateKey: string) {
   const formattedDate = frenchDateFormatter.format(new Date(year, month - 1, day));
 
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-}
-
-function homepageLayoutStyle(
-  item: HomepageLayoutItem,
-  referenceRows: number,
-): CSSProperties {
-  return {
-    "--home-columns": item.columns,
-    "--home-rows": item.rows,
-    "--home-reference-rows": referenceRows,
-  } as CSSProperties;
 }
 
 function parseEventDate(date: string) {
@@ -981,7 +971,6 @@ export default function Home() {
           data.recruitment_message ?? "",
         recruitmentServerName:
           data.recruitment_server_name ?? "Lunaeria",
-        layout: normalizeHomepageLayout(data.layout_config),
       });
     }
 
@@ -1326,10 +1315,6 @@ export default function Home() {
     setIsDiscordSubmitting(false);
   }
 
-  const homepageLayout = homepageSettings?.layout ?? homepageSettingsFallback.layout;
-  const homepageLayoutReferenceRows =
-    homepageLayout.find((item) => item.key === "almanax")?.rows ?? 6;
-
   function renderHomepageLayoutBlock(blockKey: HomepageLayoutBlockKey) {
     switch (blockKey) {
       case "events":
@@ -1365,13 +1350,13 @@ export default function Home() {
                       <Icon size={19} />
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col self-stretch">
-                      <p className="line-clamp-2 font-black leading-5 text-violet-50">
+                      <p className="font-black leading-5 text-violet-50">
                         {eventItem.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
                         {eventItem.date}
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                      <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:5]">
                         {eventItem.description}
                       </p>
                       {isLongEvent ? (
@@ -1490,10 +1475,10 @@ export default function Home() {
                     <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
                       {item.category}
                     </span>
-                    <h3 className="mt-3 text-sm font-black leading-5 text-violet-50">
+                    <h3 className="mt-3 line-clamp-2 text-sm font-black leading-5 text-violet-50">
                       {item.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                    <p className="mt-2 overflow-hidden text-sm leading-6 text-slate-300 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:5]">
                       {item.content}
                     </p>
                     {isLongAnnouncement ? (
@@ -1984,16 +1969,27 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="homepage-layout-grid mt-6">
-          {homepageLayout.map((item) => (
-            <div
-              className={`homepage-layout-item homepage-layout-item--${item.key}`}
-              key={item.key}
-              style={homepageLayoutStyle(item, homepageLayoutReferenceRows)}
-            >
-              {renderHomepageLayoutBlock(item.key)}
+        <section className="homepage-fixed-layout mt-6">
+          <div className="homepage-fixed-card homepage-fixed-card--announcements">
+            {renderHomepageLayoutBlock("announcements")}
+          </div>
+
+          <div className="homepage-fixed-card homepage-fixed-card--events">
+            {renderHomepageLayoutBlock("events")}
+          </div>
+
+          <div className="homepage-fixed-split">
+            <div className="homepage-fixed-card homepage-fixed-card--split">
+              {renderHomepageLayoutBlock("almanax")}
             </div>
-          ))}
+            <div className="homepage-fixed-card homepage-fixed-card--split">
+              {renderHomepageLayoutBlock("online")}
+            </div>
+          </div>
+
+          <div className="homepage-fixed-card homepage-fixed-card--gallery">
+            {renderHomepageLayoutBlock("gallery")}
+          </div>
         </section>
 
         {false ? (

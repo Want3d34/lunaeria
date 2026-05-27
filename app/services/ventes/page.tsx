@@ -16,6 +16,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
 import { useHomepageContent } from "@/lib/lunaeria-content";
+import { uploadPublicImage } from "@/lib/storage-images";
 
 const emptySale = {
   itemName: "",
@@ -41,6 +42,7 @@ export default function VentesPage() {
   const { content, setContent } = useHomepageContent();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState(emptySale);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   async function loadSalesFromSupabase() {
     const { data, error } = await supabase
@@ -75,13 +77,8 @@ export default function VentesPage() {
   }, []);
 
   function readImage(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setDraft((current) => ({ ...current, imageUrl: reader.result as string }));
-      }
-    };
-    reader.readAsDataURL(file);
+    setImageFile(file);
+    setDraft((current) => ({ ...current, imageUrl: URL.createObjectURL(file) }));
   }
 
   async function submitSale(event: FormEvent<HTMLFormElement>) {
@@ -91,13 +88,29 @@ export default function VentesPage() {
       return;
     }
 
+    let imageUrl = draft.imageUrl || "/file.svg";
+
+    if (imageFile) {
+      try {
+        imageUrl = await uploadPublicImage(
+          supabase,
+          "ventes",
+          imageFile,
+          draft.itemName,
+        );
+      } catch (error) {
+        console.error("Erreur upload image vente:", error);
+        return;
+      }
+    }
+
     const payload = {
       item_name: draft.itemName.trim(),
       category: draft.category.trim() || "Divers",
       price: draft.price.trim(),
       quantity: draft.quantity.trim() || "1",
       message: draft.message.trim(),
-      image_url: draft.imageUrl || "/file.svg",
+      image_url: imageUrl,
       seller_game_name: draft.sellerGameName.trim() || "Anonyme",
       seller_discord_name: draft.sellerDiscordName.trim() || "discord inconnu",
     };
@@ -110,6 +123,7 @@ export default function VentesPage() {
     }
 
     setDraft(emptySale);
+    setImageFile(null);
     setIsModalOpen(false);
     await loadSalesFromSupabase();
   }
@@ -253,12 +267,11 @@ export default function VentesPage() {
                   }}
                   type="file"
                 />
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   alt="Aperçu"
                   className="mt-4 max-h-32 object-contain"
-                  height={128}
                   src={draft.imageUrl}
-                  width={128}
                 />
               </label>
 

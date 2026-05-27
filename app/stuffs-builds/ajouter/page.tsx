@@ -1,6 +1,6 @@
 "use client";
 
-import { Send, ShieldCheck } from "lucide-react";
+import { ImagePlus, Send, ShieldCheck } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
@@ -8,6 +8,7 @@ import { PageSidebar } from "@/components/page-sidebar";
 import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { useHomepageContent } from "@/lib/lunaeria-content";
 import { getSiteUrl } from "@/lib/site-url";
+import { uploadPublicImage } from "@/lib/storage-images";
 import { dofusClasses, getClassImage, getElement } from "@/lib/stuffs-data";
 import { supabase } from "@/lib/supabase";
 import { ElementChips, LunaeriaSelect } from "../_components";
@@ -38,6 +39,8 @@ export default function AjouterStuffPage() {
     useState<LinkedDiscordProfile | null>(null);
   const [isDiscordProfileLoaded, setIsDiscordProfileLoaded] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
   const classImage = getClassImage(draft.className);
 
   useEffect(() => {
@@ -103,6 +106,22 @@ export default function AjouterStuffPage() {
     }
 
     const elements = draft.elements.length ? draft.elements : ["Multi"];
+    let buildImageUrl = "";
+
+    if (imageFile) {
+      try {
+        buildImageUrl = await uploadPublicImage(
+          supabase,
+          "builds",
+          imageFile,
+          draft.title,
+        );
+      } catch (error) {
+        console.error("Erreur upload image build:", error);
+        return;
+      }
+    }
+
     const payload = {
       title: draft.title.trim(),
       game_pseudo: draft.gamePseudo.trim(),
@@ -110,7 +129,7 @@ export default function AjouterStuffPage() {
       creator_discord_id: linkedDiscordProfile.discordId,
       creator_display_name: linkedDiscordProfile.displayName,
       class_name: draft.className,
-      class_image: classImage,
+      class_image: "",
       elements,
       element_icons: elements.map((item) => getElement(item)?.icon ?? "✦"),
       orientation: draft.orientation.trim(),
@@ -119,7 +138,7 @@ export default function AjouterStuffPage() {
       level: draft.level,
       dofusbook_url: draft.dofusbookUrl.trim() || "https://www.dofusbook.net",
       description: draft.description.trim(),
-      image: classImage,
+      image: buildImageUrl,
     };
 
     const { data, error } = await supabase
@@ -220,11 +239,24 @@ export default function AjouterStuffPage() {
             </p>
           ) : null}
           <div className="relative z-10 grid gap-4 md:grid-cols-[220px_1fr]">
-            <div className="grid place-items-center rounded-2xl border border-violet-100/18 bg-[#030512]/70 p-4 text-center text-sm font-black uppercase tracking-[0.16em] text-violet-100 shadow-[inset_0_0_14px_rgba(196,181,253,0.025)]">
-              Image de classe
+            <label className="grid cursor-pointer place-items-center rounded-2xl border border-dashed border-violet-100/18 bg-[#030512]/70 p-4 text-center text-sm font-black uppercase tracking-[0.16em] text-violet-100 shadow-[inset_0_0_14px_rgba(196,181,253,0.025)] transition hover:border-violet-200/32">
+              <ImagePlus className="mb-3" size={24} />
+              Image du build
+              <input
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) {
+                    setImageFile(file);
+                    setImagePreview(URL.createObjectURL(file));
+                  }
+                }}
+                type="file"
+              />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img alt={`Aperçu ${draft.className}`} className="mt-4 size-28 rounded-2xl object-contain" src={classImage} />
-            </div>
+              <img alt={`Aperçu ${draft.className}`} className="mt-4 size-28 rounded-2xl object-contain" src={imagePreview || classImage} />
+            </label>
             <div className="grid gap-3">
               <div className="grid gap-3 sm:grid-cols-2">
                 <input className={inputClass()} onChange={(event) => setDraft((current) => ({ ...current, gamePseudo: event.target.value }))} placeholder="Pseudo en jeu" value={draft.gamePseudo} />
