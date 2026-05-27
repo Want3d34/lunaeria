@@ -1216,7 +1216,8 @@ export default function Home() {
     loadGallery();
   }, []);
 
-  const homepageAnnouncements = announcements;
+  const homepageAnnouncements = announcements.slice(0, 2);
+  const homepageEvents = events.slice(0, 1);
 
   const recruitmentLabel = homepageSettings?.recruitmentIsOpen ? "Ouvert" : "Fermé";
   const recentActivity: ActivityItem[] = [
@@ -1330,12 +1331,12 @@ export default function Home() {
           <PremiumCard
             title="Prochains events"
             icon={CalendarDays}
-            className="flex h-full min-h-0 flex-col overflow-hidden"
+            className="h-full"
           >
-            <div className="homepage-layout-scroll min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+            <div className="space-y-3">
               {!isDynamicContentLoaded
-                ? [0, 1, 2].map((item) => (
-                    <ContentSkeleton className="min-h-[86px]" key={item} />
+                ? [0].map((item) => (
+                    <ContentSkeleton className="min-h-[150px]" key={item} />
                   ))
                 : null}
               {isDynamicContentLoaded && events.length === 0 ? (
@@ -1343,7 +1344,7 @@ export default function Home() {
                   Aucun événement planifié.
                 </div>
               ) : null}
-              {isDynamicContentLoaded ? events.map((eventItem, index) => {
+              {isDynamicContentLoaded ? homepageEvents.map((eventItem, index) => {
                 const Icon = eventIcons[index % eventIcons.length];
                 const isLongEvent =
                   eventItem.description.trim().length > 170 ||
@@ -1352,7 +1353,7 @@ export default function Home() {
                 return (
                   <div
                     key={eventItem.id}
-                    className="flex max-h-60 min-h-40 items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:gap-4"
+                    className="flex items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:gap-4"
                   >
                     <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
                       <Icon size={19} />
@@ -1364,7 +1365,7 @@ export default function Home() {
                       <p className="mt-1 text-xs text-slate-500">
                         {eventItem.date}
                       </p>
-                      <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                      <p className="mt-1 text-xs leading-5 text-slate-500">
                         {eventItem.description}
                       </p>
                       {isLongEvent ? (
@@ -1380,6 +1381,12 @@ export default function Home() {
                   </div>
                 );
               }) : null}
+              <NextLink
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-4 text-xs font-black uppercase tracking-[0.13em] text-violet-100 transition hover:border-violet-200/24 hover:bg-violet-200/[0.08]"
+                href="/evenements"
+              >
+                Voir tous les événements
+              </NextLink>
             </div>
           </PremiumCard>
         );
@@ -1452,9 +1459,9 @@ export default function Home() {
           <PremiumCard
             title="Dernières annonces"
             icon={Bell}
-            className="flex h-full min-h-0 flex-col overflow-hidden"
+            className="h-full"
           >
-            <div className="homepage-layout-scroll grid min-h-0 flex-1 items-start gap-4 overflow-y-auto pr-1 md:grid-cols-2">
+            <div className="grid items-start gap-4 md:grid-cols-2">
               {!isDynamicContentLoaded
                 ? [0, 1].map((item) => (
                     <ContentSkeleton className="min-h-[190px]" key={item} />
@@ -1472,15 +1479,15 @@ export default function Home() {
                 return (
                   <article
                     key={item.id}
-                    className="flex max-h-72 min-h-[13rem] flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-5 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
+                    className="flex min-h-[13rem] flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-5 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
                   >
                     <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
                       {item.category}
                     </span>
-                    <h3 className="mt-3 line-clamp-2 text-sm font-black leading-5 text-violet-50">
+                    <h3 className="mt-3 text-sm font-black leading-5 text-violet-50">
                       {item.title}
                     </h3>
-                    <p className="mt-2 overflow-hidden text-sm leading-6 text-slate-300 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
                       {item.content}
                     </p>
                     {isLongAnnouncement ? (
@@ -1495,6 +1502,12 @@ export default function Home() {
                   </article>
                 );
               }) : null}
+              <NextLink
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-4 text-xs font-black uppercase tracking-[0.13em] text-violet-100 transition hover:border-violet-200/24 hover:bg-violet-200/[0.08] md:col-span-2"
+                href="/annonces"
+              >
+                Voir toutes les annonces
+              </NextLink>
             </div>
           </PremiumCard>
         );

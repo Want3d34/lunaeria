@@ -192,8 +192,7 @@ body {
 }
 
 .homepage-layout-item {
-  height: calc(var(--home-rows, 5) * 3.75rem);
-  min-height: 24rem;
+  min-height: calc(var(--home-rows, 5) * 3.75rem);
 }
 
 .homepage-layout-scroll {
@@ -212,8 +211,7 @@ body {
 
   .homepage-layout-item {
     grid-column: span var(--home-columns, 6) / span var(--home-columns, 6);
-    height: calc(var(--home-rows, 5) * 4.25rem);
-    min-height: 24rem;
+    min-height: calc(var(--home-rows, 5) * 4.25rem);
   }
 }
 
