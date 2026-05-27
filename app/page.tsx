@@ -1612,8 +1612,12 @@ export default function Home() {
             </div>
           </PremiumCard>
 
-          <PremiumCard title="Membres en ligne" icon={Users}>
-            <div className="lunae-scrollbar min-h-[22rem] max-h-[28rem] space-y-3 overflow-y-auto pr-1 sm:min-h-[24rem] sm:max-h-[30rem]">
+          <PremiumCard
+            title="Membres en ligne"
+            icon={Users}
+            className="min-h-[31rem]"
+          >
+            <div className="lunae-scrollbar min-h-[24.5rem] max-h-[28rem] space-y-3 overflow-y-auto pr-1 sm:min-h-[26.5rem] sm:max-h-[30rem]">
               {!isOnlineMembersLoaded
                 ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[66px]" key={item} />
@@ -1673,9 +1677,9 @@ export default function Home() {
           <PremiumCard
             title="Dernières annonces"
             icon={Bell}
-            className="xl:col-span-2"
+            className="min-h-[31rem] xl:col-span-2"
           >
-            <div className="grid min-h-[24rem] items-start gap-4 md:grid-cols-2">
+            <div className="grid min-h-[26rem] items-start gap-4 md:grid-cols-2">
               {!isDynamicContentLoaded
                 ? [0, 1].map((item) => (
                     <ContentSkeleton className="min-h-[190px]" key={item} />
@@ -1722,9 +1726,9 @@ export default function Home() {
           <PremiumCard
             title="Activité récente"
             icon={Layers3}
-            className="xl:col-span-2"
+            className="min-h-[31rem] xl:col-span-2"
           >
-            <div className="min-h-[24rem] space-y-4">
+            <div className="min-h-[26rem] space-y-4">
               {!isDynamicContentLoaded
                 ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[104px]" key={item} />
