@@ -10,7 +10,6 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import Image from "next/image";
 import { createClient } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
@@ -36,6 +35,20 @@ const supabase = createClient(
 
 function fieldClass() {
   return "min-h-12 rounded-2xl border border-violet-100/10 bg-[#030512]/72 px-4 text-sm font-semibold text-violet-50 outline-none shadow-[inset_0_0_14px_rgba(196,181,253,0.025)] transition placeholder:text-slate-600 focus:border-violet-200/28 focus:bg-[#06091b]/86";
+}
+
+function getSaleImageSrc(imageUrl: string) {
+  const value = imageUrl.trim();
+
+  if (
+    value.startsWith("https://") ||
+    value.startsWith("data:image/") ||
+    value.startsWith("/")
+  ) {
+    return value;
+  }
+
+  return "/file.svg";
 }
 
 export default function VentesPage() {
@@ -185,12 +198,15 @@ export default function VentesPage() {
             >
               <div className="relative z-10">
                 <div className="grid aspect-square place-items-center overflow-hidden rounded-2xl border border-violet-100/10 bg-[#030512]/75">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     alt={sale.itemName}
                     className="h-full w-full object-contain p-6 drop-shadow-[0_14px_24px_rgba(0,0,0,0.45)]"
-                    height={220}
-                    src={sale.imageUrl}
-                    width={220}
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.src = "/file.svg";
+                    }}
+                    src={getSaleImageSrc(sale.imageUrl)}
                   />
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">

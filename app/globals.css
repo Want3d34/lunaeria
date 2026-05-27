@@ -233,7 +233,7 @@ body {
 
 @media (min-width: 1024px) {
   .homepage-fixed-split {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .homepage-fixed-card--announcements {
@@ -242,7 +242,7 @@ body {
   }
 
   .homepage-fixed-card--events {
-    height: 19rem;
+    height: 23rem;
     min-height: 0;
   }
 

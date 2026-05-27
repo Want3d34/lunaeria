@@ -1209,8 +1209,8 @@ export default function Home() {
     loadGallery();
   }, []);
 
-  const homepageAnnouncements = announcements.slice(0, 2);
-  const homepageEvents = events.slice(0, 1);
+  const homepageAnnouncements = announcements.slice(0, 3);
+  const homepageEvents = events.slice(0, 3);
 
   const recruitmentLabel = homepageSettings?.recruitmentIsOpen ? "Ouvert" : "Fermé";
   const recentActivity: ActivityItem[] = [
@@ -1276,6 +1276,8 @@ export default function Home() {
     : discordProfile
       ? "Compte Discord lié"
       : "Lier avec Discord";
+  const discordSupportHref =
+    homepageSettings?.heroButtonLink?.trim() || "https://discord.com/channels/@me";
 
   async function handleDiscordOAuth() {
     if (discordProfile) {
@@ -1324,14 +1326,14 @@ export default function Home() {
             icon={CalendarDays}
             className="h-full"
           >
-            <div className="space-y-3">
+            <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
               {!isDynamicContentLoaded
-                ? [0].map((item) => (
+                ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[150px]" key={item} />
                   ))
                 : null}
               {isDynamicContentLoaded && events.length === 0 ? (
-                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 md:col-span-2 xl:col-span-3">
                   Aucun événement planifié.
                 </div>
               ) : null}
@@ -1344,7 +1346,7 @@ export default function Home() {
                 return (
                   <div
                     key={eventItem.id}
-                    className="flex items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:gap-4"
+                    className="flex min-h-[12rem] items-start gap-3 rounded-2xl border border-violet-100/8 bg-violet-50/[0.034] p-4 shadow-[inset_0_0_12px_rgba(196,181,253,0.022)] transition duration-300 hover:border-violet-200/15 hover:bg-violet-200/[0.052] hover:shadow-[0_0_12px_rgba(109,40,217,0.055)] sm:gap-4"
                   >
                     <div className="grid size-11 shrink-0 place-items-center rounded-2xl border border-violet-200/10 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
                       <Icon size={19} />
@@ -1373,7 +1375,7 @@ export default function Home() {
                 );
               }) : null}
               <NextLink
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-4 text-xs font-black uppercase tracking-[0.13em] text-violet-100 transition hover:border-violet-200/24 hover:bg-violet-200/[0.08]"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-4 text-xs font-black uppercase tracking-[0.13em] text-violet-100 transition hover:border-violet-200/24 hover:bg-violet-200/[0.08] md:col-span-2 xl:col-span-3"
                 href="/evenements"
               >
                 Voir tous les événements
@@ -1452,14 +1454,14 @@ export default function Home() {
             icon={Bell}
             className="h-full"
           >
-            <div className="grid items-start gap-4 md:grid-cols-2">
+            <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
               {!isDynamicContentLoaded
-                ? [0, 1].map((item) => (
+                ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[190px]" key={item} />
                   ))
                 : null}
               {isDynamicContentLoaded && homepageAnnouncements.length === 0 ? (
-                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 md:col-span-2">
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 md:col-span-2 xl:col-span-3">
                   Aucune annonce publiée pour le moment.
                 </div>
               ) : null}
@@ -1470,7 +1472,7 @@ export default function Home() {
                 return (
                   <article
                     key={item.id}
-                    className="flex min-h-[13rem] flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-5 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
+                    className="flex min-h-[12rem] flex-col rounded-2xl border border-violet-100/8 bg-violet-50/[0.036] p-5 shadow-[inset_0_0_13px_rgba(196,181,253,0.024),0_14px_32px_rgba(0,0,0,0.24)] transition duration-300 hover:border-violet-200/16 hover:bg-violet-200/[0.055] hover:shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_0_13px_rgba(109,40,217,0.06)]"
                   >
                     <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
                       {item.category}
@@ -1494,7 +1496,7 @@ export default function Home() {
                 );
               }) : null}
               <NextLink
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-4 text-xs font-black uppercase tracking-[0.13em] text-violet-100 transition hover:border-violet-200/24 hover:bg-violet-200/[0.08] md:col-span-2"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-4 text-xs font-black uppercase tracking-[0.13em] text-violet-100 transition hover:border-violet-200/24 hover:bg-violet-200/[0.08] md:col-span-2 xl:col-span-3"
                 href="/annonces"
               >
                 Voir toutes les annonces
@@ -1718,6 +1720,36 @@ export default function Home() {
       default:
         return null;
     }
+  }
+
+  function renderDiscordSupportBlock() {
+    return (
+      <PremiumCard
+        title="Soutenir Lunaeria"
+        icon={Sparkles}
+        className="flex h-full min-h-0 flex-col overflow-hidden"
+      >
+        <div className="flex min-h-0 flex-1 flex-col justify-between rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.08),rgba(76,29,149,0.06))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
+          <div>
+            <div className="grid size-14 place-items-center rounded-2xl border border-violet-200/12 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
+              <DiscordIcon size={24} />
+            </div>
+            <p className="mt-5 text-sm font-black leading-5 text-violet-50">
+              Aide le Discord Lunaeria à rester visible et accueillant.
+            </p>
+            <p className="mt-3 text-xs leading-5 text-slate-400">
+              Un boost ou un soutien aide la communauté à grandir.
+            </p>
+          </div>
+          <NextLink
+            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-[#b9a7ea] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#09071a] transition hover:bg-[#c9b9f2]"
+            href={discordSupportHref}
+          >
+            Soutenir Lunaeria
+          </NextLink>
+        </div>
+      </PremiumCard>
+    );
   }
 
   return (
@@ -1982,7 +2014,10 @@ export default function Home() {
             <div className="homepage-fixed-card homepage-fixed-card--split">
               {renderHomepageLayoutBlock("almanax")}
             </div>
-            <div className="homepage-fixed-card homepage-fixed-card--split">
+            <div className="homepage-fixed-card homepage-fixed-card--split homepage-fixed-card--support">
+              {renderDiscordSupportBlock()}
+            </div>
+            <div className="homepage-fixed-card homepage-fixed-card--split homepage-fixed-card--online">
               {renderHomepageLayoutBlock("online")}
             </div>
           </div>
