@@ -134,7 +134,7 @@ export default function VentesPage() {
         imageUrl = uploadedImageUrl;
       } catch (error) {
         console.error("Erreur upload image vente:", error);
-        return;
+        imageUrl = "/file.svg";
       }
     }
 
