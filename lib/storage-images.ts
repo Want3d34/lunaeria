@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-type ImageBucket = "ventes" | "builds";
+type ImageBucket = "builds";
 
 function slugifyFilePart(value: string) {
   return value

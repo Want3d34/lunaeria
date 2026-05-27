@@ -7,6 +7,7 @@ import {
   Plus,
   Send,
   ShoppingBag,
+  Trash2,
   UserRound,
   X,
 } from "lucide-react";
@@ -14,8 +15,8 @@ import { createClient } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
+import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { useHomepageContent } from "@/lib/lunaeria-content";
-import { uploadPublicImage } from "@/lib/storage-images";
 
 const emptySale = {
   itemName: "",
@@ -51,26 +52,12 @@ function getSaleImageSrc(imageUrl: string) {
   return "/file.svg";
 }
 
-function isPublicSaleImageUrl(imageUrl: string) {
-  const value = imageUrl.trim();
-
-  if (!value.startsWith("https://")) {
-    return false;
-  }
-
-  try {
-    const url = new URL(value);
-    return url.pathname.includes("/storage/v1/object/public/ventes/");
-  } catch {
-    return false;
-  }
-}
-
 export default function VentesPage() {
   const { content, setContent } = useHomepageContent();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState(emptySale);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [linkedDiscordProfile, setLinkedDiscordProfile] =
+    useState<LinkedDiscordProfile | null>(null);
 
   async function loadSalesFromSupabase() {
     const { data, error } = await supabase
@@ -104,9 +91,56 @@ export default function VentesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadLinkedDiscordProfile() {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const profile = await getLinkedDiscordProfile(supabase, data.session?.user ?? null);
+
+      if (isMounted) {
+        setLinkedDiscordProfile(profile);
+      }
+    }
+
+    loadLinkedDiscordProfile();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      getLinkedDiscordProfile(supabase, session?.user ?? null).then((profile) => {
+        if (isMounted) {
+          setLinkedDiscordProfile(profile);
+        }
+      });
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
   function readImage(file: File) {
-    setImageFile(file);
-    setDraft((current) => ({ ...current, imageUrl: URL.createObjectURL(file) }));
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const imageUrl = typeof reader.result === "string" ? reader.result : "/file.svg";
+      setDraft((current) => ({ ...current, imageUrl }));
+    };
+
+    reader.onerror = () => {
+      console.error("Erreur lecture image vente.");
+      setDraft((current) => ({ ...current, imageUrl: "/file.svg" }));
+    };
+
+    reader.readAsDataURL(file);
   }
 
   async function submitSale(event: FormEvent<HTMLFormElement>) {
@@ -116,27 +150,9 @@ export default function VentesPage() {
       return;
     }
 
-    let imageUrl = "/file.svg";
-
-    if (imageFile) {
-      try {
-        const uploadedImageUrl = await uploadPublicImage(
-          supabase,
-          "ventes",
-          imageFile,
-          draft.itemName,
-        );
-
-        if (!isPublicSaleImageUrl(uploadedImageUrl)) {
-          throw new Error(`URL image vente invalide: ${uploadedImageUrl}`);
-        }
-
-        imageUrl = uploadedImageUrl;
-      } catch (error) {
-        console.error("Erreur upload image vente:", error);
-        imageUrl = "/file.svg";
-      }
-    }
+    const imageUrl = draft.imageUrl.startsWith("data:image/")
+      ? draft.imageUrl
+      : "/file.svg";
 
     const payload = {
       item_name: draft.itemName.trim(),
@@ -146,7 +162,10 @@ export default function VentesPage() {
       message: draft.message.trim(),
       image_url: imageUrl,
       seller_game_name: draft.sellerGameName.trim() || "Anonyme",
-      seller_discord_name: draft.sellerDiscordName.trim() || "discord inconnu",
+      seller_discord_name:
+        linkedDiscordProfile?.displayName ||
+        draft.sellerDiscordName.trim() ||
+        "discord inconnu",
     };
 
     const { error } = await supabase.from("ventes").insert(payload);
@@ -157,8 +176,34 @@ export default function VentesPage() {
     }
 
     setDraft(emptySale);
-    setImageFile(null);
     setIsModalOpen(false);
+    await loadSalesFromSupabase();
+  }
+
+  function canDeleteSale(sellerDiscordName: string) {
+    return (
+      Boolean(linkedDiscordProfile?.displayName) &&
+      sellerDiscordName.trim().toLowerCase() ===
+        linkedDiscordProfile?.displayName.trim().toLowerCase()
+    );
+  }
+
+  async function deleteSale(id: string, sellerDiscordName: string) {
+    if (!canDeleteSale(sellerDiscordName)) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("ventes")
+      .delete()
+      .eq("id", Number(id))
+      .eq("seller_discord_name", sellerDiscordName);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
     await loadSalesFromSupabase();
   }
 
@@ -251,13 +296,16 @@ export default function VentesPage() {
                 <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-400">
                   {sale.message || "Contactez le vendeur pour plus de détails."}
                 </p>
-                <a
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-100/12 bg-violet-100/[0.045] px-4 py-3 text-sm font-black text-violet-50 transition hover:border-violet-200/24 hover:bg-violet-200/8"
-                  href={`https://discord.com/channels/@me`}
-                >
-                  <ShoppingBag size={17} />
-                  Voir la vente
-                </a>
+                {canDeleteSale(sale.sellerDiscordName) ? (
+                  <button
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-red-300/14 bg-red-400/[0.055] px-4 py-3 text-sm font-black text-red-100 transition hover:border-red-200/28 hover:bg-red-300/10"
+                    onClick={() => deleteSale(sale.id, sale.sellerDiscordName)}
+                    type="button"
+                  >
+                    <Trash2 size={17} />
+                    Supprimer la vente
+                  </button>
+                ) : null}
               </div>
             </article>
           ))}
