@@ -1679,7 +1679,7 @@ export default function Home() {
   }
 
   return (
-    <main className="home-reference-page min-h-screen overflow-hidden bg-[#030512] text-slate-100">
+    <main className="home-reference-page min-h-screen overflow-x-hidden bg-[#030512] text-slate-100">
       <style jsx global>{`
         .mobile-menu-scrollbar {
           scrollbar-width: none;
@@ -1740,11 +1740,6 @@ export default function Home() {
           }
         }
       `}</style>
-      <div className="aurora-bg fixed inset-0" />
-      <div className="rune-grid fixed inset-0" />
-      <div className="star-veil fixed inset-0 opacity-42" />
-      <div className="fog-veil fixed inset-0" />
-
       <aside className="home-sidebar sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-28 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
         <div className="relative z-10 flex w-20 shrink-0 items-center justify-center py-0 lg:-mt-2 lg:mb-2 lg:w-full">
           <img
@@ -1796,7 +1791,7 @@ export default function Home() {
         </div>
       </aside>
 
-      <div className="home-content relative z-0 min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-5">
+      <div className="home-content min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-5">
         <section className="home-free-hero">
           <div className="max-w-4xl">
             <div className="mb-4 flex flex-wrap items-center gap-3">
