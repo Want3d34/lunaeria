@@ -82,41 +82,15 @@ const legacyNavItems: NavItem[] = [
 
 const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
   { label: "Accueil", icon: HomeIcon, href: "/" },
-  {
-    label: "Services",
-    icon: WandSparkles,
-    children: [{ label: "Ventes", href: "/services/ventes" }],
-  },
-  {
-    label: "Métiers",
-    icon: BriefcaseBusiness,
-    children: metierLinks,
-  },
-  {
-    label: "Ressources",
-    icon: PackageOpen,
-    children: [
-      {
-        label: "Élevage",
-        children: [
-          { label: "Muldos", href: "/ressources/elevage/muldos" },
-          { label: "Dragodindes", href: "/ressources/elevage/dragodindes" },
-          { label: "Volkornes", href: "/ressources/elevage/volkornes" },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Stuffs & Builds",
-    icon: ShieldCheck,
-    children: [
-      { label: "Encyclopédie", href: "/stuffs-builds/encyclopedie" },
-    ],
-  },
   { label: "Annonces", icon: Megaphone, href: "/annonces" },
-  { label: "Évènements", icon: CalendarDays, href: "/evenements" },
-  { label: "Règlement", icon: ScrollText, href: "/reglement" },
-  { label: "Liens utiles", icon: Link, href: "/liens-utiles" },
+  { label: "Événements", icon: CalendarDays, href: "/evenements" },
+  { label: "Ventes", icon: WandSparkles, href: "/services/ventes" },
+  { label: "Almanax", icon: Sparkles, href: "/#almanax" },
+  { label: "Membres", icon: Users, href: "/#membres" },
+  { label: "Métiers", icon: BriefcaseBusiness, href: "/metiers" },
+  { label: "Builds", icon: ShieldCheck, href: "/stuffs-builds/encyclopedie" },
+  { label: "Candidatures", icon: ScrollText, href: "/#candidatures" },
+  { label: "Élevage", icon: PackageOpen, href: "/ressources/elevage/muldos" },
 ]);
 
 const staticSearchItems = [
@@ -789,19 +763,19 @@ function SidebarNavItem({
     item.active ||
     (Boolean(item.href) && pathname === item.href) ||
     (hasChildren && open);
-  const controlClassName = `group/nav relative flex h-16 min-w-[4.7rem] items-center justify-center gap-1 overflow-visible rounded-[1.35rem] border px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] transition duration-300 lg:h-12 lg:min-w-14 lg:w-full lg:flex-row lg:justify-start lg:gap-3 lg:overflow-hidden lg:rounded-2xl lg:px-3 lg:py-0 lg:text-sm lg:font-bold lg:normal-case lg:tracking-normal ${
+  const controlClassName = `group/nav relative flex h-12 min-w-[4.35rem] items-center justify-center gap-1 overflow-visible rounded-xl border px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] transition duration-300 lg:h-9 lg:min-w-0 lg:w-full lg:flex-row lg:justify-start lg:gap-2.5 lg:overflow-hidden lg:rounded-xl lg:px-3 lg:py-0 lg:text-xs lg:font-medium lg:normal-case lg:tracking-normal ${
     isActive
-      ? "border-violet-200/20 bg-[linear-gradient(90deg,rgba(124,58,237,0.16),rgba(91,33,182,0.07))] text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.055),0_0_16px_rgba(139,92,246,0.1)]"
-      : "border-transparent text-slate-400 hover:border-violet-200/18 hover:bg-violet-100/[0.055] hover:text-violet-50 hover:shadow-[0_0_16px_rgba(139,92,246,0.095)]"
+      ? "border-violet-300/24 bg-violet-400/[0.12] text-violet-50 shadow-[inset_0_1px_8px_rgba(196,181,253,0.045),0_0_14px_rgba(139,92,246,0.12)]"
+      : "border-transparent text-violet-100/58 hover:border-violet-200/12 hover:bg-violet-100/[0.045] hover:text-violet-50"
   }`;
   const controlContent = (
     <>
       <span className="absolute inset-y-2 left-0 w-px bg-violet-200/0 transition duration-300 group-hover/nav:bg-violet-200/45" />
       <Icon
         className="shrink-0 transition duration-300 group-hover/nav:scale-105 group-hover/nav:drop-shadow-[0_0_6px_rgba(196,181,253,0.26)]"
-        size={19}
+        size={16}
       />
-      <span className="block max-w-[4.2rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">
+      <span className="block max-w-[4.1rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">
         {item.label}
       </span>
       {hasChildren ? (
@@ -1759,11 +1733,21 @@ export default function Home() {
 
       case "almanax":
         return (
-          <PremiumCard
-            title="Almanax Lunaeria"
-            icon={CalendarDays}
-            className="flex h-full min-h-0 flex-col overflow-hidden"
-          >
+          <section className="homepage-almanax-shell flex h-full min-h-0 flex-col overflow-hidden">
+            <div className="relative z-10 mb-5 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="grid size-10 place-items-center rounded-xl border border-violet-100/18 bg-[linear-gradient(145deg,rgba(216,180,254,0.18),rgba(109,40,217,0.08))] text-violet-100 shadow-[inset_0_1px_12px_rgba(237,233,254,0.07),0_0_18px_rgba(139,92,246,0.18)]">
+                  <CalendarDays size={19} />
+                </div>
+                <h2 className="text-sm font-black uppercase tracking-[0.18em] text-violet-100">
+                  Almanax Lunaeria
+                </h2>
+              </div>
+              <ChevronRight
+                className="text-violet-100/65"
+                size={18}
+              />
+            </div>
             <div className="homepage-layout-scroll min-h-0 flex-1 overflow-y-auto rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.085),rgba(76,29,149,0.065))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
               <div className="flex items-start gap-4">
                 <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-violet-200/12 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
@@ -1850,7 +1834,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
-          </PremiumCard>
+          </section>
         );
 
       case "gallery":
@@ -1964,11 +1948,11 @@ export default function Home() {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          opacity: 0.34;
+          opacity: 0.18;
           background:
-            radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.12), transparent 34%),
-            radial-gradient(circle at 15% 32%, rgba(99, 102, 241, 0.08), transparent 28%),
-            radial-gradient(circle at 85% 72%, rgba(168, 85, 247, 0.07), transparent 30%);
+            radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.08), transparent 34%),
+            radial-gradient(circle at 15% 32%, rgba(99, 102, 241, 0.045), transparent 28%),
+            radial-gradient(circle at 85% 72%, rgba(168, 85, 247, 0.04), transparent 30%);
           animation: sidebarAuraDrift 16s ease-in-out infinite alternate;
         }
 
@@ -1984,18 +1968,18 @@ export default function Home() {
           }
         }
       `}</style>
-      <aside className="home-sidebar sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-28 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
-        <div className="relative z-10 flex w-20 shrink-0 items-center justify-center py-0 lg:-mt-2 lg:mb-2 lg:w-full">
+      <aside className="home-sidebar sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-2.5 overflow-visible border-b border-violet-200/8 bg-[#050513]/96 px-3 py-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_20px_rgba(76,29,149,0.05)] backdrop-blur-md lg:h-screen lg:w-60 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-4 lg:py-3 lg:shadow-[18px_0_58px_rgba(0,0,0,0.52),0_0_18px_rgba(76,29,149,0.055)]">
+        <div className="relative z-10 flex w-16 shrink-0 items-center justify-center py-0 lg:mb-2 lg:w-full">
           <img
             src="/newlogo.png"
             alt="Lunaeria"
-            className="relative z-10 w-full max-w-none object-contain drop-shadow-[0_0_12px_rgba(167,139,250,0.16)] lg:w-[136%]"
+            className="relative z-10 w-full max-w-none object-contain drop-shadow-[0_0_10px_rgba(167,139,250,0.14)] lg:w-[112%]"
           />
         </div>
 
-        <div className="relative z-10 mx-auto mb-3 hidden h-px w-4/5 overflow-hidden rounded-full bg-gradient-to-r from-transparent via-violet-200/28 to-transparent shadow-[0_0_14px_rgba(167,139,250,0.18)] lg:block" />
+        <div className="relative z-10 mx-auto mb-3 hidden h-px w-4/5 overflow-hidden rounded-full bg-gradient-to-r from-transparent via-violet-200/18 to-transparent shadow-[0_0_10px_rgba(167,139,250,0.12)] lg:block" />
 
-        <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 snap-x flex-row gap-2.5 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:snap-none lg:flex-col lg:gap-0 lg:overflow-visible lg:p-0 lg:pr-0">
+        <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 snap-x flex-row gap-2 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:snap-none lg:flex-col lg:gap-1 lg:overflow-visible lg:p-0 lg:pr-0">
           {navItems.map((item) => (
             <SidebarNavItem
               item={item}
@@ -2024,18 +2008,18 @@ export default function Home() {
           </div>
         ) : null}
 
-        <div className="relative z-10 hidden rounded-[1.6rem] border border-violet-200/10 bg-[linear-gradient(145deg,rgba(124,58,237,0.075),rgba(49,46,129,0.065))] p-4 text-sm text-violet-100 shadow-[inset_0_0_16px_rgba(196,181,253,0.035),0_0_14px_rgba(76,29,149,0.055)] lg:block">
-          <p className="font-black tracking-wide text-violet-50">
+        <div className="relative z-10 hidden rounded-xl border border-violet-200/8 bg-violet-100/[0.035] p-3 text-xs text-violet-100/76 shadow-[inset_0_0_12px_rgba(196,181,253,0.025)] lg:block">
+          <p className="font-semibold tracking-wide text-violet-50/90">
   Développement & Design
 </p>
 
-<p className="mt-1 text-xs leading-5 text-cyan-100/70">
-   <span className="font-black text-violet-200">BY AZELYA</span>
+<p className="mt-1 text-[11px] leading-4 text-cyan-100/60">
+   <span className="font-semibold text-violet-200/90">BY AZELYA</span>
 </p>
         </div>
       </aside>
 
-      <div className="home-content min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-5">
+      <div className="home-content min-h-screen max-w-full p-3 pt-[7.25rem] sm:p-5 sm:pt-[7.5rem] lg:ml-60 lg:max-w-none lg:p-5">
         <div className="home-userbar">
           <div className="home-search" role="search">
             <Search size={17} />

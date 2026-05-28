@@ -43,8 +43,8 @@ body {
 
 .home-sidebar {
   background:
-    linear-gradient(180deg, rgba(6, 3, 16, 0.96), rgba(9, 4, 24, 0.93)),
-    radial-gradient(ellipse at 50% 0%, rgba(168, 85, 247, 0.16), transparent 42%);
+    linear-gradient(180deg, rgba(5, 5, 19, 0.98), rgba(8, 6, 24, 0.96)),
+    radial-gradient(ellipse at 50% 0%, rgba(124, 58, 237, 0.1), transparent 42%);
 }
 
 .home-content {
@@ -82,7 +82,7 @@ body {
 
 .home-userbar {
   position: absolute;
-  top: 8.6rem;
+  top: 7.35rem;
   left: 0.75rem;
   right: 0.75rem;
   z-index: 30;
@@ -305,7 +305,17 @@ body {
     padding: 0.95rem;
   }
 
+  .home-dashboard .homepage-almanax-shell {
+    height: 100%;
+    min-height: 0;
+    padding: 0.95rem;
+  }
+
   .home-dashboard .premium-card > div:first-child {
+    margin-bottom: 0.65rem;
+  }
+
+  .home-dashboard .homepage-almanax-shell > div:first-child {
     margin-bottom: 0.65rem;
   }
 
@@ -315,7 +325,17 @@ body {
     overflow: visible;
   }
 
+  .home-dashboard .homepage-almanax-shell > div:last-child {
+    height: calc(100% - 3rem);
+    min-height: 0;
+  }
+
   .home-dashboard .premium-card h2 {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+  }
+
+  .home-dashboard .homepage-almanax-shell h2 {
     font-size: 0.72rem;
     letter-spacing: 0.16em;
   }
@@ -413,17 +433,17 @@ body {
 
 .sidebar-shell::before {
   background:
-    linear-gradient(180deg, rgba(196, 181, 253, 0.024), transparent 30%),
-    linear-gradient(90deg, rgba(99, 102, 241, 0.016), transparent 16%, transparent 88%, rgba(124, 58, 237, 0.024)),
-    radial-gradient(circle at top, rgba(109, 40, 217, 0.044), transparent 56%);
+    linear-gradient(180deg, rgba(196, 181, 253, 0.016), transparent 30%),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.01), transparent 16%, transparent 88%, rgba(124, 58, 237, 0.016)),
+    radial-gradient(circle at top, rgba(109, 40, 217, 0.03), transparent 56%);
 }
 
 .sidebar-premium::before {
-  opacity: 0.24;
+  opacity: 0.16;
   background:
-    radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.078), transparent 38%),
-    radial-gradient(circle at 15% 32%, rgba(99, 102, 241, 0.052), transparent 32%),
-    radial-gradient(circle at 85% 72%, rgba(168, 85, 247, 0.044), transparent 34%);
+    radial-gradient(circle at 50% 0%, rgba(167, 139, 250, 0.06), transparent 38%),
+    radial-gradient(circle at 15% 32%, rgba(99, 102, 241, 0.035), transparent 32%),
+    radial-gradient(circle at 85% 72%, rgba(168, 85, 247, 0.032), transparent 34%);
   animation: sidebarAuraDrift 16s ease-in-out infinite alternate;
 }
 
