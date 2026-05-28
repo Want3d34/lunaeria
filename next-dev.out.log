@@ -1,0 +1,11 @@
+
+> lunae-hub@0.1.0 dev
+> next dev --webpack
+
+▲ Next.js 16.2.6 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.15:3000
+- Environments: .env.local
+✓ Ready in 542ms
+
+ HEAD / 200 in 2.1s (next.js: 1917ms, application-code: 205ms)
