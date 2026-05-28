@@ -93,6 +93,7 @@ body {
 }
 
 .home-search {
+  position: relative;
   grid-column: 1 / -1;
   display: flex;
   min-width: 0;
@@ -129,6 +130,38 @@ body {
 
 .home-userbar-popover {
   position: relative;
+}
+
+.home-search-results {
+  left: 0;
+  right: 0;
+  width: auto;
+  max-height: min(25rem, calc(100svh - 14rem));
+  overflow-y: auto;
+  padding: 0.65rem;
+}
+
+.home-search-result {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  border: 1px solid rgba(221, 214, 254, 0.1);
+  border-radius: 0.85rem;
+  background: rgba(237, 233, 254, 0.045);
+  padding: 0.72rem 0.78rem;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.home-search-result + .home-search-result {
+  margin-top: 0.45rem;
+}
+
+.home-search-result:hover {
+  border-color: rgba(221, 214, 254, 0.22);
+  background: rgba(196, 181, 253, 0.08);
+  transform: translateY(-1px);
 }
 
 .home-icon-button,
@@ -184,12 +217,17 @@ body {
 
 .home-profile-button {
   display: flex;
-  width: min(16rem, calc(100vw - 5rem));
+  width: auto;
+  max-width: min(13rem, calc(100vw - 5rem));
   height: 3rem;
   align-items: center;
   gap: 0.7rem;
   border-radius: 1rem;
   padding: 0.25rem 0.65rem 0.25rem 0.25rem;
+}
+
+.home-profile-button > span {
+  max-width: 7.25rem;
 }
 
 .home-dropdown {

@@ -119,6 +119,112 @@ const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
   { label: "Liens utiles", icon: Link, href: "/liens-utiles" },
 ]);
 
+const staticSearchItems = [
+  { title: "Accueil", meta: "Page", href: "/" },
+  { title: "Ventes", meta: "Services", href: "/services/ventes" },
+  { title: "Annonces", meta: "Page", href: "/annonces" },
+  { title: "Évènements", meta: "Page", href: "/evenements" },
+  { title: "Règlement", meta: "Page", href: "/reglement" },
+  { title: "Liens utiles", meta: "Page", href: "/liens-utiles" },
+  { title: "Métiers", meta: "Onglet", href: "/metiers/paysan" },
+  { title: "Ressources", meta: "Onglet", href: "/ressources/elevage/muldos" },
+  { title: "Élevage", meta: "Ressources", href: "/ressources/elevage/muldos" },
+  { title: "Stuffs & Builds", meta: "Onglet", href: "/stuffs-builds/encyclopedie" },
+  { title: "Encyclopédie", meta: "Stuffs & Builds", href: "/stuffs-builds/encyclopedie" },
+  { title: "Ajouter un stuff", meta: "Stuffs & Builds", href: "/stuffs-builds/ajouter" },
+  { title: "Muldos", meta: "Ressources élevage", href: "/ressources/elevage/muldos" },
+  { title: "Dragodindes", meta: "Ressources élevage", href: "/ressources/elevage/dragodindes" },
+  { title: "Volkornes", meta: "Ressources élevage", href: "/ressources/elevage/volkornes" },
+  ...metierLinks.map((item) => ({
+    title: item.label,
+    meta: "Métier",
+    href: item.href,
+  })),
+];
+
+function normalizeSearchText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+const discordRolePriority = [
+  "meneur",
+  "bras droit",
+  "tresorier",
+  "protecteur",
+  "artisan",
+  "gardien",
+  "recruteur",
+  "eleveur",
+  "reserviste",
+  "recrue",
+  "membre",
+];
+
+function getValidDiscordRole(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const role = value.trim();
+
+  if (!role || role === "@everyone") {
+    return null;
+  }
+
+  return role;
+}
+
+function getPrimaryDiscordRole(source: Record<string, unknown> | null | undefined) {
+  if (!source) {
+    return null;
+  }
+
+  const directRole =
+    getValidDiscordRole(source.highest_role) ||
+    getValidDiscordRole(source.primary_role) ||
+    getValidDiscordRole(source.role_name) ||
+    getValidDiscordRole(source.guild_role) ||
+    getValidDiscordRole(source.role);
+
+  if (directRole) {
+    return directRole;
+  }
+
+  const roleList = [
+    source.roles,
+    source.role_names,
+    source.guild_roles,
+  ].flatMap((value) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      return value.split(",").map((role) => role.trim());
+    }
+
+    return [];
+  });
+
+  const validRoles = roleList
+    .map((role) => getValidDiscordRole(role))
+    .filter((role): role is string => Boolean(role));
+
+  if (validRoles.length === 0) {
+    return null;
+  }
+
+  return [...validRoles].sort((leftRole, rightRole) => {
+    const leftIndex = discordRolePriority.indexOf(normalizeSearchText(leftRole));
+    const rightIndex = discordRolePriority.indexOf(normalizeSearchText(rightRole));
+
+    return (leftIndex === -1 ? 999 : leftIndex) - (rightIndex === -1 ? 999 : rightIndex);
+  })[0] ?? null;
+}
+
 const eventIcons = [Swords, BriefcaseBusiness, ShieldCheck];
 const activityIcons: Record<ActivityItem["type"], LucideIcon> = {
   announcement: Megaphone,
@@ -152,14 +258,23 @@ type DiscordProfile = {
   displayName: string;
   username: string;
   avatar: string | null;
+  role: string | null;
   source: "discord_profiles.display_name" | "discord_profiles.username" | "oauth_metadata" | "fallback";
 };
 
-type DiscordProfileRow = {
+type DiscordProfileRow = Record<string, unknown> & {
   discord_id?: string | null;
   display_name?: string | null;
   username?: string | null;
   avatar_url?: string | null;
+  role?: unknown;
+  roles?: unknown;
+  role_name?: unknown;
+  role_names?: unknown;
+  primary_role?: unknown;
+  highest_role?: unknown;
+  guild_role?: unknown;
+  guild_roles?: unknown;
 };
 
 const discordDisplayNameFallback = "Compte lié";
@@ -231,6 +346,7 @@ type OnlineMember = {
   discordId: string;
   avatarUrl: string | null;
   displayName: string;
+  role: string | null;
   status: string;
   activityName: string | null;
   activityType: string | null;
@@ -242,6 +358,14 @@ type ActivityItem = {
   meta: string;
   type: "announcement" | "build" | "event" | "sale";
   timestamp?: string | null;
+};
+
+type SearchResult = {
+  id: string;
+  title: string;
+  meta: string;
+  href: string;
+  type: string;
 };
 
 type AlmanaxEntry = {
@@ -762,6 +886,7 @@ export default function Home() {
   const [seenNotificationKeys, setSeenNotificationKeys] = useState<string[]>([]);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const syncDiscordProfile = useCallback(
     async (user: User | null, showMissingProfileError = false) => {
@@ -787,7 +912,7 @@ export default function Home() {
         error: readProfileError,
       } = await supabase
         .from("discord_profiles")
-        .select("username, display_name, avatar_url")
+        .select("*")
         .eq("discord_id", profile.discordId)
         .maybeSingle<DiscordProfileRow>();
 
@@ -806,6 +931,7 @@ export default function Home() {
         ? profileDisplayName || profileUsername || discordDisplayNameFallback
         : oauthUsername || discordDisplayNameFallback;
       const avatar = existingProfile?.avatar_url?.trim() || profile.avatar;
+      const role = getPrimaryDiscordRole(existingProfile);
       const displaySource = existingProfile
         ? profileDisplayName
           ? "discord_profiles.display_name"
@@ -829,6 +955,7 @@ export default function Home() {
         displayName,
         username: profileUsername || oauthUsername || discordDisplayNameFallback,
         avatar,
+        role,
         source: displaySource,
       });
 
@@ -1133,7 +1260,7 @@ export default function Home() {
     async function loadOnlineMembers() {
       const { data, error } = await supabase
         .from("online_members")
-        .select("discord_id, avatar_url, display_name, status, activity_name, activity_type")
+        .select("*")
         .order("display_name", { ascending: true });
 
       if (error) {
@@ -1159,6 +1286,7 @@ export default function Home() {
             typeof item.display_name === "string" && item.display_name.trim()
               ? item.display_name.trim()
               : "Membre Discord",
+          role: getPrimaryDiscordRole(item),
           status:
             typeof item.status === "string" && item.status.trim()
               ? item.status.trim()
@@ -1249,6 +1377,50 @@ export default function Home() {
   const unreadNotificationCount = isDynamicContentLoaded
     ? notificationKeys.filter((key) => !seenNotificationKeys.includes(key)).length
     : 0;
+  const normalizedSearchQuery = normalizeSearchText(searchQuery.trim());
+  const searchResults: SearchResult[] = normalizedSearchQuery
+    ? [
+        ...staticSearchItems.map((item) => ({
+          id: `static-${item.href}`,
+          title: item.title,
+          meta: item.meta,
+          href: item.href,
+          type: "Page",
+        })),
+        ...sales.map((sale) => ({
+          id: `sale-${sale.id}`,
+          title: sale.itemName,
+          meta: `${sale.quantity}x · ${sale.price} kamas`,
+          href: "/services/ventes",
+          type: "Vente",
+        })),
+        ...builds.map((build) => ({
+          id: `build-${build.id}`,
+          title: build.title,
+          meta: `${build.className} · ${build.mode}`,
+          href: "/stuffs-builds/encyclopedie",
+          type: "Stuff / Build",
+        })),
+        ...announcements.map((announcement) => ({
+          id: `announcement-${announcement.id}`,
+          title: announcement.title,
+          meta: announcement.category,
+          href: "/annonces",
+          type: "Annonce",
+        })),
+        ...events.map((eventItem) => ({
+          id: `event-${eventItem.id}`,
+          title: eventItem.title,
+          meta: eventItem.date,
+          href: "/evenements",
+          type: "Évènement",
+        })),
+      ]
+        .filter((item) =>
+          normalizeSearchText(`${item.title} ${item.meta} ${item.type}`).includes(normalizedSearchQuery),
+        )
+        .slice(0, 8)
+    : [];
   const galleryItems = galleryItemsState.slice(0, 4);
   const activeMobileSection = navItems.find(
     (item) => item.children?.length && openSections[item.label],
@@ -1282,6 +1454,10 @@ export default function Home() {
     : discordProfile
       ? "Compte Discord lié"
       : "Lier avec Discord";
+  const linkedDiscordRole =
+    discordProfile?.role ||
+    onlineMembers.find((member) => member.discordId === discordProfile?.discordId)?.role ||
+    "Membre";
   async function handleDiscordOAuth() {
     if (discordProfile) {
       return;
@@ -1858,14 +2034,50 @@ export default function Home() {
 
       <div className="home-content min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-5">
         <div className="home-userbar">
-          <label className="home-search" aria-label="Recherche visuelle">
+          <div className="home-search" role="search">
             <Search size={17} />
             <input
               aria-label="Rechercher"
+              onChange={(event) => {
+                setSearchQuery(event.target.value);
+                setIsNotificationsOpen(false);
+                setIsProfileMenuOpen(false);
+              }}
               placeholder="Rechercher un objet, un membre..."
               type="search"
+              value={searchQuery}
             />
-          </label>
+            {normalizedSearchQuery ? (
+              <div className="home-dropdown home-search-results">
+                {searchResults.length > 0 ? (
+                  searchResults.map((result) => (
+                    <NextLink
+                      className="home-search-result"
+                      href={result.href}
+                      key={result.id}
+                      onClick={() => setSearchQuery("")}
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-black text-violet-50">
+                          {result.title}
+                        </span>
+                        <span className="mt-1 block truncate text-xs font-semibold text-violet-100/58">
+                          {result.meta}
+                        </span>
+                      </span>
+                      <span className="shrink-0 rounded-full border border-violet-200/14 bg-violet-200/[0.06] px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-violet-100/75">
+                        {result.type}
+                      </span>
+                    </NextLink>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-violet-100/10 bg-violet-50/[0.045] p-3 text-sm font-semibold text-violet-100/72">
+                    Aucun résultat trouvé.
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
 
           <div className="home-userbar-popover">
             <button
@@ -1966,7 +2178,7 @@ export default function Home() {
                   {discordProfile?.displayName ?? "Non connecté"}
                 </span>
                 <span className="block text-xs font-bold text-violet-100/60">
-                  {discordProfile ? "Membre" : "Lier Discord"}
+                  {discordProfile ? linkedDiscordRole : "Lier Discord"}
                 </span>
               </span>
               <ChevronDown size={16} />
