@@ -469,14 +469,14 @@ function PremiumCard({
 }) {
   return (
     <section
-      className={`premium-card group rounded-[1.35rem] border border-violet-100/12 bg-[#080416]/78 p-5 shadow-[0_30px_82px_rgba(0,0,0,0.48),0_0_32px_rgba(124,58,237,0.12),inset_0_1px_0_rgba(237,233,254,0.055)] backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-violet-100/24 hover:bg-[#0b061c]/86 hover:shadow-[0_36px_92px_rgba(0,0,0,0.52),0_0_44px_rgba(168,85,247,0.17),inset_0_1px_0_rgba(237,233,254,0.075)] ${className}`}
+      className={`premium-card group rounded-[1.75rem] border border-violet-200/8 bg-[#06091b]/70 p-5 shadow-[0_26px_68px_rgba(0,0,0,0.42),0_0_24px_rgba(76,29,149,0.055)] backdrop-blur-md transition duration-500 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-[#090c22]/78 ${className}`}
     >
       <div className="relative z-10 mb-5 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-xl border border-violet-100/18 bg-[linear-gradient(145deg,rgba(216,180,254,0.18),rgba(109,40,217,0.08))] text-violet-100 shadow-[inset_0_1px_12px_rgba(237,233,254,0.07),0_0_18px_rgba(139,92,246,0.18)] transition duration-500 group-hover:scale-105 group-hover:text-violet-50 group-hover:shadow-[inset_0_1px_14px_rgba(237,233,254,0.09),0_0_24px_rgba(168,85,247,0.24)]">
+          <div className="grid size-11 place-items-center rounded-2xl border border-violet-200/12 bg-[linear-gradient(145deg,rgba(196,181,253,0.105),rgba(76,29,149,0.055))] text-violet-100 shadow-[inset_0_1px_12px_rgba(196,181,253,0.045),0_0_14px_rgba(109,40,217,0.09)] transition duration-500 group-hover:scale-105 group-hover:text-violet-50 group-hover:shadow-[inset_0_1px_14px_rgba(196,181,253,0.055),0_0_18px_rgba(139,92,246,0.1)]">
             <Icon size={19} />
           </div>
-          <h2 className="text-sm font-black uppercase tracking-[0.18em] text-violet-100">
+          <h2 className="text-base font-black tracking-[0.08em] text-slate-50">
             {title}
           </h2>
         </div>
@@ -1326,14 +1326,14 @@ export default function Home() {
             icon={CalendarDays}
             className="h-full"
           >
-            <div className="homepage-layout-scroll grid max-h-[calc(100%-4rem)] items-stretch gap-4 overflow-y-auto pr-1">
+            <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
               {!isDynamicContentLoaded
                 ? [0, 1, 2].map((item) => (
                     <ContentSkeleton className="min-h-[150px]" key={item} />
                   ))
                 : null}
               {isDynamicContentLoaded && events.length === 0 ? (
-                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65">
+                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 md:col-span-2 xl:col-span-3">
                   Aucun événement planifié.
                 </div>
               ) : null}
@@ -1375,7 +1375,7 @@ export default function Home() {
                 );
               }) : null}
               <NextLink
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-4 text-xs font-black uppercase tracking-[0.13em] text-violet-100 transition hover:border-violet-200/24 hover:bg-violet-200/[0.08]"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-violet-50/[0.045] px-4 text-xs font-black uppercase tracking-[0.13em] text-violet-100 transition hover:border-violet-200/24 hover:bg-violet-200/[0.08] md:col-span-2 xl:col-span-3"
                 href="/evenements"
               >
                 Voir tous les événements
@@ -1753,7 +1753,7 @@ export default function Home() {
   }
 
   return (
-    <main className="home-cinematic-page min-h-screen overflow-hidden bg-[#030512] text-slate-100">
+    <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
       <style jsx global>{`
         .mobile-menu-scrollbar {
           scrollbar-width: none;
@@ -1871,9 +1871,9 @@ export default function Home() {
       </aside>
 
       <div className="relative z-0 min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-8">
-        <section className="hero-shell relative min-h-[560px] overflow-hidden rounded-[1.45rem] border border-violet-100/18 bg-slate-950 shadow-[0_58px_180px_rgba(0,0,0,0.72),0_0_72px_rgba(124,58,237,0.28),0_0_120px_rgba(49,46,129,0.14),inset_0_1px_0_rgba(237,233,254,0.1)] sm:min-h-[610px] sm:rounded-[2.1rem] lg:min-h-[690px]">
-          <div className="hero-artwork absolute inset-0 bg-[url('/lunae-hero.png')] bg-cover bg-[center_42%]" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,3,12,0.94)_0%,rgba(9,7,28,0.78)_31%,rgba(20,10,50,0.24)_65%,rgba(4,5,18,0.28)_100%)]" />
+        <section className="hero-shell relative min-h-[580px] overflow-hidden rounded-[1.45rem] border border-violet-100/18 bg-slate-950 shadow-[0_58px_180px_rgba(0,0,0,0.72),0_0_72px_rgba(124,58,237,0.28),0_0_120px_rgba(49,46,129,0.14),inset_0_1px_0_rgba(237,233,254,0.1)] sm:rounded-[2.1rem] lg:min-h-[640px]">
+          <div className="hero-artwork absolute inset-0 bg-[url('/fond.png')] bg-cover bg-[center_40%]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,3,12,0.9)_0%,rgba(7,8,25,0.64)_30%,rgba(8,7,24,0.16)_68%,rgba(4,5,18,0.34)_100%)]" />
           <div className="hero-depth absolute inset-0" />
           <div className="hero-light absolute inset-0" />
           <div className="hero-moon absolute" />
@@ -1915,7 +1915,7 @@ export default function Home() {
             </div>
           ) : null}
 
-          <div className="relative z-10 flex min-h-[560px] max-w-full flex-col justify-between p-5 sm:min-h-[610px] sm:p-10 lg:min-h-[690px] lg:max-w-4xl lg:p-16">
+          <div className="relative z-10 flex min-h-[580px] max-w-full flex-col justify-between p-5 sm:p-10 lg:min-h-[640px] lg:max-w-4xl lg:p-14">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/18 bg-violet-100/[0.075] px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[inset_0_1px_0_rgba(237,233,254,0.1),inset_0_0_14px_rgba(196,181,253,0.045),0_0_18px_rgba(139,92,246,0.13)] backdrop-blur-md">
                 <Sparkles size={14} /> Dofus 3
@@ -1932,7 +1932,7 @@ export default function Home() {
               </div>
               {homepageSettings ? (
                 <>
-                  <h1 className="legend-title max-w-full break-words bg-[linear-gradient(180deg,#ffffff_0%,#efe7ff_30%,#c7b8ff_64%,#8b5cf6_100%)] bg-clip-text text-[clamp(2.35rem,13vw,3.2rem)] font-black tracking-[0.14em] text-transparent sm:text-7xl sm:tracking-[0.2em] lg:text-[6.8rem]">
+                  <h1 className="legend-title max-w-full break-words bg-[linear-gradient(180deg,#ffffff_0%,#efe7ff_30%,#c7b8ff_64%,#8b5cf6_100%)] bg-clip-text text-[3rem] font-black tracking-[0.14em] text-transparent sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
                     {homepageSettings.heroTitle}
                   </h1>
                   <p className="mt-5 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:mt-6 sm:text-xl sm:leading-8">
@@ -2005,7 +2005,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="homepage-fixed-layout relative z-20 -mt-24">
+        <section className="homepage-fixed-layout mt-6">
           <div className="homepage-fixed-card homepage-fixed-card--announcements">
             {renderHomepageLayoutBlock("announcements")}
           </div>
