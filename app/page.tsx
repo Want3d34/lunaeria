@@ -11,9 +11,11 @@ import {
   Images,
   Layers3,
   Link,
+  LogOut,
   Megaphone,
   PackageOpen,
   ScrollText,
+  Search,
   ShieldCheck,
   Sparkles,
   Swords,
@@ -757,6 +759,9 @@ export default function Home() {
   const [isDiscordAuthLoading, setIsDiscordAuthLoading] = useState(true);
   const [isDiscordSubmitting, setIsDiscordSubmitting] = useState(false);
   const [discordAuthError, setDiscordAuthError] = useState<string | null>(null);
+  const [seenNotificationKeys, setSeenNotificationKeys] = useState<string[]>([]);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const syncDiscordProfile = useCallback(
     async (user: User | null, showMissingProfileError = false) => {
@@ -949,6 +954,26 @@ export default function Home() {
     }
 
     loadHomepageSettings();
+  }, []);
+
+  useEffect(() => {
+    const storedKeys = window.localStorage.getItem("lunaeria-seen-notifications");
+
+    if (!storedKeys) {
+      return;
+    }
+
+    try {
+      const parsedKeys = JSON.parse(storedKeys);
+
+      if (Array.isArray(parsedKeys)) {
+        setSeenNotificationKeys(
+          parsedKeys.filter((key): key is string => typeof key === "string"),
+        );
+      }
+    } catch {
+      window.localStorage.removeItem("lunaeria-seen-notifications");
+    }
   }, []);
 
   useEffect(() => {
@@ -1195,7 +1220,7 @@ export default function Home() {
       type: "build" as const,
       timestamp: formatActivityDate(build.createdAt),
     })),
-    ...sales.slice(0, 1).map((sale) => ({
+    ...sales.slice(0, 2).map((sale) => ({
       label: "Nouvelle vente ajoutée",
       title: sale.itemName,
       meta: `${sale.quantity}x · ${sale.price} kamas`,
@@ -1215,8 +1240,15 @@ export default function Home() {
       type: "announcement" as const,
       timestamp: formatActivityDate(announcement.createdAt),
     })),
-  ].slice(0, 5);
+  ].slice(0, 6);
   const activityItems = recentActivity;
+  const notificationItems = activityItems;
+  const notificationKeys = notificationItems.map((activity, index) =>
+    `${activity.type}:${activity.label}:${activity.title}:${activity.meta}:${activity.timestamp ?? index}`,
+  );
+  const unreadNotificationCount = isDynamicContentLoaded
+    ? notificationKeys.filter((key) => !seenNotificationKeys.includes(key)).length
+    : 0;
   const galleryItems = galleryItemsState.slice(0, 4);
   const activeMobileSection = navItems.find(
     (item) => item.children?.length && openSections[item.label],
@@ -1270,6 +1302,39 @@ export default function Home() {
       setIsDiscordSubmitting(false);
       console.error(error);
     }
+  }
+
+  function handleNotificationsToggle() {
+    const nextOpenState = !isNotificationsOpen;
+    setIsNotificationsOpen(nextOpenState);
+    setIsProfileMenuOpen(false);
+
+    if (!nextOpenState) {
+      return;
+    }
+
+    setSeenNotificationKeys(notificationKeys);
+    window.localStorage.setItem(
+      "lunaeria-seen-notifications",
+      JSON.stringify(notificationKeys),
+    );
+  }
+
+  async function handleDiscordSignOut() {
+    setDiscordAuthError(null);
+    setIsDiscordSubmitting(true);
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      setDiscordAuthError("Déconnexion impossible.");
+      console.error(error);
+    } else {
+      setDiscordProfile(null);
+      setIsProfileMenuOpen(false);
+    }
+
+    setIsDiscordSubmitting(false);
   }
 
   void guildMemberCount;
@@ -1792,6 +1857,137 @@ export default function Home() {
       </aside>
 
       <div className="home-content min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-5">
+        <div className="home-userbar">
+          <label className="home-search" aria-label="Recherche visuelle">
+            <Search size={17} />
+            <input
+              aria-label="Rechercher"
+              placeholder="Rechercher un objet, un membre..."
+              type="search"
+            />
+          </label>
+
+          <div className="home-userbar-popover">
+            <button
+              aria-label="Notifications"
+              className="home-icon-button"
+              onClick={handleNotificationsToggle}
+              type="button"
+            >
+              <Bell size={18} />
+              {unreadNotificationCount > 0 ? (
+                <span className="home-notification-badge">
+                  {unreadNotificationCount}
+                </span>
+              ) : null}
+            </button>
+
+            {isNotificationsOpen ? (
+              <div className="home-dropdown home-notifications-panel">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-100">
+                    Notifications
+                  </p>
+                  <span className="rounded-full border border-violet-200/14 bg-violet-200/[0.06] px-2 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-violet-100/75">
+                    Consultées
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {isDynamicContentLoaded && notificationItems.length === 0 ? (
+                    <div className="rounded-xl border border-violet-100/10 bg-violet-50/[0.045] p-3 text-sm font-semibold text-violet-100/72">
+                      Aucune nouvelle notification.
+                    </div>
+                  ) : null}
+                  {!isDynamicContentLoaded ? (
+                    <div className="rounded-xl border border-violet-100/10 bg-violet-50/[0.045] p-3 text-sm font-semibold text-violet-100/72">
+                      Chargement des notifications...
+                    </div>
+                  ) : null}
+                  {isDynamicContentLoaded
+                    ? notificationItems.map((activity, index) => {
+                        const ActivityIcon = activityIcons[activity.type];
+
+                        return (
+                          <div
+                            className="flex items-start gap-3 rounded-xl border border-violet-100/10 bg-violet-50/[0.045] p-3"
+                            key={`${activity.label}-${activity.title}-${index}`}
+                          >
+                            <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-violet-200/12 bg-violet-300/10 text-violet-100">
+                              <ActivityIcon size={15} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-violet-200">
+                                {activity.label}
+                              </p>
+                              <p className="mt-1 truncate text-sm font-black text-violet-50">
+                                {activity.title}
+                              </p>
+                              <p className="mt-1 text-xs text-violet-100/58">
+                                {activity.meta}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })
+                    : null}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="home-userbar-popover">
+            <button
+              className="home-profile-button"
+              onClick={() => {
+                if (!discordProfile) {
+                  void handleDiscordOAuth();
+                  return;
+                }
+
+                setIsProfileMenuOpen((current) => !current);
+                setIsNotificationsOpen(false);
+              }}
+              type="button"
+            >
+              {discordProfile?.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  alt={discordProfile.displayName}
+                  className="size-10 rounded-xl object-cover"
+                  src={discordProfile.avatar}
+                />
+              ) : (
+                <div className="grid size-10 place-items-center rounded-xl border border-violet-200/14 bg-violet-300/10 text-violet-100">
+                  <Users size={17} />
+                </div>
+              )}
+              <span className="min-w-0 text-left">
+                <span className="block truncate text-sm font-black text-violet-50">
+                  {discordProfile?.displayName ?? "Non connecté"}
+                </span>
+                <span className="block text-xs font-bold text-violet-100/60">
+                  {discordProfile ? "Membre" : "Lier Discord"}
+                </span>
+              </span>
+              <ChevronDown size={16} />
+            </button>
+
+            {isProfileMenuOpen && discordProfile ? (
+              <div className="home-dropdown home-profile-menu">
+                <button
+                  className="flex w-full items-center gap-2 rounded-xl border border-violet-100/10 bg-violet-50/[0.045] px-3 py-2 text-left text-sm font-black text-violet-50 transition hover:border-violet-200/20 hover:bg-violet-200/[0.08]"
+                  disabled={isDiscordSubmitting}
+                  onClick={handleDiscordSignOut}
+                  type="button"
+                >
+                  <LogOut size={15} />
+                  Déconnexion
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
         <section className="home-free-hero">
           <div className="max-w-4xl">
             <div className="mb-4 flex flex-wrap items-center gap-3">
