@@ -1401,32 +1401,41 @@ export default function AdminPage() {
                             />
                           </AdminField>
                         </div>
-                        <button
-                          className={`flex min-h-14 items-center justify-between gap-4 rounded-2xl border px-4 text-left transition ${
-                            recruitmentDraft.isOpen
-                              ? "border-emerald-200/18 bg-emerald-300/[0.055] text-emerald-100"
-                              : "border-rose-200/18 bg-rose-300/[0.055] text-rose-100"
-                          }`}
-                          onClick={() =>
-                            setRecruitmentDraft((current) => ({
-                              ...current,
-                              isOpen: !current.isOpen,
-                            }))
-                          }
-                          type="button"
-                        >
-                          <span>
-                            <span className="block text-sm font-black">
-                              {recruitmentDraft.isOpen
-                                ? "Recrutement ouvert"
-                                : "Recrutement fermé"}
-                            </span>
-                            <span className="mt-1 block text-xs opacity-75">
-                              Ce statut apparaît dans le hero public.
-                            </span>
-                          </span>
-                          <CheckCircle2 size={20} />
-                        </button>
+                        <div className="grid gap-3 rounded-2xl border border-violet-100/10 bg-[#030512]/56 p-3">
+                          <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+                            Statut recrutement
+                          </p>
+                          <div className="grid grid-cols-2 gap-3">
+                            {[
+                              { label: "Ouvert", value: true },
+                              { label: "Fermé", value: false },
+                            ].map((option) => (
+                              <button
+                                className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-black transition ${
+                                  recruitmentDraft.isOpen === option.value
+                                    ? "border-violet-100/28 bg-violet-200/[0.12] text-violet-50"
+                                    : "border-violet-100/10 bg-violet-50/[0.035] text-violet-100/68 hover:border-violet-100/18 hover:bg-violet-100/[0.06]"
+                                }`}
+                                key={option.label}
+                                onClick={() =>
+                                  setRecruitmentDraft((current) => ({
+                                    ...current,
+                                    isOpen: option.value,
+                                  }))
+                                }
+                                type="button"
+                              >
+                                {recruitmentDraft.isOpen === option.value ? (
+                                  <CheckCircle2 size={17} />
+                                ) : null}
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="text-xs text-slate-400">
+                            Ce statut apparaît dans le hero public.
+                          </p>
+                        </div>
                       </div>
                       <div className="rounded-[1.45rem] border border-violet-100/10 bg-[#030512]/66 p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.026)]">
                         <p className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">

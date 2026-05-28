@@ -1340,7 +1340,9 @@ export default function Home() {
   const homepageAnnouncements = announcements.slice(0, 1);
   const homepageEvents = events.slice(0, 1);
 
-  const recruitmentLabel = homepageSettings?.recruitmentIsOpen ? "Ouvert" : "Fermé";
+  const recruitmentBadgeLabel = homepageSettings?.recruitmentIsOpen
+    ? "RECRUTEMENT OUVERT"
+    : "RECRUTEMENT FERME";
   const recentActivity: ActivityItem[] = [
     ...builds.slice(0, 2).map((build) => ({
       label: "Nouveau build ajouté",
@@ -2210,6 +2212,9 @@ export default function Home() {
               <span className="rounded-full border border-violet-100/14 bg-violet-950/28 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-50/90 shadow-[0_0_14px_rgba(168,85,247,0.14)] backdrop-blur-sm">
                 Portail Lunaeria
               </span>
+              <span className="inline-flex min-w-[12.5rem] justify-center rounded-full border border-violet-100/14 bg-violet-950/28 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-violet-50/90 shadow-[0_0_14px_rgba(168,85,247,0.14)] backdrop-blur-sm">
+                {recruitmentBadgeLabel}
+              </span>
             </div>
 
             {homepageSettings ? (
@@ -2219,8 +2224,6 @@ export default function Home() {
                 </h1>
                 <p className="mt-4 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.86)] sm:text-lg">
                   {homepageSettings.heroSubtitle}
-                  <br />
-                  Recrutement [{recruitmentLabel}]
                 </p>
                 {homepageSettings.recruitmentMessage ? (
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-violet-100/82 drop-shadow-[0_2px_14px_rgba(0,0,0,0.8)]">
