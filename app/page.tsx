@@ -12,7 +12,6 @@ import {
   Layers3,
   Link,
   Megaphone,
-  Moon,
   PackageOpen,
   ScrollText,
   ShieldCheck,
@@ -264,31 +263,6 @@ type AlmanaxEntry = {
   };
 };
 
-function DiscordIcon({ size = 18 }: { size?: number }) {
-  return (
-    <svg
-      aria-hidden="true"
-      fill="none"
-      height={size}
-      viewBox="0 0 24 24"
-      width={size}
-    >
-      <path
-        d="M7.8 6.7c1.35-.62 2.68-.92 4.2-.92s2.85.3 4.2.92c1.26 1.86 1.88 3.93 1.72 6.2a7.1 7.1 0 0 1-3.5 1.74l-.76-1.13c.42-.13.82-.32 1.2-.56-1.88.87-3.85.87-5.72 0 .38.24.78.43 1.2.56l-.76 1.13a7.1 7.1 0 0 1-3.5-1.75c-.16-2.26.46-4.33 1.72-6.19Z"
-        stroke="currentColor"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-      <path
-        d="M9.55 11.15h.02M14.43 11.15h.02"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="2.8"
-      />
-    </svg>
-  );
-}
-
 function getStringMetadataValue(
   source: Record<string, unknown> | undefined,
   keys: string[],
@@ -469,14 +443,14 @@ function PremiumCard({
 }) {
   return (
     <section
-      className={`premium-card group rounded-[1.75rem] border border-violet-200/8 bg-[#06091b]/70 p-5 shadow-[0_26px_68px_rgba(0,0,0,0.42),0_0_24px_rgba(76,29,149,0.055)] backdrop-blur-md transition duration-500 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-[#090c22]/78 ${className}`}
+      className={`premium-card group rounded-[1.35rem] border border-violet-100/12 bg-[#070414]/76 p-5 shadow-[0_28px_82px_rgba(0,0,0,0.46),0_0_30px_rgba(124,58,237,0.12),inset_0_1px_0_rgba(237,233,254,0.055)] backdrop-blur-xl transition duration-500 hover:-translate-y-0.5 hover:border-violet-100/22 hover:bg-[#0a061b]/84 hover:shadow-[0_34px_92px_rgba(0,0,0,0.52),0_0_42px_rgba(168,85,247,0.16),inset_0_1px_0_rgba(237,233,254,0.075)] ${className}`}
     >
       <div className="relative z-10 mb-5 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="grid size-11 place-items-center rounded-2xl border border-violet-200/12 bg-[linear-gradient(145deg,rgba(196,181,253,0.105),rgba(76,29,149,0.055))] text-violet-100 shadow-[inset_0_1px_12px_rgba(196,181,253,0.045),0_0_14px_rgba(109,40,217,0.09)] transition duration-500 group-hover:scale-105 group-hover:text-violet-50 group-hover:shadow-[inset_0_1px_14px_rgba(196,181,253,0.055),0_0_18px_rgba(139,92,246,0.1)]">
+          <div className="grid size-10 place-items-center rounded-xl border border-violet-100/18 bg-[linear-gradient(145deg,rgba(216,180,254,0.18),rgba(109,40,217,0.08))] text-violet-100 shadow-[inset_0_1px_12px_rgba(237,233,254,0.07),0_0_18px_rgba(139,92,246,0.18)] transition duration-500 group-hover:scale-105 group-hover:text-violet-50 group-hover:shadow-[inset_0_1px_14px_rgba(237,233,254,0.09),0_0_24px_rgba(168,85,247,0.24)]">
             <Icon size={19} />
           </div>
-          <h2 className="text-base font-black tracking-[0.08em] text-slate-50">
+          <h2 className="text-sm font-black uppercase tracking-[0.18em] text-violet-100">
             {title}
           </h2>
         </div>
@@ -1209,8 +1183,8 @@ export default function Home() {
     loadGallery();
   }, []);
 
-  const homepageAnnouncements = announcements.slice(0, 3);
-  const homepageEvents = events.slice(0, 3);
+  const homepageAnnouncements = announcements.slice(0, 1);
+  const homepageEvents = events.slice(0, 1);
 
   const recruitmentLabel = homepageSettings?.recruitmentIsOpen ? "Ouvert" : "Fermé";
   const recentActivity: ActivityItem[] = [
@@ -1276,9 +1250,6 @@ export default function Home() {
     : discordProfile
       ? "Compte Discord lié"
       : "Lier avec Discord";
-  const discordSupportHref =
-    homepageSettings?.heroButtonLink?.trim() || "https://discord.com/channels/@me";
-
   async function handleDiscordOAuth() {
     if (discordProfile) {
       return;
@@ -1301,22 +1272,7 @@ export default function Home() {
     }
   }
 
-  async function handleDiscordSignOut() {
-    setDiscordAuthError(null);
-    setIsDiscordSubmitting(true);
-
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      setDiscordAuthError("Déconnexion impossible.");
-      console.error(error);
-    } else {
-      setDiscordProfile(null);
-    }
-
-    setIsDiscordSubmitting(false);
-  }
-
+  void guildMemberCount;
   function renderHomepageLayoutBlock(blockKey: HomepageLayoutBlockKey) {
     switch (blockKey) {
       case "events":
@@ -1403,7 +1359,7 @@ export default function Home() {
                 </div>
               ) : null}
               {isOnlineMembersLoaded
-                ? onlineMembers.map((member) => {
+                ? onlineMembers.slice(0, 4).map((member) => {
                     const activityLabel = formatOnlineMemberActivity(member);
 
                     return (
@@ -1523,7 +1479,7 @@ export default function Home() {
                   Aucune activité récente.
                 </div>
               ) : null}
-              {isDynamicContentLoaded ? activityItems.map((activity, index) => {
+              {isDynamicContentLoaded ? activityItems.slice(0, 3).map((activity, index) => {
                 const ActivityIcon = activityIcons[activity.type];
 
                 return (
@@ -1722,38 +1678,8 @@ export default function Home() {
     }
   }
 
-  function renderDiscordSupportBlock() {
-    return (
-      <PremiumCard
-        title="Soutenir Lunaeria"
-        icon={Sparkles}
-        className="flex h-full min-h-0 flex-col overflow-hidden"
-      >
-        <div className="flex min-h-0 flex-1 flex-col justify-between rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.08),rgba(76,29,149,0.06))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
-          <div>
-            <div className="grid size-14 place-items-center rounded-2xl border border-violet-200/12 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
-              <DiscordIcon size={24} />
-            </div>
-            <p className="mt-5 text-sm font-black leading-5 text-violet-50">
-              Aide le Discord Lunaeria à rester visible et accueillant.
-            </p>
-            <p className="mt-3 text-xs leading-5 text-slate-400">
-              Un boost ou un soutien aide la communauté à grandir.
-            </p>
-          </div>
-          <NextLink
-            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-[#b9a7ea] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#09071a] transition hover:bg-[#c9b9f2]"
-            href={discordSupportHref}
-          >
-            Soutenir Lunaeria
-          </NextLink>
-        </div>
-      </PremiumCard>
-    );
-  }
-
   return (
-    <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
+    <main className="home-reference-page min-h-screen overflow-hidden bg-[#030512] text-slate-100">
       <style jsx global>{`
         .mobile-menu-scrollbar {
           scrollbar-width: none;
@@ -1819,7 +1745,7 @@ export default function Home() {
       <div className="star-veil fixed inset-0 opacity-42" />
       <div className="fog-veil fixed inset-0" />
 
-      <aside className="sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-28 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
+      <aside className="home-sidebar sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-28 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
         <div className="relative z-10 flex w-20 shrink-0 items-center justify-center py-0 lg:-mt-2 lg:mb-2 lg:w-full">
           <img
             src="/newlogo.png"
@@ -1870,142 +1796,74 @@ export default function Home() {
         </div>
       </aside>
 
-      <div className="relative z-0 min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-8">
-        <section className="hero-shell relative min-h-[580px] overflow-hidden rounded-[1.45rem] border border-violet-100/18 bg-slate-950 shadow-[0_58px_180px_rgba(0,0,0,0.72),0_0_72px_rgba(124,58,237,0.28),0_0_120px_rgba(49,46,129,0.14),inset_0_1px_0_rgba(237,233,254,0.1)] sm:rounded-[2.1rem] lg:min-h-[640px]">
-          <div className="hero-artwork absolute inset-0 bg-[url('/fond.png')] bg-cover bg-[center_40%]" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,3,12,0.9)_0%,rgba(7,8,25,0.64)_30%,rgba(8,7,24,0.16)_68%,rgba(4,5,18,0.34)_100%)]" />
-          <div className="hero-depth absolute inset-0" />
-          <div className="hero-light absolute inset-0" />
-          <div className="hero-moon absolute" />
-          <div className="hero-stars absolute inset-0" />
-          <div className="hero-cinematic absolute inset-0" />
-          <div className="hero-grain absolute inset-0" />
-
-          {discordProfile ? (
-            <div className="absolute left-4 right-4 top-4 z-20 flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-violet-100/14 bg-[#07091d]/62 p-2 text-xs font-bold text-violet-50/86 shadow-[inset_0_0_18px_rgba(196,181,253,0.035),0_16px_44px_rgba(0,0,0,0.3),0_0_18px_rgba(124,58,237,0.12)] backdrop-blur-md sm:left-auto sm:max-w-[min(30rem,calc(100%-2rem))]">
-              {discordProfile.avatar ? (
-                <div
-                  aria-hidden="true"
-                  className="h-8 w-8 shrink-0 rounded-full border border-violet-100/20 shadow-[0_0_14px_rgba(139,92,246,0.18)]"
-                  style={{
-                    backgroundImage: `url(${discordProfile.avatar})`,
-                    backgroundPosition: "center",
-                    backgroundSize: "cover",
-                  }}
-                />
-              ) : (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-violet-100/20 bg-violet-100/10">
-                  <DiscordIcon size={15} />
-                </div>
-              )}
-              <span className="min-w-0 max-w-32 truncate sm:max-w-40">
-                {discordProfile.displayName}
-              </span>
-              <span className="shrink-0 rounded-full border border-emerald-200/20 bg-emerald-300/10 px-2 py-1 text-[0.65rem] font-black uppercase tracking-[0.16em] text-emerald-100">
-                Compte lié
-              </span>
-              <button
-                className="shrink-0 rounded-full border border-violet-200/16 bg-violet-100/[0.055] px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.14em] text-violet-50/78 transition hover:border-violet-200/28 hover:bg-violet-200/10"
-                disabled={isDiscordSubmitting}
-                onClick={handleDiscordSignOut}
-                type="button"
-              >
-                Déconnexion
-              </button>
-            </div>
-          ) : null}
-
-          <div className="relative z-10 flex min-h-[580px] max-w-full flex-col justify-between p-5 sm:p-10 lg:min-h-[640px] lg:max-w-4xl lg:p-14">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/18 bg-violet-100/[0.075] px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[inset_0_1px_0_rgba(237,233,254,0.1),inset_0_0_14px_rgba(196,181,253,0.045),0_0_18px_rgba(139,92,246,0.13)] backdrop-blur-md">
+      <div className="home-content relative z-0 min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-5">
+        <section className="home-free-hero">
+          <div className="max-w-4xl">
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/18 bg-violet-950/35 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[0_0_18px_rgba(168,85,247,0.18)] backdrop-blur-sm">
                 <Sparkles size={14} /> Dofus 3
               </span>
-             <span className="rounded-full border border-cyan-100/12 bg-cyan-100/[0.035] px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-50/90 shadow-[inset_0_1px_0_rgba(224,242,254,0.07),0_0_14px_rgba(34,211,238,0.09)] backdrop-blur-md">
-  Portail Lunaeria
-</span>
+              <span className="rounded-full border border-violet-100/14 bg-violet-950/28 px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-50/90 shadow-[0_0_14px_rgba(168,85,247,0.14)] backdrop-blur-sm">
+                Portail Lunaeria
+              </span>
             </div>
 
-            <div className="py-8 sm:py-12">
-              <div className="mb-4 flex items-center gap-3 text-xs font-black uppercase tracking-[0.32em] text-violet-100/76">
-                <Moon size={16} />
-                Sanctuaire de guilde
-              </div>
-              {homepageSettings ? (
-                <>
-                  <h1 className="legend-title max-w-full break-words bg-[linear-gradient(180deg,#ffffff_0%,#efe7ff_30%,#c7b8ff_64%,#8b5cf6_100%)] bg-clip-text text-[3rem] font-black tracking-[0.14em] text-transparent sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
-                    {homepageSettings.heroTitle}
-                  </h1>
-                  <p className="mt-5 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:mt-6 sm:text-xl sm:leading-8">
-                    {homepageSettings.heroSubtitle}
-                    <br />
-                    Recrutement [{recruitmentLabel}]
+            {homepageSettings ? (
+              <>
+                <h1 className="legend-title max-w-full break-words bg-[linear-gradient(180deg,#ffffff_0%,#efe7ff_30%,#c7b8ff_64%,#8b5cf6_100%)] bg-clip-text text-[clamp(2.35rem,10vw,5.75rem)] font-black tracking-[0.14em] text-transparent sm:tracking-[0.2em]">
+                  {homepageSettings.heroTitle}
+                </h1>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.86)] sm:text-lg">
+                  {homepageSettings.heroSubtitle}
+                  <br />
+                  Recrutement [{recruitmentLabel}]
+                </p>
+                {homepageSettings.recruitmentMessage ? (
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-violet-100/82 drop-shadow-[0_2px_14px_rgba(0,0,0,0.8)]">
+                    {homepageSettings.recruitmentMessage}
                   </p>
-                  {homepageSettings.recruitmentMessage ? (
-                    <p className="mt-3 max-w-2xl text-sm leading-6 text-violet-100/78 drop-shadow-[0_2px_14px_rgba(0,0,0,0.7)]">
-                      {homepageSettings.recruitmentMessage}
+                ) : null}
+              </>
+            ) : (
+              <div className="space-y-4" aria-hidden="true">
+                <div className="h-16 w-72 max-w-full rounded-2xl bg-violet-100/[0.055]" />
+                <div className="h-5 w-96 max-w-full rounded-full bg-violet-100/[0.04]" />
+              </div>
+            )}
+
+            <div className="mt-7 flex flex-col gap-4 sm:flex-row">
+              {homepageSettings ? (
+                <div className="w-full sm:w-auto">
+                  <button
+                    aria-busy={isDiscordBusy}
+                    className="discord-cta inline-flex h-13 w-full items-center justify-center gap-2 rounded-2xl border border-violet-50/42 bg-[linear-gradient(135deg,#ffffff_0%,#eadfff_28%,#c7b6ff_58%,#8b5cf6_100%)] px-5 text-center text-sm font-black uppercase tracking-[0.14em] text-[#080619] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_20px_rgba(76,29,149,0.18),0_18px_42px_rgba(76,29,149,0.36),0_0_42px_rgba(196,181,253,0.42)] transition duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:border-white/70 hover:brightness-110 disabled:cursor-wait disabled:opacity-80 sm:w-auto sm:px-7"
+                    disabled={isDiscordBusy}
+                    onClick={handleDiscordOAuth}
+                    type="button"
+                  >
+                    {discordButtonLabel}
+                  </button>
+                  {discordAuthError && !discordProfile ? (
+                    <p className="mt-3 max-w-sm text-xs font-semibold text-rose-100/78">
+                      {discordAuthError}
                     </p>
                   ) : null}
-                </>
+                </div>
               ) : (
-                <div className="mt-5 max-w-2xl space-y-4" aria-hidden="true">
-                  <div className="h-16 w-4/5 rounded-2xl bg-violet-100/[0.055] shadow-[inset_0_0_18px_rgba(196,181,253,0.035)] sm:h-24" />
-                  <div className="h-5 w-2/3 rounded-full bg-violet-100/[0.045]" />
-                  <div className="h-5 w-1/2 rounded-full bg-violet-100/[0.035]" />
-                </div>
+                <div className="h-13 w-full rounded-2xl bg-violet-100/[0.055] sm:w-56" aria-hidden="true" />
               )}
-              <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-                {homepageSettings ? (
-                  <div className="w-full sm:w-auto">
-                    <button
-                      aria-busy={isDiscordBusy}
-                      className="discord-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-50/50 bg-[linear-gradient(135deg,#ffffff_0%,#eadfff_28%,#c7b6ff_58%,#8b5cf6_100%)] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#080619] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_20px_rgba(76,29,149,0.18),0_18px_42px_rgba(76,29,149,0.36),0_0_42px_rgba(196,181,253,0.42)] transition duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:border-white/70 hover:brightness-110 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-12px_20px_rgba(76,29,149,0.2),0_22px_54px_rgba(76,29,149,0.46),0_0_58px_rgba(216,180,254,0.56)] disabled:cursor-wait disabled:opacity-80 sm:w-auto sm:px-7 sm:tracking-[0.16em]"
-                      disabled={isDiscordBusy}
-                      onClick={handleDiscordOAuth}
-                      type="button"
-                    >
-                      <DiscordIcon /> {discordButtonLabel}
-                    </button>
-                    {discordAuthError && !discordProfile ? (
-                      <p className="mt-3 max-w-sm text-xs font-semibold text-rose-100/78">
-                        {discordAuthError}
-                      </p>
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className="h-14 w-full rounded-2xl bg-violet-100/[0.055] sm:w-56" aria-hidden="true" />
-                )}
-                <button
-                  className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-100/32 bg-[linear-gradient(135deg,rgba(20,18,48,0.86),rgba(64,35,132,0.54),rgba(8,10,32,0.76))] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-violet-50 shadow-[inset_0_1px_0_rgba(237,233,254,0.13),inset_0_0_22px_rgba(196,181,253,0.07),0_16px_34px_rgba(0,0,0,0.38),0_0_32px_rgba(124,58,237,0.18)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:border-violet-50/46 hover:bg-violet-100/[0.09] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.18),inset_0_0_24px_rgba(196,181,253,0.09),0_22px_48px_rgba(0,0,0,0.42),0_0_44px_rgba(167,139,250,0.28)] sm:w-auto sm:px-7 sm:tracking-[0.16em]"
-                  onClick={() => setIsCalendarOpen(true)}
-                  type="button"
-                >
-                  <CalendarDays size={18} /> Voir le calendrier
-                </button>
-              </div>
-            </div>
-
-            <div className="grid gap-3 sm:w-fit sm:grid-cols-[minmax(11.5rem,12.5rem)_minmax(8.5rem,10rem)]">
-              {[
-                ["Niveau de guilde", homepageSettings?.guildLevel ?? "20"],
-                ["Membres", guildMemberCount],
-              ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.045] p-4 shadow-[inset_0_0_15px_rgba(196,181,253,0.032),0_14px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-violet-200/16 hover:bg-violet-100/[0.06] hover:shadow-[inset_0_0_17px_rgba(196,181,253,0.04),0_0_13px_rgba(109,40,217,0.06)]"
-                >
-                  <p className="whitespace-nowrap text-xs uppercase tracking-[0.22em] text-violet-100/74">
-                    {label}
-                  </p>
-                  <p className="mt-2 text-2xl font-black text-violet-50 drop-shadow-[0_0_6px_rgba(196,181,253,0.15)]">
-                    {value}
-                  </p>
-                </div>
-              ))}
+              <button
+                className="inline-flex h-13 w-full items-center justify-center gap-2 rounded-2xl border border-violet-100/28 bg-violet-950/45 px-5 text-center text-sm font-black uppercase tracking-[0.14em] text-violet-50 shadow-[inset_0_1px_0_rgba(237,233,254,0.12),0_16px_34px_rgba(0,0,0,0.36),0_0_28px_rgba(124,58,237,0.18)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-violet-50/42 hover:bg-violet-100/[0.09] sm:w-auto sm:px-7"
+                onClick={() => setIsCalendarOpen(true)}
+                type="button"
+              >
+                <CalendarDays size={18} /> Voir le calendrier
+              </button>
             </div>
           </div>
         </section>
 
-        <section className="homepage-fixed-layout mt-6">
+        <section className="home-dashboard homepage-fixed-layout">
           <div className="homepage-fixed-card homepage-fixed-card--announcements">
             {renderHomepageLayoutBlock("announcements")}
           </div>
@@ -2018,17 +1876,11 @@ export default function Home() {
             <div className="homepage-fixed-card homepage-fixed-card--split">
               {renderHomepageLayoutBlock("almanax")}
             </div>
-            <div className="homepage-fixed-card homepage-fixed-card--split homepage-fixed-card--support">
-              {renderDiscordSupportBlock()}
-            </div>
-            <div className="homepage-fixed-card homepage-fixed-card--split homepage-fixed-card--online">
-              {renderHomepageLayoutBlock("online")}
+            <div className="homepage-fixed-card homepage-fixed-card--split homepage-fixed-card--activity">
+              {renderHomepageLayoutBlock("activity")}
             </div>
           </div>
 
-          <div className="homepage-fixed-card homepage-fixed-card--gallery">
-            {renderHomepageLayoutBlock("gallery")}
-          </div>
         </section>
 
         {false ? (
