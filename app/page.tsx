@@ -1871,11 +1871,13 @@ export default function Home() {
       </aside>
 
       <div className="relative z-0 min-h-screen max-w-full p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:max-w-none lg:p-8">
-        <section className="hero-shell relative min-h-[520px] overflow-hidden rounded-[1.45rem] border border-violet-200/14 bg-slate-950 shadow-[0_46px_140px_rgba(0,0,0,0.66),0_0_46px_rgba(124,58,237,0.18),inset_0_1px_0_rgba(237,233,254,0.07)] sm:rounded-[2.1rem] lg:min-h-[560px]">
-          <div className="hero-artwork absolute inset-0 bg-[url('/fond.png')] bg-cover bg-[center_42%]" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,3,12,0.88)_0%,rgba(7,8,25,0.62)_34%,rgba(8,7,24,0.14)_70%,rgba(4,5,18,0.28)_100%)]" />
+        <section className="hero-shell relative min-h-[580px] overflow-hidden rounded-[1.45rem] border border-violet-100/18 bg-slate-950 shadow-[0_58px_180px_rgba(0,0,0,0.72),0_0_72px_rgba(124,58,237,0.28),0_0_120px_rgba(49,46,129,0.14),inset_0_1px_0_rgba(237,233,254,0.1)] sm:rounded-[2.1rem] lg:min-h-[640px]">
+          <div className="hero-artwork absolute inset-0 bg-[url('/fond.png')] bg-cover bg-[center_40%]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,3,12,0.9)_0%,rgba(7,8,25,0.64)_30%,rgba(8,7,24,0.16)_68%,rgba(4,5,18,0.34)_100%)]" />
           <div className="hero-depth absolute inset-0" />
           <div className="hero-light absolute inset-0" />
+          <div className="hero-moon absolute" />
+          <div className="hero-stars absolute inset-0" />
           <div className="hero-cinematic absolute inset-0" />
           <div className="hero-grain absolute inset-0" />
 
@@ -1913,7 +1915,7 @@ export default function Home() {
             </div>
           ) : null}
 
-          <div className="relative z-10 flex min-h-[520px] max-w-full flex-col justify-between p-5 sm:p-10 lg:min-h-[560px] lg:max-w-4xl lg:p-14">
+          <div className="relative z-10 flex min-h-[580px] max-w-full flex-col justify-between p-5 sm:p-10 lg:min-h-[640px] lg:max-w-4xl lg:p-14">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/18 bg-violet-100/[0.075] px-4 py-2 text-xs font-black uppercase tracking-[0.24em] text-violet-100 shadow-[inset_0_1px_0_rgba(237,233,254,0.1),inset_0_0_14px_rgba(196,181,253,0.045),0_0_18px_rgba(139,92,246,0.13)] backdrop-blur-md">
                 <Sparkles size={14} /> Dofus 3
@@ -1930,7 +1932,7 @@ export default function Home() {
               </div>
               {homepageSettings ? (
                 <>
-                  <h1 className="legend-title max-w-full break-words text-[2.7rem] font-black tracking-[0.14em] text-violet-50 sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
+                  <h1 className="legend-title max-w-full break-words bg-[linear-gradient(180deg,#ffffff_0%,#efe7ff_30%,#c7b8ff_64%,#8b5cf6_100%)] bg-clip-text text-[3rem] font-black tracking-[0.14em] text-transparent sm:text-7xl sm:tracking-[0.2em] lg:text-8xl">
                     {homepageSettings.heroTitle}
                   </h1>
                   <p className="mt-5 max-w-2xl text-base leading-7 text-slate-100/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] sm:mt-6 sm:text-xl sm:leading-8">
@@ -1956,7 +1958,7 @@ export default function Home() {
                   <div className="w-full sm:w-auto">
                     <button
                       aria-busy={isDiscordBusy}
-                      className="discord-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-100/35 bg-[linear-gradient(135deg,#f4efff_0%,#c8b6ff_42%,#9f7aea_100%)] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#09071a] shadow-[inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-10px_18px_rgba(76,29,149,0.12),0_14px_32px_rgba(76,29,149,0.26),0_0_28px_rgba(167,139,250,0.32)] transition duration-300 hover:-translate-y-1 hover:border-violet-50/55 hover:brightness-110 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.82),inset_0_-10px_18px_rgba(76,29,149,0.14),0_18px_42px_rgba(76,29,149,0.34),0_0_38px_rgba(196,181,253,0.42)] disabled:cursor-wait disabled:opacity-80 sm:w-auto sm:px-6 sm:tracking-[0.16em]"
+                      className="discord-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-50/50 bg-[linear-gradient(135deg,#ffffff_0%,#eadfff_28%,#c7b6ff_58%,#8b5cf6_100%)] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#080619] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_20px_rgba(76,29,149,0.18),0_18px_42px_rgba(76,29,149,0.36),0_0_42px_rgba(196,181,253,0.42)] transition duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:border-white/70 hover:brightness-110 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-12px_20px_rgba(76,29,149,0.2),0_22px_54px_rgba(76,29,149,0.46),0_0_58px_rgba(216,180,254,0.56)] disabled:cursor-wait disabled:opacity-80 sm:w-auto sm:px-7 sm:tracking-[0.16em]"
                       disabled={isDiscordBusy}
                       onClick={handleDiscordOAuth}
                       type="button"
@@ -1973,7 +1975,7 @@ export default function Home() {
                   <div className="h-14 w-full rounded-2xl bg-violet-100/[0.055] sm:w-56" aria-hidden="true" />
                 )}
                 <button
-                  className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-100/22 bg-[#090a20]/62 px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-violet-50 shadow-[inset_0_1px_0_rgba(237,233,254,0.08),inset_0_0_18px_rgba(196,181,253,0.04),0_14px_30px_rgba(0,0,0,0.32),0_0_22px_rgba(124,58,237,0.11)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-violet-100/34 hover:bg-violet-100/[0.075] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.11),inset_0_0_20px_rgba(196,181,253,0.055),0_18px_38px_rgba(0,0,0,0.36),0_0_30px_rgba(167,139,250,0.18)] sm:w-auto sm:px-6 sm:tracking-[0.16em]"
+                  className="inline-flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-violet-100/32 bg-[linear-gradient(135deg,rgba(20,18,48,0.86),rgba(64,35,132,0.54),rgba(8,10,32,0.76))] px-4 text-center text-sm font-black uppercase tracking-[0.14em] text-violet-50 shadow-[inset_0_1px_0_rgba(237,233,254,0.13),inset_0_0_22px_rgba(196,181,253,0.07),0_16px_34px_rgba(0,0,0,0.38),0_0_32px_rgba(124,58,237,0.18)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:border-violet-50/46 hover:bg-violet-100/[0.09] hover:shadow-[inset_0_1px_0_rgba(237,233,254,0.18),inset_0_0_24px_rgba(196,181,253,0.09),0_22px_48px_rgba(0,0,0,0.42),0_0_44px_rgba(167,139,250,0.28)] sm:w-auto sm:px-7 sm:tracking-[0.16em]"
                   onClick={() => setIsCalendarOpen(true)}
                   type="button"
                 >
