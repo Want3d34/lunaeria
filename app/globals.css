@@ -605,6 +605,16 @@ body {
     grid-column: 1 / span 2;
     grid-row: 2;
   }
+
+  .homepage-fixed-card--support {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .homepage-fixed-card--goals {
+    grid-column: 2;
+    grid-row: 2;
+  }
 }
 
 @keyframes aurora-shift {

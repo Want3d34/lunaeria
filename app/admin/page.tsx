@@ -54,6 +54,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { key: "overview", label: "Vue d'ensemble", icon: Home },
   { key: "accueil", label: "Accueil", icon: Home },
+  { key: "objectifs", label: "Objectifs", icon: ShieldCheck },
   { key: "annonces", label: "Annonces", icon: Megaphone },
   { key: "evenements", label: "Evénements", icon: CalendarDays },
   { key: "ventes", label: "Ventes", icon: ShoppingBag },
@@ -95,6 +96,15 @@ type HomepageSettingsRow = {
   recruitment_is_open: boolean | null;
   recruitment_message: string | null;
   recruitment_server_name: string | null;
+  guild_objective_title?: string | null;
+  guild_objective_text?: string | null;
+  guild_objective_progress?: string | null;
+};
+
+const defaultGuildObjective = {
+  title: "Objectifs de guilde",
+  text: "Préparer les prochaines sorties, renforcer l'entraide et faire progresser Lunaeria ensemble.",
+  progress: "En cours",
 };
 
 const emptyEvent = {
@@ -144,6 +154,7 @@ export default function AdminPage() {
   const [toast, setToast] = useState("");
   const [heroDraft, setHeroDraft] = useState(content.hero);
   const [recruitmentDraft, setRecruitmentDraft] = useState(content.recruitment);
+  const [guildObjectiveDraft, setGuildObjectiveDraft] = useState(defaultGuildObjective);
   const [announcementDraft, setAnnouncementDraft] = useState(emptyAnnouncement);
   const [editingAnnouncementId, setEditingAnnouncementId] = useState<string | null>(
     null,
@@ -526,9 +537,15 @@ export default function AdminPage() {
       serverName:
         data.recruitment_server_name ?? content.recruitment.serverName,
     };
+    const nextGuildObjective = {
+      title: data.guild_objective_title ?? defaultGuildObjective.title,
+      text: data.guild_objective_text ?? defaultGuildObjective.text,
+      progress: data.guild_objective_progress ?? defaultGuildObjective.progress,
+    };
 
     setHeroDraft(nextHero);
     setRecruitmentDraft(nextRecruitment);
+    setGuildObjectiveDraft(nextGuildObjective);
     setContent((current) => ({
       ...current,
       hero: nextHero,
@@ -702,6 +719,29 @@ export default function AdminPage() {
       recruitment: recruitmentDraft,
     }));
     notify("Accueil sauvegardé");
+  }
+
+  async function persistGuildObjective() {
+    const { error } = await supabase
+      .from("homepage_settings")
+      .upsert({
+        id: 1,
+        guild_objective_title:
+          guildObjectiveDraft.title.trim() || defaultGuildObjective.title,
+        guild_objective_text:
+          guildObjectiveDraft.text.trim() || defaultGuildObjective.text,
+        guild_objective_progress:
+          guildObjectiveDraft.progress.trim() || defaultGuildObjective.progress,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (error) {
+      console.error(error);
+      notify("Erreur sauvegarde objectifs");
+      return;
+    }
+
+    notify("Objectifs sauvegardés");
   }
 
   async function submitAnnouncement(event: FormEvent<HTMLFormElement>) {
@@ -1451,6 +1491,54 @@ export default function AdminPage() {
                           {heroDraft.buttonText || "Bouton vide"}
                         </span>
                       </div>
+                    </div>
+                  </AdminCard>
+                </AdminSection>
+
+                <AdminSection id="objectifs">
+                  <AdminCard
+                    action={
+                      <AdminButton onClick={persistGuildObjective}>
+                        <Save size={16} /> Sauvegarder
+                      </AdminButton>
+                    }
+                    icon={ShieldCheck}
+                    title="Objectifs de guilde"
+                  >
+                    <div className="grid gap-4">
+                      <AdminField label="Titre">
+                        <AdminInput
+                          onChange={(event) =>
+                            setGuildObjectiveDraft((current) => ({
+                              ...current,
+                              title: event.target.value,
+                            }))
+                          }
+                          value={guildObjectiveDraft.title}
+                        />
+                      </AdminField>
+                      <AdminField label="Texte">
+                        <AdminTextarea
+                          onChange={(event) =>
+                            setGuildObjectiveDraft((current) => ({
+                              ...current,
+                              text: event.target.value,
+                            }))
+                          }
+                          value={guildObjectiveDraft.text}
+                        />
+                      </AdminField>
+                      <AdminField label="Progression / état">
+                        <AdminInput
+                          onChange={(event) =>
+                            setGuildObjectiveDraft((current) => ({
+                              ...current,
+                              progress: event.target.value,
+                            }))
+                          }
+                          value={guildObjectiveDraft.progress}
+                        />
+                      </AdminField>
                     </div>
                   </AdminCard>
                 </AdminSection>

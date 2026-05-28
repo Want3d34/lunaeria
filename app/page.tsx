@@ -85,12 +85,10 @@ const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
   { label: "Annonces", icon: Megaphone, href: "/annonces" },
   { label: "Événements", icon: CalendarDays, href: "/evenements" },
   { label: "Ventes", icon: WandSparkles, href: "/services/ventes" },
-  { label: "Almanax", icon: Sparkles, href: "/#almanax" },
   { label: "Membres", icon: Users, href: "/#membres" },
   { label: "Métiers", icon: BriefcaseBusiness, href: "/metiers" },
-  { label: "Builds", icon: ShieldCheck, href: "/stuffs-builds/encyclopedie" },
-  { label: "Candidatures", icon: ScrollText, href: "/#candidatures" },
   { label: "Élevage", icon: PackageOpen, href: "/ressources/elevage/muldos" },
+  { label: "Builds", icon: ShieldCheck, href: "/stuffs-builds/encyclopedie" },
 ]);
 
 const staticSearchItems = [
@@ -212,6 +210,8 @@ type HomepageLayoutBlockKey =
   | "online"
   | "announcements"
   | "activity"
+  | "discordBoost"
+  | "guildGoals"
   | "almanax"
   | "gallery";
 
@@ -224,6 +224,9 @@ type HomepageSettings = {
   recruitmentIsOpen: boolean;
   recruitmentMessage: string;
   recruitmentServerName: string;
+  guildObjectiveTitle: string;
+  guildObjectiveText: string;
+  guildObjectiveProgress: string;
 };
 
 type DiscordProfile = {
@@ -275,6 +278,10 @@ const homepageSettingsFallback: HomepageSettings = {
   recruitmentIsOpen: false,
   recruitmentMessage: "",
   recruitmentServerName: "Lunaeria",
+  guildObjectiveTitle: "Objectifs de guilde",
+  guildObjectiveText:
+    "Préparer les prochaines sorties, renforcer l'entraide et faire progresser Lunaeria ensemble.",
+  guildObjectiveProgress: "En cours",
 };
 
 type GalleryItem = {
@@ -1052,6 +1059,12 @@ export default function Home() {
           data.recruitment_message ?? "",
         recruitmentServerName:
           data.recruitment_server_name ?? "Lunaeria",
+        guildObjectiveTitle:
+          data.guild_objective_title ?? homepageSettingsFallback.guildObjectiveTitle,
+        guildObjectiveText:
+          data.guild_objective_text ?? homepageSettingsFallback.guildObjectiveText,
+        guildObjectiveProgress:
+          data.guild_objective_progress ?? homepageSettingsFallback.guildObjectiveProgress,
       });
     }
 
@@ -1431,6 +1444,8 @@ export default function Home() {
     : discordProfile
       ? "Compte Discord lié"
       : "Lier avec Discord";
+  const discordSupportHref =
+    homepageSettings?.heroButtonLink?.trim() || "https://discord.com/channels/@me";
   const linkedDiscordRole =
     discordProfile?.role ||
     onlineMembers.find((member) => member.discordId === discordProfile?.discordId)?.role ||
@@ -1748,7 +1763,7 @@ export default function Home() {
                 size={18}
               />
             </div>
-            <div className="homepage-layout-scroll min-h-0 flex-1 overflow-y-auto rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.085),rgba(76,29,149,0.065))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
+            <div className="homepage-layout-scroll min-h-0 flex-1 overflow-y-auto rounded-2xl border border-violet-100/12 bg-[#070414]/76 p-5 shadow-[0_24px_74px_rgba(0,0,0,0.54),0_0_32px_rgba(124,58,237,0.14),inset_0_1px_0_rgba(237,233,254,0.08)] backdrop-blur-xl">
               <div className="flex items-start gap-4">
                 <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-violet-200/12 bg-violet-300/7 text-violet-100 shadow-[inset_0_0_12px_rgba(196,181,253,0.04)]">
                   {almanaxEntry?.tribute?.item?.image_urls?.icon ? (
@@ -1835,6 +1850,52 @@ export default function Home() {
               </div>
             </div>
           </section>
+        );
+
+      case "discordBoost":
+        return (
+          <PremiumCard
+            title="Soutenir Lunaeria"
+            icon={Sparkles}
+            className="flex h-full min-h-0 flex-col overflow-hidden"
+          >
+            <div className="flex h-full min-h-0 flex-col justify-between rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.085),rgba(76,29,149,0.065))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
+              <div>
+                <p className="text-sm font-black leading-5 text-violet-50">
+                  Aide le Discord Lunaeria à rester actif, visible et accueillant.
+                </p>
+                <p className="mt-3 text-xs leading-5 text-violet-100/62">
+                  Un boost soutient la communauté et accompagne les prochains projets de guilde.
+                </p>
+              </div>
+              <NextLink
+                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-2xl border border-violet-200/12 bg-[#b9a7ea] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#09071a] transition hover:bg-[#c9b9f2]"
+                href={discordSupportHref}
+              >
+                Booster le Discord
+              </NextLink>
+            </div>
+          </PremiumCard>
+        );
+
+      case "guildGoals":
+        return (
+          <PremiumCard
+            title={homepageSettings?.guildObjectiveTitle || homepageSettingsFallback.guildObjectiveTitle}
+            icon={ShieldCheck}
+            className="flex h-full min-h-0 flex-col overflow-hidden"
+          >
+            <div className="flex h-full min-h-0 flex-col justify-between rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.085),rgba(76,29,149,0.065))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
+              <div>
+                <p className="text-sm leading-6 text-violet-50/78">
+                  {homepageSettings?.guildObjectiveText || homepageSettingsFallback.guildObjectiveText}
+                </p>
+              </div>
+              <span className="mt-5 inline-flex w-fit rounded-full border border-violet-100/14 bg-violet-100/[0.055] px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-violet-100">
+                {homepageSettings?.guildObjectiveProgress || homepageSettingsFallback.guildObjectiveProgress}
+              </span>
+            </div>
+          </PremiumCard>
         );
 
       case "gallery":
@@ -2267,8 +2328,11 @@ export default function Home() {
             <div className="homepage-fixed-card homepage-fixed-card--split">
               {renderHomepageLayoutBlock("almanax")}
             </div>
-            <div className="homepage-fixed-card homepage-fixed-card--split homepage-fixed-card--activity">
-              {renderHomepageLayoutBlock("activity")}
+            <div className="homepage-fixed-card homepage-fixed-card--split homepage-fixed-card--support">
+              {renderHomepageLayoutBlock("discordBoost")}
+            </div>
+            <div className="homepage-fixed-card homepage-fixed-card--split homepage-fixed-card--goals">
+              {renderHomepageLayoutBlock("guildGoals")}
             </div>
           </div>
 
