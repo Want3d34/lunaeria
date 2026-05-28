@@ -552,6 +552,7 @@ function getDiscordProfileFromUser(user: User): DiscordProfile | null {
     displayName: username,
     username,
     avatar,
+    role: "Membre",
     source: username === discordDisplayNameFallback ? "fallback" : "oauth_metadata",
   };
 }
@@ -912,7 +913,7 @@ export default function Home() {
         error: readProfileError,
       } = await supabase
         .from("discord_profiles")
-        .select("*")
+        .select("username, display_name, avatar_url, highest_role")
         .eq("discord_id", profile.discordId)
         .maybeSingle<DiscordProfileRow>();
 
