@@ -21,9 +21,14 @@ export default function ProfilPage() {
         (identity) => identity.provider === "discord",
       );
 
-      const discordId =
-        discordIdentity?.provider_id ||
-        (discordIdentity?.identity_data as { id?: string } | undefined)?.id;
+      const identityData = discordIdentity?.identity_data as
+  | { provider_id?: string; sub?: string; id?: string }
+  | undefined;
+
+const discordId =
+  identityData?.provider_id ||
+  identityData?.sub ||
+  identityData?.id;
 
       if (!discordId) return;
 
