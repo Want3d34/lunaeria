@@ -15,10 +15,7 @@ export default function ProfilPage() {
       } = await supabase.auth.getSession();
 
       const user = session?.user;
-
-      if (!user) {
-        return;
-      }
+      if (!user) return;
 
       const discordIdentity = user.identities?.find(
         (identity) => identity.provider === "discord",
@@ -28,9 +25,7 @@ export default function ProfilPage() {
         discordIdentity?.provider_id ||
         (discordIdentity?.identity_data as { id?: string } | undefined)?.id;
 
-      if (!discordId) {
-        return;
-      }
+      if (!discordId) return;
 
       const { data } = await supabase
         .from("discord_profiles")
@@ -38,14 +33,9 @@ export default function ProfilPage() {
         .eq("discord_id", discordId)
         .maybeSingle();
 
-      if (!data) {
-        return;
-      }
+      if (!data) return;
 
-      setDisplayName(
-        data.display_name || data.username || "Membre Lunaeria",
-      );
-
+      setDisplayName(data.display_name || data.username || "Membre Lunaeria");
       setAvatarUrl(data.avatar_url || null);
       setHighestRole(data.highest_role || "Membre");
     }
@@ -53,32 +43,6 @@ export default function ProfilPage() {
     loadProfile();
   }, []);
 
-  return (
-    }
-
-    const { data } = await supabase
-      .from("discord_profiles")
-      .select("display_name, username, avatar_url, highest_role")
-      .eq("discord_id", discordId)
-      .maybeSingle();
-
-    if (!data) {
-      return;
-    }
-
-    setDisplayName(
-      data.display_name || data.username || "Membre Lunaeria",
-    );
-
-    setAvatarUrl(data.avatar_url || null);
-
-    setHighestRole(
-      data.highest_role || "Membre",
-    );
-  }
-
-  loadProfile();
-}, []);
   return (
     <main
       className="min-h-screen text-violet-50"
@@ -106,23 +70,22 @@ export default function ProfilPage() {
         <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
           <aside className="rounded-3xl border border-violet-300/20 bg-[#0b0718]/80 p-6 shadow-[0_0_45px_rgba(124,58,237,0.16)] backdrop-blur-xl">
             <div className="flex flex-col items-center text-center">
-              <div className="grid h-32 w-32 place-items-center rounded-full border border-violet-300/30 bg-violet-900/40 shadow-[0_0_35px_rgba(168,85,247,0.35)]">
+              <div className="grid h-32 w-32 place-items-center overflow-hidden rounded-full border border-violet-300/30 bg-violet-900/40 shadow-[0_0_35px_rgba(168,85,247,0.35)]">
                 {avatarUrl ? (
-  <img
-    src={avatarUrl}
-    alt={displayName}
-    className="h-32 w-32 rounded-full object-cover"
-  />
-) : (
-  <span className="text-4xl font-black">
-    {displayName.charAt(0)}
-  </span>
-)}
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="h-32 w-32 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="text-4xl font-black">
+                    {displayName.charAt(0)}
+                  </span>
+                )}
               </div>
 
-              <h2 className="mt-5 text-3xl font-black">
-  {displayName}
-</h2>
+              <h2 className="mt-5 text-3xl font-black">{displayName}</h2>
               <p className="mt-1 text-sm font-black uppercase tracking-[0.25em] text-violet-300">
                 {highestRole}
               </p>
