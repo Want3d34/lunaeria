@@ -1,6 +1,15 @@
 export default function ProfilPage() {
   return (
-    <main className="min-h-screen bg-[#030511] text-violet-50">
+    <main
+  className="min-h-screen text-violet-50"
+  style={{
+    backgroundImage:
+      "linear-gradient(rgba(3,5,17,0.85), rgba(3,5,17,0.92)), url('/fond2.png')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundAttachment: "fixed",
+  }}
+>
       <div className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8">
           <h1 className="text-5xl font-black tracking-tight">
