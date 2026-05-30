@@ -2234,16 +2234,25 @@ export default function Home() {
 
             {isProfileMenuOpen && discordProfile ? (
               <div className="home-dropdown home-profile-menu">
-                <button
-                  className="flex w-full items-center gap-2 rounded-xl border border-violet-100/10 bg-violet-50/[0.045] px-3 py-2 text-left text-sm font-black text-violet-50 transition hover:border-violet-200/20 hover:bg-violet-200/[0.08]"
-                  disabled={isDiscordSubmitting}
-                  onClick={handleDiscordSignOut}
-                  type="button"
-                >
-                  <LogOut size={15} />
-                  Déconnexion
-                </button>
-              </div>
+  <NextLink
+    className="mb-2 flex w-full items-center gap-2 rounded-xl border border-violet-100/10 bg-violet-50/[0.045] px-3 py-2 text-left text-sm font-black text-violet-50 transition hover:border-violet-200/20 hover:bg-violet-200/[0.08]"
+    href="/profil"
+    onClick={() => setIsProfileMenuOpen(false)}
+  >
+    <Users size={15} />
+    Profil
+  </NextLink>
+
+  <button
+    className="flex w-full items-center gap-2 rounded-xl border border-violet-100/10 bg-violet-50/[0.045] px-3 py-2 text-left text-sm font-black text-violet-50 transition hover:border-violet-200/20 hover:bg-violet-200/[0.08]"
+    disabled={isDiscordSubmitting}
+    onClick={handleDiscordSignOut}
+    type="button"
+  >
+    <LogOut size={15} />
+    Déconnexion
+  </button>
+</div>
             ) : null}
           </div>
         </div>
