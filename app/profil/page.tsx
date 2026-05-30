@@ -3,32 +3,57 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
-const [displayName, setDisplayName] = useState("Chargement...");
-const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-const [highestRole, setHighestRole] = useState("Membre");
+export default function ProfilPage() {
+  const [displayName, setDisplayName] = useState("Chargement...");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [highestRole, setHighestRole] = useState("Membre");
 
-useEffect(() => {
-  async function loadProfile() {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+  useEffect(() => {
+    async function loadProfile() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    const user = session?.user;
+      const user = session?.user;
 
-    if (!user) {
-      return;
+      if (!user) {
+        return;
+      }
+
+      const discordIdentity = user.identities?.find(
+        (identity) => identity.provider === "discord",
+      );
+
+      const discordId =
+        discordIdentity?.provider_id ||
+        (discordIdentity?.identity_data as { id?: string } | undefined)?.id;
+
+      if (!discordId) {
+        return;
+      }
+
+      const { data } = await supabase
+        .from("discord_profiles")
+        .select("display_name, username, avatar_url, highest_role")
+        .eq("discord_id", discordId)
+        .maybeSingle();
+
+      if (!data) {
+        return;
+      }
+
+      setDisplayName(
+        data.display_name || data.username || "Membre Lunaeria",
+      );
+
+      setAvatarUrl(data.avatar_url || null);
+      setHighestRole(data.highest_role || "Membre");
     }
 
-    const discordIdentity = user.identities?.find(
-      (identity) => identity.provider === "discord",
-    );
+    loadProfile();
+  }, []);
 
-    const discordId =
-      discordIdentity?.provider_id ||
-      discordIdentity?.identity_data?.id;
-
-    if (!discordId) {
-      return;
+  return (
     }
 
     const { data } = await supabase
