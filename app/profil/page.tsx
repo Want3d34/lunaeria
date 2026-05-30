@@ -84,10 +84,10 @@ if (playerProfile) {
     });
 
   if (error) {
-    console.error(error);
-    alert("Erreur lors de la sauvegarde du profil.");
-    return;
-  }
+  console.error("PLAYER_PROFILE_ERROR", error);
+  alert(JSON.stringify(error));
+  return;
+}
 
   alert("Profil sauvegardé avec succès !");
 }
