@@ -74,14 +74,19 @@ if (playerProfile) {
 
   const { error } = await supabase
     .from("player_profiles")
-    .upsert({
-      discord_id: discordId,
-      ingame_name: ingameName,
-      main_class: mainClass,
-      level: level ? Number(level) : null,
-      presentation: presentation,
-      availability: availability,
-    });
+    .upsert(
+  {
+    discord_id: discordId,
+    ingame_name: ingameName,
+    main_class: mainClass,
+    level: level ? Number(level) : null,
+    presentation,
+    availability,
+  },
+  {
+    onConflict: "discord_id",
+  }
+);
 
   if (error) {
   console.error("PLAYER_PROFILE_ERROR", error);
