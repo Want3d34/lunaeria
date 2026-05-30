@@ -1,84 +1,106 @@
 export default function ProfilPage() {
   return (
     <main
-  className="min-h-screen text-violet-50"
-  style={{
-    backgroundImage:
-      "linear-gradient(rgba(3,5,17,0.85), rgba(3,5,17,0.92)), url('/fond2.png')",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundAttachment: "fixed",
-  }}
->
+      className="min-h-screen text-violet-50"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(3,5,17,0.65), rgba(3,5,17,0.78)), url('/fond2.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <div className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8">
-          <h1 className="text-5xl font-black tracking-tight">
+        <section className="mb-8 rounded-3xl border border-violet-300/20 bg-[#0b0718]/70 p-8 shadow-[0_0_60px_rgba(139,92,246,0.18)] backdrop-blur-xl">
+          <p className="text-sm font-black uppercase tracking-[0.35em] text-violet-300">
+            Profil joueur
+          </p>
+          <h1 className="mt-3 text-5xl font-black tracking-tight">
             Profil Lunaeria
           </h1>
-          <p className="mt-2 text-violet-200/70">
-            Gérez votre identité au sein de la guilde.
+          <p className="mt-3 max-w-2xl text-violet-100/70">
+            Gérez votre identité, vos informations de joueur et votre présence au sein de la guilde.
           </p>
-        </div>
+        </section>
 
         <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-          {/* Carte profil Discord */}
-          <div className="rounded-3xl border border-violet-400/15 bg-[#0b0718]/90 p-6">
+          <aside className="rounded-3xl border border-violet-300/20 bg-[#0b0718]/80 p-6 shadow-[0_0_45px_rgba(124,58,237,0.16)] backdrop-blur-xl">
             <div className="flex flex-col items-center text-center">
-              <div className="h-28 w-28 rounded-full bg-violet-900/40" />
+              <div className="grid h-32 w-32 place-items-center rounded-full border border-violet-300/30 bg-violet-900/40 shadow-[0_0_35px_rgba(168,85,247,0.35)]">
+                <span className="text-4xl font-black">A</span>
+              </div>
 
-              <h2 className="mt-4 text-2xl font-black">
-                Azelyaa
-              </h2>
-
-              <p className="text-violet-300">
+              <h2 className="mt-5 text-3xl font-black">Azelyaa</h2>
+              <p className="mt-1 text-sm font-black uppercase tracking-[0.25em] text-violet-300">
                 Meneur
               </p>
 
-              <div className="mt-4 rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1 text-sm">
+              <div className="mt-5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-bold text-emerald-200">
                 Discord lié
               </div>
+
+              <div className="mt-8 w-full space-y-3 text-left">
+                <div className="rounded-2xl border border-violet-300/15 bg-black/25 p-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-violet-300/70">
+                    Membre depuis
+                  </p>
+                  <p className="mt-1 font-black">À compléter</p>
+                </div>
+
+                <div className="rounded-2xl border border-violet-300/15 bg-black/25 p-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-violet-300/70">
+                    Profil complété
+                  </p>
+                  <p className="mt-1 font-black">15%</p>
+                </div>
+              </div>
             </div>
-          </div>
+          </aside>
 
-          {/* Informations joueur */}
-          <div className="rounded-3xl border border-violet-400/15 bg-[#0b0718]/90 p-6">
-            <h2 className="mb-6 text-2xl font-black">
-              Informations joueur
-            </h2>
+          <section className="rounded-3xl border border-violet-300/20 bg-[#0b0718]/80 p-6 shadow-[0_0_45px_rgba(124,58,237,0.16)] backdrop-blur-xl">
+            <h2 className="text-2xl font-black">Informations joueur</h2>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <input
-                className="rounded-xl bg-black/30 p-3"
-                placeholder="Pseudo en jeu"
-              />
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
+                  Pseudo en jeu
+                </span>
+                <input className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+              </label>
 
-              <input
-                className="rounded-xl bg-black/30 p-3"
-                placeholder="Classe principale"
-              />
+              <label className="space-y-2">
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
+                  Classe principale
+                </span>
+                <input className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+              </label>
 
-              <input
-                className="rounded-xl bg-black/30 p-3"
-                placeholder="Niveau"
-              />
+              <label className="space-y-2">
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
+                  Niveau
+                </span>
+                <input className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+              </label>
 
-              <input
-                className="rounded-xl bg-black/30 p-3"
-                placeholder="Disponibilités"
-              />
+              <label className="space-y-2">
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
+                  Disponibilités
+                </span>
+                <input className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+              </label>
             </div>
 
-            <textarea
-              className="mt-4 h-40 w-full rounded-xl bg-black/30 p-3"
-              placeholder="Présentation..."
-            />
+            <label className="mt-4 block space-y-2">
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
+                Présentation
+              </span>
+              <textarea className="h-40 w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+            </label>
 
-            <button
-              className="mt-6 rounded-xl bg-violet-600 px-6 py-3 font-black"
-            >
-              Sauvegarder
+            <button className="mt-6 rounded-2xl bg-violet-600 px-7 py-4 font-black shadow-[0_0_30px_rgba(139,92,246,0.35)] transition hover:bg-violet-500">
+              Sauvegarder le profil
             </button>
-          </div>
+          </section>
         </div>
       </div>
     </main>
