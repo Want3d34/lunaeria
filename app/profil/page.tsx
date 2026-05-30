@@ -9,11 +9,12 @@ export default function ProfilPage() {
   const [highestRole, setHighestRole] = useState("Membre");
   const [discordId, setDiscordId] = useState<string | null>(null);
 
-const [ingameName, setIngameName] = useState("");
-const [mainClass, setMainClass] = useState("");
-const [level, setLevel] = useState("");
-const [presentation, setPresentation] = useState("");
-const [availability, setAvailability] = useState("");
+  const [ingameName, setIngameName] = useState("");
+  const [mainClass, setMainClass] = useState("");
+  const [level, setLevel] = useState("");
+  const [presentation, setPresentation] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [professions, setProfessions] = useState("");
 
   useEffect(() => {
     async function loadProfile() {
@@ -29,17 +30,15 @@ const [availability, setAvailability] = useState("");
       );
 
       const identityData = discordIdentity?.identity_data as
-  | { provider_id?: string; sub?: string; id?: string }
-  | undefined;
+        | { provider_id?: string; sub?: string; id?: string }
+        | undefined;
 
-const discordId =
-  identityData?.provider_id ||
-  identityData?.sub ||
-  identityData?.id;
+      const discordId =
+        identityData?.provider_id || identityData?.sub || identityData?.id;
 
       if (!discordId) return;
 
-setDiscordId(discordId);
+      setDiscordId(discordId);
 
       const { data } = await supabase
         .from("discord_profiles")
@@ -52,50 +51,59 @@ setDiscordId(discordId);
       setDisplayName(data.display_name || data.username || "Membre Lunaeria");
       setAvatarUrl(data.avatar_url || null);
       setHighestRole(data.highest_role || "Membre");
-      const { data: playerProfile } = await supabase
-  .from("player_profiles")
-  .select("*")
-  .eq("discord_id", discordId)
-  .maybeSingle();
 
-if (playerProfile) {
-  setIngameName(playerProfile.ingame_name ?? "");
-  setMainClass(playerProfile.main_class ?? "");
-  setLevel(playerProfile.level?.toString() ?? "");
-  setPresentation(playerProfile.presentation ?? "");
-  setAvailability(playerProfile.availability ?? "");
-}
+      const { data: playerProfile } = await supabase
+        .from("player_profiles")
+        .select("*")
+        .eq("discord_id", discordId)
+        .maybeSingle();
+
+      if (playerProfile) {
+        setIngameName(playerProfile.ingame_name ?? "");
+        setMainClass(playerProfile.main_class ?? "");
+        setLevel(playerProfile.level?.toString() ?? "");
+        setPresentation(playerProfile.presentation ?? "");
+        setAvailability(playerProfile.availability ?? "");
+        setProfessions(
+          Array.isArray(playerProfile.professions)
+            ? playerProfile.professions.join(", ")
+            : "",
+        );
+      }
     }
 
     loadProfile();
   }, []);
+
   async function saveProfile() {
-  if (!discordId) return;
+    if (!discordId) return;
 
-  const { error } = await supabase
-    .from("player_profiles")
-    .upsert(
-  {
-    discord_id: discordId,
-    ingame_name: ingameName,
-    main_class: mainClass,
-    level: level ? Number(level) : null,
-    presentation,
-    availability,
-  },
-  {
-    onConflict: "discord_id",
+    const { error } = await supabase.from("player_profiles").upsert(
+      {
+        discord_id: discordId,
+        ingame_name: ingameName,
+        main_class: mainClass,
+        level: level ? Number(level) : null,
+        presentation,
+        availability,
+        professions: professions
+          .split(",")
+          .map((profession) => profession.trim())
+          .filter(Boolean),
+      },
+      {
+        onConflict: "discord_id",
+      },
+    );
+
+    if (error) {
+      console.error("PLAYER_PROFILE_ERROR", error);
+      alert(JSON.stringify(error));
+      return;
+    }
+
+    alert("Profil sauvegardé avec succès !");
   }
-);
-
-  if (error) {
-  console.error("PLAYER_PROFILE_ERROR", error);
-  alert(JSON.stringify(error));
-  return;
-}
-
-  alert("Profil sauvegardé avec succès !");
-}
 
   return (
     <main
@@ -140,7 +148,7 @@ if (playerProfile) {
               </div>
 
               <h2 className="mt-5 text-3xl font-black">{displayName}</h2>
-              <p className="mt-1 text-sm font-black uppercase tracking-[0.25em] text-violet-300">
+              <p className="mt-1 font-sans text-sm font-semibold text-violet-300">
                 {highestRole}
               </p>
 
@@ -175,10 +183,10 @@ if (playerProfile) {
                   Pseudo en jeu
                 </span>
                 <input
-  value={ingameName}
-  onChange={(e) => setIngameName(e.target.value)}
-  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
-/>
+                  value={ingameName}
+                  onChange={(event) => setIngameName(event.target.value)}
+                  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+                />
               </label>
 
               <label className="space-y-2">
@@ -186,10 +194,10 @@ if (playerProfile) {
                   Classe principale
                 </span>
                 <input
-  value={mainClass}
-  onChange={(e) => setMainClass(e.target.value)}
-  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
-/>
+                  value={mainClass}
+                  onChange={(event) => setMainClass(event.target.value)}
+                  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+                />
               </label>
 
               <label className="space-y-2">
@@ -197,10 +205,10 @@ if (playerProfile) {
                   Niveau
                 </span>
                 <input
-  value={level}
-  onChange={(e) => setLevel(e.target.value)}
-  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
-/>
+                  value={level}
+                  onChange={(event) => setLevel(event.target.value)}
+                  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+                />
               </label>
 
               <label className="space-y-2">
@@ -208,10 +216,22 @@ if (playerProfile) {
                   Disponibilités
                 </span>
                 <input
-  value={availability}
-  onChange={(e) => setAvailability(e.target.value)}
-  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
-/>
+                  value={availability}
+                  onChange={(event) => setAvailability(event.target.value)}
+                  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+                />
+              </label>
+
+              <label className="space-y-2 md:col-span-2">
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
+                  Métiers
+                </span>
+                <input
+                  value={professions}
+                  onChange={(event) => setProfessions(event.target.value)}
+                  placeholder="Ex : Alchimiste, Bijoutier, Cordonnier"
+                  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+                />
               </label>
             </div>
 
@@ -220,18 +240,18 @@ if (playerProfile) {
                 Présentation
               </span>
               <textarea
-  value={presentation}
-  onChange={(e) => setPresentation(e.target.value)}
-  className="h-40 w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
-/>
+                value={presentation}
+                onChange={(event) => setPresentation(event.target.value)}
+                className="h-40 w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+              />
             </label>
 
             <button
-  onClick={saveProfile}
-  className="mt-6 rounded-2xl bg-violet-600 px-7 py-4 font-black shadow-[0_0_30px_rgba(139,92,246,0.35)] transition hover:bg-violet-500"
->
-  Sauvegarder le profil
-</button>
+              onClick={saveProfile}
+              className="mt-6 rounded-2xl bg-violet-600 px-7 py-4 font-black shadow-[0_0_30px_rgba(139,92,246,0.35)] transition hover:bg-violet-500"
+            >
+              Sauvegarder le profil
+            </button>
           </section>
         </div>
       </div>
