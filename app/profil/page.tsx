@@ -7,6 +7,13 @@ export default function ProfilPage() {
   const [displayName, setDisplayName] = useState("Chargement...");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [highestRole, setHighestRole] = useState("Membre");
+  const [discordId, setDiscordId] = useState<string | null>(null);
+
+const [ingameName, setIngameName] = useState("");
+const [mainClass, setMainClass] = useState("");
+const [level, setLevel] = useState("");
+const [presentation, setPresentation] = useState("");
+const [availability, setAvailability] = useState("");
 
   useEffect(() => {
     async function loadProfile() {
@@ -32,6 +39,8 @@ const discordId =
 
       if (!discordId) return;
 
+setDiscordId(discordId);
+
       const { data } = await supabase
         .from("discord_profiles")
         .select("display_name, username, avatar_url, highest_role")
@@ -43,10 +52,45 @@ const discordId =
       setDisplayName(data.display_name || data.username || "Membre Lunaeria");
       setAvatarUrl(data.avatar_url || null);
       setHighestRole(data.highest_role || "Membre");
+      const { data: playerProfile } = await supabase
+  .from("player_profiles")
+  .select("*")
+  .eq("discord_id", discordId)
+  .maybeSingle();
+
+if (playerProfile) {
+  setIngameName(playerProfile.ingame_name ?? "");
+  setMainClass(playerProfile.main_class ?? "");
+  setLevel(playerProfile.level?.toString() ?? "");
+  setPresentation(playerProfile.presentation ?? "");
+  setAvailability(playerProfile.availability ?? "");
+}
     }
 
     loadProfile();
   }, []);
+  async function saveProfile() {
+  if (!discordId) return;
+
+  const { error } = await supabase
+    .from("player_profiles")
+    .upsert({
+      discord_id: discordId,
+      ingame_name: ingameName,
+      main_class: mainClass,
+      level: level ? Number(level) : null,
+      presentation: presentation,
+      availability: availability,
+    });
+
+  if (error) {
+    console.error(error);
+    alert("Erreur lors de la sauvegarde du profil.");
+    return;
+  }
+
+  alert("Profil sauvegardé avec succès !");
+}
 
   return (
     <main
@@ -125,28 +169,44 @@ const discordId =
                 <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
                   Pseudo en jeu
                 </span>
-                <input className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+                <input
+  value={ingameName}
+  onChange={(e) => setIngameName(e.target.value)}
+  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+/>
               </label>
 
               <label className="space-y-2">
                 <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
                   Classe principale
                 </span>
-                <input className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+                <input
+  value={mainClass}
+  onChange={(e) => setMainClass(e.target.value)}
+  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+/>
               </label>
 
               <label className="space-y-2">
                 <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
                   Niveau
                 </span>
-                <input className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+                <input
+  value={level}
+  onChange={(e) => setLevel(e.target.value)}
+  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+/>
               </label>
 
               <label className="space-y-2">
                 <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
                   Disponibilités
                 </span>
-                <input className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+                <input
+  value={availability}
+  onChange={(e) => setAvailability(e.target.value)}
+  className="w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+/>
               </label>
             </div>
 
@@ -154,12 +214,19 @@ const discordId =
               <span className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
                 Présentation
               </span>
-              <textarea className="h-40 w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40" />
+              <textarea
+  value={presentation}
+  onChange={(e) => setPresentation(e.target.value)}
+  className="h-40 w-full rounded-2xl border border-violet-300/15 bg-black/35 p-4 outline-none transition focus:border-violet-300/40"
+/>
             </label>
 
-            <button className="mt-6 rounded-2xl bg-violet-600 px-7 py-4 font-black shadow-[0_0_30px_rgba(139,92,246,0.35)] transition hover:bg-violet-500">
-              Sauvegarder le profil
-            </button>
+            <button
+  onClick={saveProfile}
+  className="mt-6 rounded-2xl bg-violet-600 px-7 py-4 font-black shadow-[0_0_30px_rgba(139,92,246,0.35)] transition hover:bg-violet-500"
+>
+  Sauvegarder le profil
+</button>
           </section>
         </div>
       </div>
