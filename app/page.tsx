@@ -2090,10 +2090,11 @@ setMemberProfiles(data ?? []);
             alt="Lunaeria"
             className="relative z-10 w-[140%] max-w-none object-contain drop-shadow-[0_0_10px_rgba(167,139,250,0.14)] lg:w-[157%]"
           />
-	<div className="lunaeria-sidebar-divider" />
         </div>
 
-        <div className="relative z-10 mx-auto mb-3 hidden h-px w-4/5 overflow-hidden rounded-full bg-gradient-to-r from-transparent via-violet-200/18 to-transparent shadow-[0_0_10px_rgba(167,139,250,0.12)] lg:block" />
+        <div aria-hidden="true" className="lunaeria-sidebar-divider hidden lg:flex">
+          <span />
+        </div>
 
         <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 snap-x flex-row gap-2 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:snap-none lg:flex-col lg:gap-1 lg:overflow-visible lg:p-0 lg:pr-0">
           {navItems.map((item) => (
