@@ -2089,6 +2089,7 @@ setMemberProfiles(data ?? []);
             alt="Lunaeria"
             className="relative z-10 w-full max-w-none object-contain drop-shadow-[0_0_10px_rgba(167,139,250,0.14)] lg:w-[112%]"
           />
+	<div className="lunaeria-sidebar-divider" />
         </div>
 
         <div className="relative z-10 mx-auto mb-3 hidden h-px w-4/5 overflow-hidden rounded-full bg-gradient-to-r from-transparent via-violet-200/18 to-transparent shadow-[0_0_10px_rgba(167,139,250,0.12)] lg:block" />

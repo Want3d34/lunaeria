@@ -731,3 +731,16 @@ body {
     inset 0 0 18px rgba(196, 181, 253, 0.08),
     0 0 22px rgba(168, 85, 247, 0.24);
 }
+
+.lunaeria-sidebar-divider {
+  width: 120px;
+  height: 1px;
+  margin: 24px auto;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(196,181,253,.8),
+    transparent
+  );
+  box-shadow: 0 0 12px rgba(168,85,247,.4);
+}
