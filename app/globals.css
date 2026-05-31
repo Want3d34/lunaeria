@@ -638,38 +638,3 @@ body {
   background: rgba(216, 180, 254, 0.35);
   color: #ffffff;
 }
-
-.lunaeria-petal {
-  position: absolute;
-  width: 18px;
-  height: 7px;
-  border-radius: 999px 999px 999px 0;
-  background:
-    radial-gradient(circle at 25% 45%, rgba(255,255,255,0.95), transparent 32%),
-    linear-gradient(90deg, rgba(244,214,255,0.95), rgba(168,85,247,0.45), transparent);
-  box-shadow:
-    0 0 8px rgba(255,255,255,0.65),
-    0 0 18px rgba(216,180,254,0.85),
-    0 0 36px rgba(168,85,247,0.55),
-    0 0 70px rgba(124,58,237,0.35);
-  opacity: 0.72;
-  filter: blur(0.35px);
-  mix-blend-mode: screen;
-  animation: lunaeriaPetalFloat linear infinite;
-}
-
-@keyframes lunaeriaPetalFloat {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-    opacity: 0;
-  }
-
-  10% {
-    opacity: 0.55;
-  }
-
-  100% {
-    transform: translate(-95px, -180px) rotate(80deg);
-    opacity: 0;
-  }
-}
