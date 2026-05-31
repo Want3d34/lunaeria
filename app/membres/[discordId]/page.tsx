@@ -137,21 +137,6 @@ export default function PublicMemberProfilePage() {
     automaticBadges.push({ label: "Membre Assidu", icon: Star });
   }
 
-  const profileBadges = [
-    { label: "Rôle Discord", value: role },
-    { label: "Classe", value: playerProfile?.main_class || "Non renseignée" },
-    {
-      label: "Niveau",
-      value: playerProfile?.level?.toString() || "Non renseigné",
-    },
-    {
-      label: "Métiers",
-      value: playerProfile?.professions?.length
-        ? playerProfile.professions.join(", ")
-        : "Non renseignés",
-    },
-  ];
-
   return (
     <main
       className="min-h-screen text-violet-50"
@@ -198,21 +183,6 @@ export default function PublicMemberProfilePage() {
           <p className="mt-3 max-w-2xl text-violet-100/70">
             Fiche publique du membre Lunaeria.
           </p>
-          <div className="mt-6 flex flex-wrap gap-2.5">
-            {profileBadges.map((badge) => (
-              <div
-                className="rounded-full border border-violet-300/18 bg-violet-950/48 px-3.5 py-2 shadow-[inset_0_1px_8px_rgba(196,181,253,0.035),0_0_14px_rgba(124,58,237,0.1)]"
-                key={badge.label}
-              >
-                <span className="text-[10px] font-black uppercase tracking-[0.16em] text-violet-300/70">
-                  {badge.label}
-                </span>
-                <span className="ml-2 text-xs font-black text-violet-50">
-                  {badge.value}
-                </span>
-              </div>
-            ))}
-          </div>
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
