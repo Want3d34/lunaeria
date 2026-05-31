@@ -85,7 +85,7 @@ const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
   { label: "Annonces", icon: Megaphone, href: "/annonces" },
   { label: "Événements", icon: CalendarDays, href: "/evenements" },
   { label: "Ventes", icon: WandSparkles, href: "/services/ventes" },
-  { label: "Membres", icon: Users, href: "/#membres" },
+  { label: "Membres", icon: Users, href: "/membres" },
   { label: "Métiers", icon: BriefcaseBusiness, href: "/metiers" },
   { label: "Élevage", icon: PackageOpen, href: "/ressources/elevage/muldos" },
   { label: "Builds", icon: ShieldCheck, href: "/stuffs-builds/encyclopedie" },
