@@ -1,6 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  Crown,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Swords,
+  UserPlus,
+  type LucideIcon,
+} from "lucide-react";
 import NextLink from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
@@ -11,6 +20,7 @@ type DiscordProfile = {
   username: string | null;
   avatar_url: string | null;
   highest_role: string | null;
+  discord_role_ids?: string[] | string | null;
 };
 
 type PlayerProfile = {
@@ -21,6 +31,33 @@ type PlayerProfile = {
   availability: string | null;
   professions: string[] | null;
 };
+
+function normalizeRole(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+const discordBadgeRoles = [
+  { id: "1459875674016845867", label: "Staff", icon: ShieldCheck },
+  { id: "1510719003373473792", label: "Recruteur", icon: UserPlus },
+  { id: "1510718646509375600", label: "Vétéran", icon: Swords },
+  { id: "1510718451453399280", label: "Membre Actif", icon: Sparkles },
+] satisfies { id: string; label: string; icon: LucideIcon }[];
+
+function getDiscordRoleIds(value: string[] | string | null | undefined) {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.split(",").map((roleId) => roleId.trim());
+  }
+
+  return [];
+}
 
 export default function PublicMemberProfilePage() {
   const params = useParams();
@@ -33,7 +70,9 @@ export default function PublicMemberProfilePage() {
     async function loadMemberProfile() {
       const { data: discordData } = await supabase
         .from("discord_profiles")
-        .select("discord_id, display_name, username, avatar_url, highest_role")
+        // Also retrieves discord_role_ids automatically once synchronization
+        // adds the optional column to discord_profiles.
+        .select("*")
         .eq("discord_id", discordId)
         .maybeSingle();
 
@@ -43,7 +82,14 @@ export default function PublicMemberProfilePage() {
         .eq("discord_id", discordId)
         .maybeSingle();
 
-      setDiscordProfile(discordData);
+      setDiscordProfile(
+        discordData
+          ? {
+              ...discordData,
+              discord_role_ids: discordData.discord_role_ids ?? null,
+            }
+          : null,
+      );
       setPlayerProfile(playerData);
     }
 
@@ -74,6 +120,23 @@ export default function PublicMemberProfilePage() {
   const profileCompletion = Math.round(
     (completedFields / profileFields.length) * 100,
   );
+  const automaticBadges: { label: string; icon: LucideIcon }[] = [];
+  const discordRoleIds = getDiscordRoleIds(discordProfile?.discord_role_ids);
+
+  if (normalizeRole(role) === "meneur") {
+    automaticBadges.push({ label: "Meneur", icon: Crown });
+  }
+
+  discordBadgeRoles.forEach((badge) => {
+    if (discordRoleIds.includes(badge.id)) {
+      automaticBadges.push({ label: badge.label, icon: badge.icon });
+    }
+  });
+
+  if (profileCompletion === 100) {
+    automaticBadges.push({ label: "Membre Assidu", icon: Star });
+  }
+
   const profileBadges = [
     { label: "Rôle Discord", value: role },
     { label: "Classe", value: playerProfile?.main_class || "Non renseignée" },
@@ -115,6 +178,23 @@ export default function PublicMemberProfilePage() {
           <h1 className="mt-3 text-5xl font-black tracking-tight">
             {displayName}
           </h1>
+          {automaticBadges.length ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {automaticBadges.map((badge) => {
+                const BadgeIcon = badge.icon;
+
+                return (
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full border border-violet-300/20 bg-violet-950/58 px-3 py-1.5 text-xs font-black text-violet-100 shadow-[inset_0_1px_8px_rgba(196,181,253,0.05),0_0_14px_rgba(124,58,237,0.12)]"
+                    key={badge.label}
+                  >
+                    <BadgeIcon className="text-violet-200" size={14} />
+                    {badge.label}
+                  </span>
+                );
+              })}
+            </div>
+          ) : null}
           <p className="mt-3 max-w-2xl text-violet-100/70">
             Fiche publique du membre Lunaeria.
           </p>
