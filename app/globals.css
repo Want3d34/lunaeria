@@ -649,27 +649,31 @@ body {
 
 .lunaeria-motes span {
   position: absolute;
-  width: 3px;
-  height: 3px;
+  width: 4px;
+  height: 4px;
   border-radius: 999px;
-  background: rgba(221, 214, 254, 0.75);
+  background: rgba(196, 181, 253, 0.95);
+
   box-shadow:
-    0 0 8px rgba(221, 214, 254, 0.65),
-    0 0 18px rgba(168, 85, 247, 0.35);
+    0 0 6px rgba(196, 181, 253, 0.9),
+    0 0 12px rgba(168, 85, 247, 0.8),
+    0 0 24px rgba(139, 92, 246, 0.65),
+    0 0 48px rgba(124, 58, 237, 0.4);
+
   opacity: 0;
   animation: lunaeriaMoteFloat linear infinite;
 }
 
 .lunaeria-motes span:nth-child(3n) {
-  width: 2px;
-  height: 2px;
-  opacity: 0;
+  background: rgba(216, 180, 254, 0.95);
+}
+
+.lunaeria-motes span:nth-child(4n) {
+  background: rgba(167, 139, 250, 0.95);
 }
 
 .lunaeria-motes span:nth-child(5n) {
-  width: 5px;
-  height: 5px;
-  filter: blur(0.6px);
+  background: rgba(232, 121, 249, 0.95);
 }
 
 @keyframes lunaeriaMoteFloat {
@@ -679,12 +683,12 @@ body {
   }
 
   12% {
-    opacity: 0.5;
-  }
+  opacity: 0.9;
+}
 
-  55% {
-    opacity: 0.35;
-  }
+55% {
+  opacity: 0.75;
+}
 
   100% {
     transform: translate3d(-70px, -140px, 0);
