@@ -14,6 +14,10 @@ import {
 import { createClient } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import {
+  LunaeriaToast,
+  type LunaeriaToastNotice,
+} from "@/components/lunaeria-toast";
 import { PageSidebar } from "@/components/page-sidebar";
 import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { useHomepageContent } from "@/lib/lunaeria-content";
@@ -58,6 +62,7 @@ export default function VentesPage() {
   const [draft, setDraft] = useState(emptySale);
   const [linkedDiscordProfile, setLinkedDiscordProfile] =
     useState<LinkedDiscordProfile | null>(null);
+  const [toast, setToast] = useState<LunaeriaToastNotice | null>(null);
 
   async function loadSalesFromSupabase() {
     const { data, error } = await supabase
@@ -138,6 +143,10 @@ export default function VentesPage() {
     reader.onerror = () => {
       console.error("Erreur lecture image vente.");
       setDraft((current) => ({ ...current, imageUrl: "/file.svg" }));
+      setToast({
+        type: "error",
+        message: "Erreur lors de la lecture de l'image.",
+      });
     };
 
     reader.readAsDataURL(file);
@@ -147,6 +156,10 @@ export default function VentesPage() {
     event.preventDefault();
 
     if (!draft.itemName.trim() || !draft.price.trim()) {
+      setToast({
+        type: "warning",
+        message: "Le nom de l'objet et le prix sont obligatoires.",
+      });
       return;
     }
 
@@ -172,12 +185,20 @@ export default function VentesPage() {
 
     if (error) {
       console.error(error);
+      setToast({
+        type: "error",
+        message: "Erreur lors de l'ajout de la vente.",
+      });
       return;
     }
 
     setDraft(emptySale);
     setIsModalOpen(false);
     await loadSalesFromSupabase();
+    setToast({
+      type: "success",
+      message: "Vente ajoutée avec succès.",
+    });
   }
 
   function canDeleteSale(sellerDiscordName: string) {
@@ -190,6 +211,10 @@ export default function VentesPage() {
 
   async function deleteSale(id: string, sellerDiscordName: string) {
     if (!canDeleteSale(sellerDiscordName)) {
+      setToast({
+        type: "warning",
+        message: "Vous ne pouvez supprimer que vos propres ventes.",
+      });
       return;
     }
 
@@ -201,10 +226,18 @@ export default function VentesPage() {
 
     if (error) {
       console.error(error);
+      setToast({
+        type: "error",
+        message: "Erreur lors de la suppression de la vente.",
+      });
       return;
     }
 
     await loadSalesFromSupabase();
+    setToast({
+      type: "success",
+      message: "Vente supprimée avec succès.",
+    });
   }
 
   return (
@@ -213,6 +246,9 @@ export default function VentesPage() {
       <div className="rune-grid fixed inset-0" />
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
+      {toast ? (
+        <LunaeriaToast notice={toast} onDismiss={() => setToast(null)} />
+      ) : null}
 
       <PageSidebar
         items={[{ label: "Ventes", href: "#ventes", icon: ShoppingBag, active: true }]}

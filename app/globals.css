@@ -763,3 +763,35 @@ body {
 .lunaeria-sidebar-divider--footer {
   margin: 0.85rem auto 1rem;
 }
+
+.lunaeria-toast {
+  animation: lunaeriaToastEnter 260ms ease-out both;
+}
+
+.lunaeria-toast--leaving {
+  animation: lunaeriaToastLeave 240ms ease-in both;
+}
+
+@keyframes lunaeriaToastEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(18px, -10px, 0) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes lunaeriaToastLeave {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(16px, -8px, 0) scale(0.97);
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import NextLink from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -56,16 +57,37 @@ export default function PublicMemberProfilePage() {
 
   const role = discordProfile?.highest_role || "Membre";
 
-  const completedFields = [
+  const profileFields = [
+    displayName,
+    discordProfile?.avatar_url,
+    discordProfile?.highest_role,
     playerProfile?.ingame_name,
     playerProfile?.main_class,
     playerProfile?.level?.toString(),
+    playerProfile?.professions?.join(", "),
     playerProfile?.presentation,
     playerProfile?.availability,
-    playerProfile?.professions?.join(", "),
-  ].filter((value) => value && value.trim().length > 0).length;
-
-  const profileCompletion = Math.round((completedFields / 6) * 100);
+  ];
+  const completedFields = profileFields.filter(
+    (value) => value && value.trim().length > 0,
+  ).length;
+  const profileCompletion = Math.round(
+    (completedFields / profileFields.length) * 100,
+  );
+  const profileBadges = [
+    { label: "Rôle Discord", value: role },
+    { label: "Classe", value: playerProfile?.main_class || "Non renseignée" },
+    {
+      label: "Niveau",
+      value: playerProfile?.level?.toString() || "Non renseigné",
+    },
+    {
+      label: "Métiers",
+      value: playerProfile?.professions?.length
+        ? playerProfile.professions.join(", ")
+        : "Non renseignés",
+    },
+  ];
 
   return (
     <main
@@ -79,6 +101,13 @@ export default function PublicMemberProfilePage() {
       }}
     >
       <div className="mx-auto max-w-6xl px-6 py-10">
+        <NextLink
+          className="mb-5 inline-flex items-center rounded-xl border border-violet-300/20 bg-[#0b0718]/75 px-4 py-2 text-sm font-black text-violet-100 shadow-[0_0_18px_rgba(124,58,237,0.12)] backdrop-blur-xl transition hover:border-violet-300/40 hover:bg-violet-900/30 hover:text-violet-50"
+          href="/membres"
+        >
+          ← Retour
+        </NextLink>
+
         <section className="mb-8 rounded-3xl border border-violet-300/20 bg-[#0b0718]/75 p-8 shadow-[0_0_60px_rgba(139,92,246,0.18)] backdrop-blur-xl">
           <p className="text-sm font-black uppercase tracking-[0.35em] text-violet-300">
             Profil membre
@@ -89,6 +118,21 @@ export default function PublicMemberProfilePage() {
           <p className="mt-3 max-w-2xl text-violet-100/70">
             Fiche publique du membre Lunaeria.
           </p>
+          <div className="mt-6 flex flex-wrap gap-2.5">
+            {profileBadges.map((badge) => (
+              <div
+                className="rounded-full border border-violet-300/18 bg-violet-950/48 px-3.5 py-2 shadow-[inset_0_1px_8px_rgba(196,181,253,0.035),0_0_14px_rgba(124,58,237,0.1)]"
+                key={badge.label}
+              >
+                <span className="text-[10px] font-black uppercase tracking-[0.16em] text-violet-300/70">
+                  {badge.label}
+                </span>
+                <span className="ml-2 text-xs font-black text-violet-50">
+                  {badge.value}
+                </span>
+              </div>
+            ))}
+          </div>
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
@@ -116,11 +160,24 @@ export default function PublicMemberProfilePage() {
               </p>
 
               <div className="mt-8 w-full space-y-3 text-left">
-                <div className="rounded-2xl border border-violet-300/15 bg-black/25 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-violet-300/70">
+                <div className="rounded-2xl border border-violet-300/18 bg-[linear-gradient(145deg,rgba(76,29,149,0.2),rgba(3,5,17,0.48))] p-4 shadow-[inset_0_1px_12px_rgba(196,181,253,0.04)]">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/76">
                     Profil complété
                   </p>
-                  <p className="mt-1 font-black">{profileCompletion}%</p>
+                  <div className="mt-3 flex items-end justify-between gap-3">
+                    <p className="text-2xl font-black text-violet-50">
+                      {profileCompletion}%
+                    </p>
+                    <p className="text-xs font-semibold text-violet-100/62">
+                      {completedFields}/{profileFields.length} informations
+                    </p>
+                  </div>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full border border-violet-200/12 bg-[#030512]/78">
+                    <div
+                      className="h-full rounded-full bg-[linear-gradient(90deg,#7c3aed,#c4b5fd,#a855f7)] shadow-[0_0_14px_rgba(168,85,247,0.5)] transition-[width] duration-700 ease-out"
+                      style={{ width: `${profileCompletion}%` }}
+                    />
+                  </div>
                 </div>
 
                 <div className="rounded-2xl border border-violet-300/15 bg-black/25 p-4">

@@ -27,6 +27,12 @@ import { createClient, type Session } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import {
+  inferLunaeriaToastType,
+  LunaeriaToast,
+  type LunaeriaToastNotice,
+  type LunaeriaToastType,
+} from "@/components/lunaeria-toast";
+import {
   type Announcement,
   type BuildItem,
   type Event,
@@ -151,7 +157,7 @@ export default function AdminPage() {
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState("");
   const [activeSection, setActiveSection] = useState("overview");
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState<LunaeriaToastNotice | null>(null);
   const [heroDraft, setHeroDraft] = useState(content.hero);
   const [recruitmentDraft, setRecruitmentDraft] = useState(content.recruitment);
   const [guildObjectiveDraft, setGuildObjectiveDraft] = useState(defaultGuildObjective);
@@ -216,16 +222,6 @@ export default function AdminPage() {
 
     return () => window.clearTimeout(syncTimeout);
   }, [content.hero, content.recruitment, content.regulation.body]);
-
-  useEffect(() => {
-    if (!toast) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => setToast(""), 2400);
-
-    return () => window.clearTimeout(timeout);
-  }, [toast]);
 
   const stats = useMemo(
     () => [
@@ -302,8 +298,11 @@ export default function AdminPage() {
     notify("Déconnexion réussie");
   }
 
-  function notify(message: string) {
-    setToast(message);
+  function notify(message: string, type?: LunaeriaToastType) {
+    setToast({
+      message,
+      type: type ?? inferLunaeriaToastType(message),
+    });
   }
 
 
@@ -1186,10 +1185,7 @@ export default function AdminPage() {
       <div className="fog-veil fixed inset-0" />
 
       {toast ? (
-        <div className="fixed right-4 top-4 z-50 flex items-center gap-3 rounded-2xl border border-emerald-200/18 bg-[#071421]/92 px-4 py-3 text-sm font-black text-emerald-100 shadow-[0_0_28px_rgba(16,185,129,0.18)] backdrop-blur-md">
-          <CheckCircle2 size={18} />
-          {toast}
-        </div>
+        <LunaeriaToast notice={toast} onDismiss={() => setToast(null)} />
       ) : null}
 
       <div className="relative z-10 grid min-h-screen lg:grid-cols-[300px_1fr]">

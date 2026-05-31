@@ -4,6 +4,10 @@ import { ImagePlus, Send, ShieldCheck } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import {
+  LunaeriaToast,
+  type LunaeriaToastNotice,
+} from "@/components/lunaeria-toast";
 import { PageSidebar } from "@/components/page-sidebar";
 import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { useHomepageContent } from "@/lib/lunaeria-content";
@@ -39,6 +43,7 @@ export default function AjouterStuffPage() {
     useState<LinkedDiscordProfile | null>(null);
   const [isDiscordProfileLoaded, setIsDiscordProfileLoaded] = useState(false);
   const [authMessage, setAuthMessage] = useState("");
+  const [toast, setToast] = useState<LunaeriaToastNotice | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
   const classImage = getClassImage(draft.className);
@@ -102,6 +107,10 @@ export default function AjouterStuffPage() {
     }
 
     if (!draft.title.trim() || !draft.gamePseudo.trim()) {
+      setToast({
+        type: "warning",
+        message: "Le pseudo en jeu et le nom du stuff sont obligatoires.",
+      });
       return;
     }
 
@@ -118,6 +127,10 @@ export default function AjouterStuffPage() {
         );
       } catch (error) {
         console.error("Erreur upload image build:", error);
+        setToast({
+          type: "error",
+          message: "Erreur lors de l'envoi de l'image du build.",
+        });
         return;
       }
     }
@@ -149,6 +162,10 @@ export default function AjouterStuffPage() {
 
     if (error) {
       console.error("Erreur Supabase builds:", error);
+      setToast({
+        type: "error",
+        message: "Erreur lors de l'enregistrement du build.",
+      });
       return;
     }
 
@@ -195,6 +212,9 @@ export default function AjouterStuffPage() {
       <div className="rune-grid fixed inset-0" />
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
+      {toast ? (
+        <LunaeriaToast notice={toast} onDismiss={() => setToast(null)} />
+      ) : null}
 
       <PageSidebar
         items={[

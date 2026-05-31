@@ -3,6 +3,10 @@
 import { Eye, Search, ShieldCheck, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
+import {
+  LunaeriaToast,
+  type LunaeriaToastNotice,
+} from "@/components/lunaeria-toast";
 import { PageSidebar } from "@/components/page-sidebar";
 import { getLinkedDiscordProfile, type LinkedDiscordProfile } from "@/lib/discord-profile";
 import { dofusClasses, getClassImage, getElement } from "@/lib/stuffs-data";
@@ -41,7 +45,7 @@ export default function StuffEncyclopediePage() {
     useState<LinkedDiscordProfile | null>(null);
   const [isDiscordProfileLoaded, setIsDiscordProfileLoaded] = useState(false);
   const [discordPrompt, setDiscordPrompt] = useState("");
-  const [deleteError, setDeleteError] = useState("");
+  const [toast, setToast] = useState<LunaeriaToastNotice | null>(null);
 
   async function loadBuildsFromSupabase() {
     const { data, error } = await supabase
@@ -154,10 +158,11 @@ export default function StuffEncyclopediePage() {
   }
 
   async function deleteBuild(build: BuildItem) {
-    setDeleteError("");
-
     if (!linkedDiscordProfile?.discordId) {
-      setDeleteError("Connecte ton compte Discord pour supprimer ce stuff.");
+      setToast({
+        type: "warning",
+        message: "Connecte ton compte Discord pour supprimer ce stuff.",
+      });
       return;
     }
 
@@ -169,7 +174,10 @@ export default function StuffEncyclopediePage() {
 
     if (error) {
       console.error(error);
-      setDeleteError("Suppression impossible.");
+      setToast({
+        type: "error",
+        message: "Suppression du build impossible.",
+      });
       return;
     }
 
@@ -177,6 +185,10 @@ export default function StuffEncyclopediePage() {
       ...current,
       builds: current.builds.filter((item) => item.id !== build.id),
     }));
+    setToast({
+      type: "success",
+      message: "Build supprimé avec succès.",
+    });
   }
 
   const builds = useMemo(
@@ -214,6 +226,9 @@ export default function StuffEncyclopediePage() {
       <div className="rune-grid fixed inset-0" />
       <div className="star-veil fixed inset-0 opacity-45" />
       <div className="fog-veil fixed inset-0" />
+      {toast ? (
+        <LunaeriaToast notice={toast} onDismiss={() => setToast(null)} />
+      ) : null}
 
       <PageSidebar
         items={[
@@ -247,11 +262,6 @@ export default function StuffEncyclopediePage() {
           {discordPrompt ? (
             <p className="relative z-10 mt-4 rounded-2xl border border-violet-100/10 bg-violet-100/[0.045] px-4 py-3 text-sm font-bold text-violet-100/80">
               {discordPrompt}
-            </p>
-          ) : null}
-          {deleteError ? (
-            <p className="relative z-10 mt-3 rounded-2xl border border-rose-200/12 bg-rose-300/[0.055] px-4 py-3 text-sm font-bold text-rose-100/82">
-              {deleteError}
             </p>
           ) : null}
         </header>

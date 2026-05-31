@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import NextLink from "next/link";
+import {
+  LunaeriaToast,
+  type LunaeriaToastNotice,
+} from "@/components/lunaeria-toast";
 import { supabase } from "../../lib/supabase";
 
 export default function ProfilPage() {
@@ -16,10 +20,9 @@ export default function ProfilPage() {
   const [presentation, setPresentation] = useState("");
   const [availability, setAvailability] = useState("");
   const [professions, setProfessions] = useState("");
-  const [notification, setNotification] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
+  const [notification, setNotification] = useState<LunaeriaToastNotice | null>(
+    null,
+  );
 
   useEffect(() => {
     async function loadProfile() {
@@ -80,18 +83,6 @@ export default function ProfilPage() {
     loadProfile();
   }, []);
 
-  useEffect(() => {
-    if (!notification) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setNotification(null);
-    }, 3500);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [notification]);
-
   async function saveProfile() {
     if (!discordId) return;
 
@@ -151,17 +142,10 @@ const profileCompletion = Math.round((completedFields / 6) * 100);
       }}
     >
       {notification ? (
-        <div
-          aria-live="polite"
-          className={`fixed right-6 top-6 z-50 max-w-sm rounded-2xl border bg-[#0b0718]/95 px-5 py-4 text-sm font-bold text-violet-50 shadow-[0_18px_48px_rgba(0,0,0,0.48),0_0_24px_rgba(124,58,237,0.2)] backdrop-blur-xl ${
-            notification.type === "success"
-              ? "border-violet-300/30"
-              : "border-rose-300/35"
-          }`}
-          role="status"
-        >
-          {notification.message}
-        </div>
+        <LunaeriaToast
+          notice={notification}
+          onDismiss={() => setNotification(null)}
+        />
       ) : null}
 
       <div className="mx-auto max-w-6xl px-6 py-10">
