@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 import NextLink from "next/link";
 import { supabase } from "../../lib/supabase";
 
@@ -20,9 +21,17 @@ type PlayerProfile = {
   professions: string[] | null;
 };
 
+function normalizeSearchText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 export default function MembersPage() {
   const [members, setMembers] = useState<MemberDirectoryItem[]>([]);
   const [profiles, setProfiles] = useState<PlayerProfile[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function loadMembers() {
@@ -47,6 +56,27 @@ export default function MembersPage() {
     return profiles.find((profile) => profile.discord_id === discordId);
   }
 
+  const normalizedSearchQuery = normalizeSearchText(searchQuery.trim());
+  const filteredMembers = members.filter((member) => {
+    if (!normalizedSearchQuery) {
+      return true;
+    }
+
+    const profile = getPlayerProfile(member.discord_id);
+    const searchableText = [
+      member.display_name,
+      member.username,
+      member.highest_role,
+      profile?.ingame_name,
+      profile?.main_class,
+      ...(profile?.professions ?? []),
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    return normalizeSearchText(searchableText).includes(normalizedSearchQuery);
+  });
+
   return (
     <main
       className="min-h-screen text-violet-50"
@@ -59,6 +89,13 @@ export default function MembersPage() {
       }}
     >
       <div className="mx-auto max-w-7xl px-6 py-10">
+        <NextLink
+          className="mb-5 inline-flex items-center rounded-xl border border-violet-300/20 bg-[#0b0718]/75 px-4 py-2 text-sm font-black text-violet-100 shadow-[0_0_18px_rgba(124,58,237,0.12)] backdrop-blur-xl transition hover:border-violet-300/40 hover:bg-violet-900/30 hover:text-violet-50"
+          href="/"
+        >
+          ← Retour
+        </NextLink>
+
         <section className="mb-8 rounded-3xl border border-violet-300/20 bg-[#0b0718]/75 p-8 shadow-[0_0_60px_rgba(139,92,246,0.18)] backdrop-blur-xl">
           <p className="text-sm font-black uppercase tracking-[0.35em] text-violet-300">
             Annuaire Lunaeria
@@ -69,10 +106,31 @@ export default function MembersPage() {
           <p className="mt-3 max-w-2xl text-violet-100/70">
             Retrouvez les profils publics des joueurs Lunaeria.
           </p>
+
+          <label className="relative mt-6 block max-w-2xl">
+            <span className="sr-only">Rechercher un membre</span>
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-violet-200/70"
+              size={18}
+            />
+            <input
+              className="min-h-12 w-full rounded-2xl border border-violet-200/16 bg-[#070414]/82 py-3 pl-12 pr-4 text-sm font-semibold text-violet-50 shadow-[inset_0_1px_12px_rgba(237,233,254,0.035),0_0_18px_rgba(124,58,237,0.1)] outline-none backdrop-blur-xl transition placeholder:text-violet-100/42 focus:border-violet-200/32 focus:bg-[#0a061b]/90 focus:shadow-[inset_0_1px_12px_rgba(237,233,254,0.05),0_0_24px_rgba(124,58,237,0.16)]"
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Rechercher un membre..."
+              type="search"
+              value={searchQuery}
+            />
+          </label>
         </section>
 
         <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {members.map((member) => {
+          {filteredMembers.length === 0 ? (
+            <p className="rounded-2xl border border-violet-300/15 bg-[#0b0718]/75 p-5 text-sm font-semibold text-violet-100/70 shadow-[0_0_24px_rgba(124,58,237,0.1)] backdrop-blur-xl md:col-span-2 xl:col-span-3">
+              Aucun membre trouvé.
+            </p>
+          ) : null}
+          {filteredMembers.map((member) => {
             const profile = getPlayerProfile(member.discord_id);
             const displayName =
               member.display_name || member.username || "Membre Lunaeria";

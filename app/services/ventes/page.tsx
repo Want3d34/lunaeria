@@ -220,7 +220,7 @@ export default function VentesPage() {
         title="MARCHÉ"
       />
 
-      <div className="relative z-10 min-h-screen px-4 py-6 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-6">
+      <div className="relative z-10 min-h-screen px-4 py-6 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-60 lg:px-8 lg:pt-6">
         <div className="mx-auto max-w-7xl">
         <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-6 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-8">
           <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

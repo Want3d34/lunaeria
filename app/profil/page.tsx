@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import NextLink from "next/link";
 import { supabase } from "../../lib/supabase";
 
 export default function ProfilPage() {
@@ -15,6 +16,10 @@ export default function ProfilPage() {
   const [presentation, setPresentation] = useState("");
   const [availability, setAvailability] = useState("");
   const [professions, setProfessions] = useState("");
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -75,6 +80,18 @@ export default function ProfilPage() {
     loadProfile();
   }, []);
 
+  useEffect(() => {
+    if (!notification) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setNotification(null);
+    }, 3500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [notification]);
+
   async function saveProfile() {
     if (!discordId) return;
 
@@ -98,11 +115,17 @@ export default function ProfilPage() {
 
     if (error) {
       console.error("PLAYER_PROFILE_ERROR", error);
-      alert(JSON.stringify(error));
+      setNotification({
+        type: "error",
+        message: "Erreur lors de la sauvegarde du profil.",
+      });
       return;
     }
 
-    alert("Profil sauvegardé avec succès !");
+    setNotification({
+      type: "success",
+      message: "Profil sauvegardé avec succès !",
+    });
   }
 
 const completedFields = [
@@ -127,7 +150,28 @@ const profileCompletion = Math.round((completedFields / 6) * 100);
         backgroundAttachment: "fixed",
       }}
     >
+      {notification ? (
+        <div
+          aria-live="polite"
+          className={`fixed right-6 top-6 z-50 max-w-sm rounded-2xl border bg-[#0b0718]/95 px-5 py-4 text-sm font-bold text-violet-50 shadow-[0_18px_48px_rgba(0,0,0,0.48),0_0_24px_rgba(124,58,237,0.2)] backdrop-blur-xl ${
+            notification.type === "success"
+              ? "border-violet-300/30"
+              : "border-rose-300/35"
+          }`}
+          role="status"
+        >
+          {notification.message}
+        </div>
+      ) : null}
+
       <div className="mx-auto max-w-6xl px-6 py-10">
+        <NextLink
+          className="mb-5 inline-flex items-center rounded-xl border border-violet-300/20 bg-[#0b0718]/75 px-4 py-2 text-sm font-black text-violet-100 shadow-[0_0_18px_rgba(124,58,237,0.12)] backdrop-blur-xl transition hover:border-violet-300/40 hover:bg-violet-900/30 hover:text-violet-50"
+          href="/"
+        >
+          ← Retour
+        </NextLink>
+
         <section className="mb-8 rounded-3xl border border-violet-300/20 bg-[#0b0718]/70 p-8 shadow-[0_0_60px_rgba(139,92,246,0.18)] backdrop-blur-xl">
           <p className="text-sm font-black uppercase tracking-[0.35em] text-violet-300">
             Profil joueur

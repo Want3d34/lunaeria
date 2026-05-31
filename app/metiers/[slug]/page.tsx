@@ -54,34 +54,36 @@ export async function generateMetadata({ params }: PageProps) {
 
 function Sidebar({ activeSlug }: { activeSlug: string }) {
   return (
-    <aside className="sidebar-shell sidebar-premium fixed left-0 top-0 z-30 flex h-28 w-full flex-row items-center gap-3 overflow-visible border-b border-violet-200/8 bg-[#040719]/94 px-3 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:h-screen lg:w-72 lg:flex-col lg:items-stretch lg:border-b-0 lg:border-r lg:px-5 lg:py-2 lg:shadow-[24px_0_76px_rgba(0,0,0,0.54),0_0_24px_rgba(76,29,149,0.065)]">
+    <aside className="sidebar-shell sidebar-premium fixed left-0 top-0 z-30 flex h-24 w-full flex-row items-center gap-2.5 overflow-visible border-b border-violet-200/8 bg-[#050513]/96 px-3 py-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_20px_rgba(76,29,149,0.05)] backdrop-blur-md lg:h-screen lg:w-60 lg:flex-col lg:items-stretch lg:border-b-0 lg:border-r lg:px-4 lg:py-3 lg:shadow-[18px_0_58px_rgba(0,0,0,0.52),0_0_18px_rgba(76,29,149,0.055)]">
       <Link
         aria-label="Accueil Lunaeria"
-        className="relative z-10 flex w-20 shrink-0 items-center justify-center py-0 lg:-mt-2 lg:mb-2 lg:w-full"
+        className="relative z-10 flex w-16 shrink-0 items-center justify-center py-0 lg:mb-2 lg:w-full"
         href="/"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt="Lunaeria"
-          className="relative z-10 w-full max-w-none object-contain drop-shadow-[0_0_12px_rgba(167,139,250,0.16)] lg:w-[136%]"
-          src="/newlogo.png"
+          className="relative z-10 w-[140%] max-w-none object-contain drop-shadow-[0_0_10px_rgba(167,139,250,0.14)] lg:w-[157%]"
+          src="/newlogo2.png"
         />
       </Link>
 
-      <div className="relative z-10 mx-auto mb-3 hidden h-px w-4/5 overflow-hidden rounded-full bg-gradient-to-r from-transparent via-violet-200/28 to-transparent shadow-[0_0_14px_rgba(167,139,250,0.18)] lg:block" />
+      <div aria-hidden="true" className="lunaeria-sidebar-divider hidden lg:flex">
+        <span />
+      </div>
 
-      <nav className="relative z-10 flex min-w-0 flex-1 snap-x flex-row gap-2.5 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:snap-none lg:flex-col lg:gap-0 lg:overflow-visible lg:p-0 lg:pr-0">
+      <nav className="relative z-10 flex min-w-0 flex-1 snap-x flex-row gap-2 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:snap-none lg:flex-col lg:gap-1 lg:overflow-visible lg:p-0 lg:pr-0">
         <Link
-          className="group/nav relative flex h-16 min-w-[4.7rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-[1.35rem] border border-transparent px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400 transition duration-300 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100 lg:h-12 lg:min-w-14 lg:w-full lg:flex-row lg:justify-start lg:gap-3 lg:rounded-2xl lg:px-3 lg:py-0 lg:text-sm lg:font-bold lg:normal-case lg:tracking-normal"
+          className="group/nav relative flex h-12 min-w-[4.35rem] items-center justify-center gap-1 overflow-hidden rounded-xl border border-transparent px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] text-violet-100/58 transition duration-300 hover:border-violet-200/12 hover:bg-violet-100/[0.045] hover:text-violet-50 lg:h-9 lg:min-w-0 lg:w-full lg:flex-row lg:justify-start lg:gap-2.5 lg:px-3 lg:py-0 lg:text-xs lg:font-medium lg:normal-case lg:tracking-normal"
           href="/"
         >
-          <Home className="shrink-0" size={19} />
-          <span className="block max-w-[4.2rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">Accueil</span>
+          <Home className="shrink-0" size={16} />
+          <span className="block max-w-[4.1rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">Accueil</span>
         </Link>
 
-        <div className="group/nav relative flex h-16 min-w-[4.7rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-[1.35rem] border border-violet-200/16 bg-[linear-gradient(90deg,rgba(124,58,237,0.13),rgba(91,33,182,0.055))] px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)] lg:h-12 lg:min-w-14 lg:w-full lg:flex-row lg:justify-start lg:gap-3 lg:rounded-2xl lg:px-3 lg:py-0 lg:text-sm lg:font-bold lg:normal-case lg:tracking-normal">
-          <BriefcaseBusiness className="shrink-0" size={19} />
-          <span className="block max-w-[4.2rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">Métiers</span>
+        <div className="group/nav relative flex h-12 min-w-[4.35rem] items-center justify-center gap-1 overflow-hidden rounded-xl border border-violet-300/24 bg-violet-400/[0.12] px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] text-violet-50 shadow-[inset_0_1px_8px_rgba(196,181,253,0.045),0_0_14px_rgba(139,92,246,0.12)] lg:h-9 lg:min-w-0 lg:w-full lg:flex-row lg:justify-start lg:gap-2.5 lg:px-3 lg:py-0 lg:text-xs lg:font-medium lg:normal-case lg:tracking-normal">
+          <BriefcaseBusiness className="shrink-0" size={16} />
+          <span className="block max-w-[4.1rem] text-center leading-3 lg:inline lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">Métiers</span>
         </div>
 
         {professions.map((profession) => {
@@ -89,7 +91,7 @@ function Sidebar({ activeSlug }: { activeSlug: string }) {
 
           return (
             <Link
-              className={`group/nav relative flex h-16 min-w-[4.7rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-[1.35rem] border px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.08em] transition duration-300 lg:hidden ${
+              className={`group/nav relative flex h-12 min-w-[4.35rem] items-center justify-center gap-1 overflow-hidden rounded-xl border px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] transition duration-300 lg:hidden ${
                 profession.slug === activeSlug
                   ? "border-violet-200/16 bg-violet-200/8 text-violet-50 shadow-[inset_0_1px_14px_rgba(196,181,253,0.045),0_0_13px_rgba(109,40,217,0.075)]"
                   : "border-transparent text-slate-400 hover:border-violet-200/12 hover:bg-violet-100/[0.035] hover:text-violet-100"
@@ -98,8 +100,8 @@ function Sidebar({ activeSlug }: { activeSlug: string }) {
               key={profession.slug}
               title={profession.name.fr}
             >
-              <ProfessionIcon className="shrink-0" size={19} />
-              <span className="block max-w-[4.2rem] text-center leading-3">
+              <ProfessionIcon className="shrink-0" size={16} />
+              <span className="block max-w-[4.1rem] text-center leading-3">
                 {profession.name.fr}
               </span>
             </Link>
@@ -126,12 +128,16 @@ function Sidebar({ activeSlug }: { activeSlug: string }) {
         </div>
       </nav>
 
-      <div className="relative z-10 hidden rounded-[1.6rem] border border-violet-200/10 bg-[linear-gradient(145deg,rgba(124,58,237,0.075),rgba(49,46,129,0.065))] p-4 text-sm text-violet-100 shadow-[inset_0_0_16px_rgba(196,181,253,0.035),0_0_14px_rgba(76,29,149,0.055)] lg:block">
-        <p className="font-black tracking-wide text-violet-50">
+      <div aria-hidden="true" className="lunaeria-sidebar-divider lunaeria-sidebar-divider--footer hidden lg:flex">
+        <span />
+      </div>
+
+      <div className="relative z-10 hidden rounded-xl border border-violet-200/8 bg-violet-100/[0.035] p-3 text-xs text-violet-100/76 shadow-[inset_0_0_12px_rgba(196,181,253,0.025)] lg:block">
+        <p className="font-semibold tracking-wide text-violet-50/90">
           Développement & Design
         </p>
-        <p className="mt-1 text-xs leading-5 text-cyan-100/70">
-          <span className="font-black text-violet-200">BY AZELYA</span>
+        <p className="mt-1 text-[11px] leading-4 text-cyan-100/60">
+          <span className="font-semibold text-violet-200/90">BY AZELYA</span>
         </p>
       </div>
     </aside>
@@ -252,7 +258,7 @@ export default async function MetierPage({ params }: PageProps) {
 
       <Sidebar activeSlug={profession.slug} />
 
-      <div className="relative z-10 min-h-screen p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-72 lg:p-8 lg:pt-8">
+      <div className="relative z-10 min-h-screen p-3 pt-[8.25rem] sm:p-5 sm:pt-[8.5rem] lg:ml-60 lg:p-8 lg:pt-8">
         <section className="premium-card relative overflow-hidden rounded-[1.45rem] border border-violet-200/9 bg-[#06091b]/76 p-5 shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_28px_rgba(76,29,149,0.075)] backdrop-blur-md sm:rounded-[2.1rem] sm:p-10">
           <div className="relative z-10 grid gap-8 xl:grid-cols-[1fr_360px]">
             <div>

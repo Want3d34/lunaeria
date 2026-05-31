@@ -296,7 +296,7 @@ export default function ReglementPage() {
         title="LUNAE"
       />
 
-      <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-72 lg:px-8 lg:pt-8">
+      <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-60 lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-5xl">
           <header
             className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 text-center shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10"
