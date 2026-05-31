@@ -2009,7 +2009,7 @@ setMemberProfiles(data ?? []);
   return (
     <main className="home-reference-page min-h-screen overflow-x-hidden bg-[#030512] text-slate-100">
     <div className="lunaeria-motes" aria-hidden="true">
-  {Array.from({ length: 55 }).map((_, index) => (
+  {Array.from({ length: 35 }).map((_, index) => (
     <span
       key={index}
       style={{
