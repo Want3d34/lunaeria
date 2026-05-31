@@ -2088,7 +2088,7 @@ setMemberProfiles(data ?? []);
           <img
             src="/newlogo2.png"
             alt="Lunaeria"
-            className="relative z-10 w-full max-w-none object-contain drop-shadow-[0_0_10px_rgba(167,139,250,0.14)] lg:w-[112%]"
+            className="relative z-10 w-[140%] max-w-none object-contain drop-shadow-[0_0_10px_rgba(167,139,250,0.14)] lg:w-[157%]"
           />
 	<div className="lunaeria-sidebar-divider" />
         </div>
