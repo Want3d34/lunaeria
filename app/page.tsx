@@ -1348,6 +1348,8 @@ useEffect(() => {
       return;
     }
 
+    console.log("MEMBER_PROFILES_SEARCH", data);
+setMemberProfiles(data ?? []);
     setMemberProfiles(data ?? []);
   }
 
