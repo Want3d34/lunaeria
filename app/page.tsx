@@ -903,7 +903,6 @@ export default function Home() {
         error: readProfileError,
       } = await supabase
         .from("discord_profiles")
-	.neq("highest_role", "BOT")
         .select("username, display_name, avatar_url, highest_role")
         .eq("discord_id", profile.discordId)
         .maybeSingle<DiscordProfileRow>();
@@ -2009,6 +2008,19 @@ setMemberProfiles(data ?? []);
 
   return (
     <main className="home-reference-page min-h-screen overflow-x-hidden bg-[#030512] text-slate-100">
+    <div className="lunaeria-motes" aria-hidden="true">
+  {Array.from({ length: 55 }).map((_, index) => (
+    <span
+      key={index}
+      style={{
+        left: `${(index * 41) % 100}%`,
+        top: `${(index * 67) % 100}%`,
+        animationDelay: `${(index % 15) * -1.2}s`,
+        animationDuration: `${22 + (index % 10) * 2}s`,
+      }}
+    />
+  ))}
+</div>
       <style jsx global>{`
         .mobile-menu-scrollbar {
           scrollbar-width: none;
