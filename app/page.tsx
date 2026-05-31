@@ -1789,7 +1789,7 @@ setMemberProfiles(data ?? []);
       case "almanax":
         return (
           <section className="homepage-almanax-shell flex h-full min-h-0 flex-col overflow-hidden">
-            <div className="relative z-10 mb-5 flex items-center justify-between gap-4 rounded-2xl border border-violet-100/12 bg-[#070414] px-4 py-2.5 shadow-[0_28px_82px_rgba(0,0,0,0.46),0_0_30px_rgba(124,58,237,0.12),inset_0_1px_0_rgba(237,233,254,0.055)] backdrop-blur-xl">
+            <div className="relative z-10 mb-5 flex items-center justify-between gap-4 rounded-2xl border border-violet-100/12 bg-[#070414]/76 px-4 py-2.5 shadow-[0_28px_82px_rgba(0,0,0,0.46),0_0_30px_rgba(124,58,237,0.12),inset_0_1px_0_rgba(237,233,254,0.055)] backdrop-blur-xl">
               <div className="flex items-center gap-4">
                 <div className="grid size-10 place-items-center rounded-xl border border-violet-100/18 bg-[linear-gradient(145deg,rgba(216,180,254,0.18),rgba(109,40,217,0.08))] text-violet-100 shadow-[inset_0_1px_12px_rgba(237,233,254,0.07),0_0_18px_rgba(139,92,246,0.18)]">
                   <CalendarDays size={19} />
@@ -2086,7 +2086,7 @@ setMemberProfiles(data ?? []);
       <aside className="home-sidebar sidebar-shell sidebar-premium fixed left-0 top-0 z-[9999] flex h-24 w-full flex-row items-center gap-2.5 overflow-visible border-b border-violet-200/8 bg-[#050513]/96 px-3 py-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_20px_rgba(76,29,149,0.05)] backdrop-blur-md lg:h-screen lg:w-60 lg:flex-col lg:items-stretch lg:overflow-visible lg:border-b-0 lg:border-r lg:px-4 lg:py-3 lg:shadow-[18px_0_58px_rgba(0,0,0,0.52),0_0_18px_rgba(76,29,149,0.055)]">
         <div className="relative z-10 flex w-16 shrink-0 items-center justify-center py-0 lg:mb-2 lg:w-full">
           <img
-            src="/newlogo.png"
+            src="/newlogo2.png"
             alt="Lunaeria"
             className="relative z-10 w-full max-w-none object-contain drop-shadow-[0_0_10px_rgba(167,139,250,0.14)] lg:w-[112%]"
           />
@@ -2150,7 +2150,7 @@ setMemberProfiles(data ?? []);
 
     <div className="rounded-xl border border-violet-200/10 bg-violet-200/[0.045] px-3 py-2.5">
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-100/62">
-        Connectés
+        En ligne
       </p>
       <p className="mt-1 flex items-center gap-1.5 text-lg font-black leading-none text-emerald-300">
         <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.55)]" />
