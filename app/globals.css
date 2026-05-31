@@ -638,3 +638,37 @@ body {
   background: rgba(216, 180, 254, 0.35);
   color: #ffffff;
 }
+
+.lunaeria-petal {
+  position: absolute;
+  width: 12px;
+  height: 5px;
+  border-radius: 999px 999px 999px 0;
+  background: linear-gradient(
+    90deg,
+    rgba(244, 214, 255, 0.95),
+    rgba(168, 85, 247, 0.75),
+    rgba(88, 28, 135, 0.15)
+  );
+  box-shadow:
+    0 0 10px rgba(216, 180, 254, 0.75),
+    0 0 22px rgba(147, 51, 234, 0.35);
+  opacity: 0.55;
+  animation: lunaeriaPetalFloat linear infinite;
+}
+
+@keyframes lunaeriaPetalFloat {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: translate(-95px, -180px) rotate(80deg);
+    opacity: 0;
+  }
+}

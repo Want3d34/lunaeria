@@ -899,19 +899,20 @@ export default function Home() {
       }
 
       const {
-        data: existingProfile,
-        error: readProfileError,
-      } = await supabase
-        .from("discord_profiles")
-        .select("username, display_name, avatar_url, highest_role")
-        .eq("discord_id", profile.discordId)
-        .maybeSingle<DiscordProfileRow>();
+  data: existingProfile,
+  error: readProfileError,
+} = await supabase
+  .from("discord_profiles")
+  .select("username, display_name, avatar_url, highest_role")
+  .eq("discord_id", profile.discordId)
+  .maybeSingle<DiscordProfileRow>();
 
       if (readProfileError) {
         setDiscordAuthError("Compte lié, profil serveur indisponible.");
         console.error(readProfileError);
         return;
       }
+
 
       const profileDisplayName = getValidDiscordDisplayName(
         existingProfile?.display_name,
@@ -2007,6 +2008,23 @@ setMemberProfiles(data ?? []);
   }
 
   return (
+    <>
+  <div className="pointer-events-none fixed inset-0 z-[2] overflow-hidden">
+    {Array.from({ length: 42 }).map((_, index) => (
+      <span
+        key={index}
+        className="lunaeria-petal"
+        style={{
+          left: `${(index * 37) % 100}%`,
+          top: `${(index * 53) % 100}%`,
+          animationDelay: `${(index % 12) * -1.8}s`,
+          animationDuration: `${18 + (index % 9) * 2}s`,
+          transform: `rotate(${(index * 29) % 160}deg)`,
+        }}
+      />
+    ))}
+  </div>
+
     <main className="home-reference-page min-h-screen overflow-x-hidden bg-[#030512] text-slate-100">
       <style jsx global>{`
         .mobile-menu-scrollbar {
@@ -3043,6 +3061,7 @@ setMemberProfiles(data ?? []);
           </div>
         </div>
       ) : null}
-    </main>
+        </main>
+  </>
   );
 }
