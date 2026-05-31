@@ -85,6 +85,7 @@ const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
   { label: "Annonces", icon: Megaphone, href: "/annonces" },
   { label: "Événements", icon: CalendarDays, href: "/evenements" },
   { label: "Ventes", icon: WandSparkles, href: "/services/ventes" },
+  { label: "Membres", icon: Users, href: "/membres" },
   { label: "Métiers", icon: BriefcaseBusiness, href: "/metiers" },
   { label: "Élevage", icon: PackageOpen, href: "/ressources/elevage/muldos" },
   { label: "Builds", icon: ShieldCheck, href: "/stuffs-builds/encyclopedie" },
@@ -1787,8 +1788,8 @@ setMemberProfiles(data ?? []);
       case "almanax":
         return (
           <section className="homepage-almanax-shell flex h-full min-h-0 flex-col overflow-hidden">
-            <div className="relative z-10 mb-5 flex items-center justify-between gap-4 rounded-2xl border border-violet-100/14 bg-[linear-gradient(145deg,rgba(196,181,253,0.09),rgba(76,29,149,0.07))] px-3 shadow-[inset_0_1px_12px_rgba(237,233,254,0.045),0_0_20px_rgba(124,58,237,0.11)]">
-              <div className="flex items-center gap-3 pl-0.5">
+            <div className="relative z-10 mb-5 flex items-center justify-between gap-4 rounded-2xl border border-violet-100/14 bg-[linear-gradient(145deg,rgba(196,181,253,0.09),rgba(76,29,149,0.07))] px-4 py-2.5 shadow-[inset_0_1px_12px_rgba(237,233,254,0.045),0_0_20px_rgba(124,58,237,0.11)]">
+              <div className="flex items-center gap-4">
                 <div className="grid size-10 place-items-center rounded-xl border border-violet-100/18 bg-[linear-gradient(145deg,rgba(216,180,254,0.18),rgba(109,40,217,0.08))] text-violet-100 shadow-[inset_0_1px_12px_rgba(237,233,254,0.07),0_0_18px_rgba(139,92,246,0.18)]">
                   <CalendarDays size={19} />
                 </div>
@@ -1837,7 +1838,7 @@ setMemberProfiles(data ?? []);
                       : almanaxEntry?.bonus?.description ?? almanaxError ?? "Bonus non disponible."}
                   </p>
                 </div>
-                <div className="grid gap-3">
+                <div className="grid gap-3 px-1">
                   <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-3">
                     <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-200/80">
                       Offrande
