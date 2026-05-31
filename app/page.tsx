@@ -1839,7 +1839,7 @@ setMemberProfiles(data ?? []);
                       : almanaxEntry?.bonus?.description ?? almanaxError ?? "Bonus non disponible."}
                   </p>
                 </div>
-                <div className="grid gap-3 px-1">
+                <div className="grid gap-3 px-4">
                   <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-3">
                     <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-200/80">
                       Offrande
@@ -2116,6 +2116,10 @@ setMemberProfiles(data ?? []);
             />
           ))}
         </nav>
+
+        <div aria-hidden="true" className="lunaeria-sidebar-divider lunaeria-sidebar-divider--footer hidden lg:flex">
+          <span />
+        </div>
 
         {activeMobileSection ? (
           <div className="fixed left-3 right-3 top-[7.75rem] z-[99999] max-h-[calc(100svh-8.75rem)] overflow-y-auto overscroll-contain rounded-[1.35rem] border border-violet-200/12 bg-[#050719]/98 p-3 shadow-[0_24px_70px_rgba(0,0,0,0.75)] backdrop-blur-md lg:hidden">

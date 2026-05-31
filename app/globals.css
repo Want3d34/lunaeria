@@ -759,3 +759,7 @@ body {
     0 0 14px rgba(168, 85, 247, 0.58);
   transform: rotate(45deg);
 }
+
+.lunaeria-sidebar-divider--footer {
+  margin: 0.85rem auto 1rem;
+}
