@@ -333,6 +333,14 @@ type OnlineMember = {
   activityType: string | null;
 };
 
+type MemberProfileSearchItem = {
+  discord_id: string;
+  display_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  highest_role: string | null;
+};
+
 type ActivityItem = {
   label: string;
   title: string;
@@ -838,6 +846,7 @@ export default function Home() {
   const [builds, setBuilds] = useState<BuildItem[]>([]);
   const [sales, setSales] = useState<SaleItem[]>([]);
   const [onlineMembers, setOnlineMembers] = useState<OnlineMember[]>([]);
+  const [memberProfiles, setMemberProfiles] = useState<MemberProfileSearchItem[]>([]);
   const [guildMemberCount, setGuildMemberCount] = useState("0");
   const [homepageSettings, setHomepageSettings] =
     useState<HomepageSettings | null>(null);
@@ -1324,6 +1333,27 @@ export default function Home() {
     loadGallery();
   }, []);
 
+useEffect(() => {
+  async function loadMemberProfiles() {
+    const { data, error } = await supabase
+      .from("discord_profiles")
+      .select(
+        "discord_id, display_name, username, avatar_url, highest_role",
+      )
+      .order("display_name", { ascending: true });
+
+    if (error) {
+      console.error(error);
+      setMemberProfiles([]);
+      return;
+    }
+
+    setMemberProfiles(data ?? []);
+  }
+
+  loadMemberProfiles();
+}, []);
+
   const homepageAnnouncements = announcements.slice(0, 1);
   const homepageEvents = events.slice(0, 1);
 
@@ -1369,48 +1399,55 @@ export default function Home() {
     : 0;
   const normalizedSearchQuery = normalizeSearchText(searchQuery.trim());
   const searchResults: SearchResult[] = normalizedSearchQuery
-    ? [
-        ...staticSearchItems.map((item) => ({
-          id: `static-${item.href}`,
-          title: item.title,
-          meta: item.meta,
-          href: item.href,
-          type: "Page",
-        })),
-        ...sales.map((sale) => ({
-          id: `sale-${sale.id}`,
-          title: sale.itemName,
-          meta: `${sale.quantity}x · ${sale.price} kamas`,
-          href: "/services/ventes",
-          type: "Vente",
-        })),
-        ...builds.map((build) => ({
-          id: `build-${build.id}`,
-          title: build.title,
-          meta: `${build.className} · ${build.mode}`,
-          href: "/stuffs-builds/encyclopedie",
-          type: "Stuff / Build",
-        })),
-        ...announcements.map((announcement) => ({
-          id: `announcement-${announcement.id}`,
-          title: announcement.title,
-          meta: announcement.category,
-          href: "/annonces",
-          type: "Annonce",
-        })),
-        ...events.map((eventItem) => ({
-          id: `event-${eventItem.id}`,
-          title: eventItem.title,
-          meta: eventItem.date,
-          href: "/evenements",
-          type: "Évènement",
-        })),
-      ]
-        .filter((item) =>
-          normalizeSearchText(`${item.title} ${item.meta} ${item.type}`).includes(normalizedSearchQuery),
-        )
-        .slice(0, 8)
-    : [];
+  ? [
+      ...staticSearchItems.map((item) => ({
+        id: `static-${item.href}`,
+        title: item.title,
+        meta: item.meta,
+        href: item.href,
+        type: "Page",
+      })),
+      ...sales.map((sale) => ({
+        id: `sale-${sale.id}`,
+        title: sale.itemName,
+        meta: `${sale.quantity}x · ${sale.price} kamas`,
+        href: "/services/ventes",
+        type: "Vente",
+      })),
+      ...builds.map((build) => ({
+        id: `build-${build.id}`,
+        title: build.title,
+        meta: `${build.className} · ${build.mode}`,
+        href: "/stuffs-builds/encyclopedie",
+        type: "Stuff / Build",
+      })),
+      ...announcements.map((announcement) => ({
+        id: `announcement-${announcement.id}`,
+        title: announcement.title,
+        meta: announcement.category,
+        href: "/annonces",
+        type: "Annonce",
+      })),
+      ...events.map((eventItem) => ({
+        id: `event-${eventItem.id}`,
+        title: eventItem.title,
+        meta: eventItem.date,
+        href: "/evenements",
+        type: "Évènement",
+      })),
+      ...memberProfiles.map((member) => ({
+        id: `member-${member.discord_id}`,
+        title: member.display_name || member.username || "Membre Lunaeria",
+        meta: member.highest_role || "Membre",
+        href: `/membres/${member.discord_id}`,
+        type: "Membre",
+      })),
+    ]
+      .filter((item) =>
+        normalizeSearchText(`${item.title} ${item.meta} ${item.type}`).includes(normalizedSearchQuery),
+      )
+      .slice(0, 8)
+  : [];
   const galleryItems = galleryItemsState.slice(0, 4);
   const activeMobileSection = navItems.find(
     (item) => item.children?.length && openSections[item.label],
