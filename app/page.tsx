@@ -14,6 +14,7 @@ import {
   LogOut,
   Megaphone,
   PackageOpen,
+  PartyPopper,
   ScrollText,
   Search,
   ShieldCheck,
@@ -1565,8 +1566,8 @@ setMemberProfiles(data ?? []);
                   Aucun événement planifié.
                 </div>
               ) : null}
-              {isDynamicContentLoaded ? homepageEvents.map((eventItem, index) => {
-                const Icon = eventIcons[index % eventIcons.length];
+              {isDynamicContentLoaded ? homepageEvents.map((eventItem) => {
+                const Icon = PartyPopper;
                 const isLongEvent =
                   eventItem.description.trim().length > 170 ||
                   eventItem.description.includes("\n");
@@ -1788,7 +1789,7 @@ setMemberProfiles(data ?? []);
       case "almanax":
         return (
           <section className="homepage-almanax-shell flex h-full min-h-0 flex-col overflow-hidden">
-            <div className="relative z-10 mb-5 flex items-center justify-between gap-4 rounded-2xl border border-violet-100/14 bg-[linear-gradient(145deg,rgba(196,181,253,0.09),rgba(76,29,149,0.07))] px-4 py-2.5 shadow-[inset_0_1px_12px_rgba(237,233,254,0.045),0_0_20px_rgba(124,58,237,0.11)]">
+            <div className="relative z-10 mb-5 flex items-center justify-between gap-4 rounded-2xl border border-violet-100/12 bg-[#070414] px-4 py-2.5 shadow-[0_28px_82px_rgba(0,0,0,0.46),0_0_30px_rgba(124,58,237,0.12),inset_0_1px_0_rgba(237,233,254,0.055)] backdrop-blur-xl">
               <div className="flex items-center gap-4">
                 <div className="grid size-10 place-items-center rounded-xl border border-violet-100/18 bg-[linear-gradient(145deg,rgba(216,180,254,0.18),rgba(109,40,217,0.08))] text-violet-100 shadow-[inset_0_1px_12px_rgba(237,233,254,0.07),0_0_18px_rgba(139,92,246,0.18)]">
                   <CalendarDays size={19} />
@@ -2124,7 +2125,7 @@ setMemberProfiles(data ?? []);
         ) : null}
 
 	<div className="relative z-10 mb-3 hidden rounded-2xl border border-violet-200/14 bg-[linear-gradient(180deg,rgba(35,18,65,0.72),rgba(10,6,25,0.86))] p-4 text-violet-100 shadow-[inset_0_1px_0_rgba(237,233,254,0.08)] lg:block">
-  <div className="flex items-center gap-3">
+  <div className="flex items-center gap-3 pb-4">
     <div className="grid h-12 w-12 place-items-center rounded-2xl border border-violet-200/20 bg-violet-400/10 text-xl shadow-[inset_0_1px_0_rgba(237,233,254,0.05)]">
       🌙
     </div>
@@ -2137,24 +2138,26 @@ setMemberProfiles(data ?? []);
     </div>
   </div>
 
-  <div className="mt-4 space-y-2 border-t border-violet-200/10 pt-3 text-xs">
-    <div className="flex items-center justify-between">
-      <span className="text-violet-100/62">Membres</span>
-      <span className="font-black text-violet-50">98</span>
+  <div className="grid grid-cols-2 gap-2 border-t border-violet-200/10 pt-3">
+    <div className="rounded-xl border border-violet-200/10 bg-violet-200/[0.045] px-3 py-2.5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-100/62">
+        Membres
+      </p>
+      <p className="mt-1 text-lg font-black leading-none text-violet-50">
+        {guildMemberCount}
+      </p>
     </div>
 
-    <div className="flex items-center justify-between">
-      <span className="text-violet-100/62">Connectés</span>
-      <span className="flex items-center gap-1.5 font-black text-emerald-300">
-        <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.7)]" />
-        24
-      </span>
+    <div className="rounded-xl border border-violet-200/10 bg-violet-200/[0.045] px-3 py-2.5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-100/62">
+        Connectés
+      </p>
+      <p className="mt-1 flex items-center gap-1.5 text-lg font-black leading-none text-emerald-300">
+        <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.55)]" />
+        {onlineMembers.length}
+      </p>
     </div>
   </div>
-
-  <p className="mt-4 rounded-xl border border-violet-200/10 bg-violet-200/[0.05] px-3 py-2 text-center text-[11px] font-semibold italic text-violet-100/78">
-    Unis sous la même lune
-  </p>
 </div>
 
         <div className="relative z-10 hidden rounded-xl border border-violet-200/8 bg-violet-100/[0.035] p-3 text-xs text-violet-100/76 shadow-[inset_0_0_12px_rgba(196,181,253,0.025)] lg:block">
