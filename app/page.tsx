@@ -2123,7 +2123,7 @@ setMemberProfiles(data ?? []);
           </div>
         ) : null}
 
-	<div className="relative z-10 mb-3 hidden rounded-2xl border border-violet-200/14 bg-[linear-gradient(180deg,rgba(35,18,65,0.72),rgba(10,6,25,0.86))] p-4 text-violet-100 shadow-[0_0_28px_rgba(124,58,237,0.18),inset_0_1px_0_rgba(237,233,254,0.08)] lg:block">
+	<div className="relative z-10 mb-3 hidden rounded-2xl border border-violet-200/14 bg-[linear-gradient(180deg,rgba(35,18,65,0.72),rgba(10,6,25,0.86))] p-4 text-violet-100 shadow-[inset_0_1px_0_rgba(237,233,254,0.08)] lg:block">
   <div className="flex items-center gap-3">
     <div className="grid h-12 w-12 place-items-center rounded-2xl border border-violet-200/20 bg-violet-400/10 text-xl shadow-[0_0_22px_rgba(168,85,247,0.35)]">
       🌙
