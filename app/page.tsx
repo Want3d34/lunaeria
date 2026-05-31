@@ -2015,6 +2015,7 @@ setMemberProfiles(data ?? []);
       style={{
         left: `${(index * 41) % 100}%`,
         top: `${(index * 67) % 100}%`,
+	scale: `${0.6 + ((index % 7) * 0.25)}`,
         animationDelay: `${(index % 15) * -1.2}s`,
         animationDuration: `${22 + (index % 10) * 2}s`,
       }}

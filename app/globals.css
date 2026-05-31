@@ -683,15 +683,22 @@ body {
   }
 
   12% {
-  opacity: 0.9;
+  opacity: 0.95;
+}
+
+35% {
+  opacity: 0.35;
 }
 
 55% {
-  opacity: 0.75;
+  opacity: 1;
+}
+
+75% {
+  opacity: 0.4;
 }
 
   100% {
-    transform: translate3d(-70px, -140px, 0);
-    opacity: 0;
-  }
+  transform: translate3d(-120px, -220px, 0);
+}
 }
