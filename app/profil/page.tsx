@@ -105,6 +105,17 @@ export default function ProfilPage() {
     alert("Profil sauvegardé avec succès !");
   }
 
+const completedFields = [
+  ingameName,
+  mainClass,
+  level,
+  presentation,
+  availability,
+  professions,
+].filter((value) => value.trim().length > 0).length;
+
+const profileCompletion = Math.round((completedFields / 6) * 100);
+
   return (
     <main
       className="min-h-screen text-violet-50"
@@ -168,7 +179,7 @@ export default function ProfilPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-violet-300/70">
                     Profil complété
                   </p>
-                  <p className="mt-1 font-black">15%</p>
+                  <p className="mt-1 font-black">{profileCompletion}%</p>
                 </div>
               </div>
             </div>
