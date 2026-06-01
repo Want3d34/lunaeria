@@ -33,13 +33,15 @@ type PlayerProfile = {
 };
 
 type MemberActivity = {
+  buildPublishedCount: number;
   lastBuildPublishedAt: string | null;
+  salePublishedCount: number;
   lastSalePublishedAt: string | null;
 };
 
 function formatActivityDate(value: string | null) {
   if (!value) {
-    return "Non disponible";
+    return "Aucune activité";
   }
 
   return new Intl.DateTimeFormat("fr-FR", {
@@ -82,7 +84,9 @@ export default function PublicMemberProfilePage() {
   const [discordProfile, setDiscordProfile] = useState<DiscordProfile | null>(null);
   const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null);
   const [memberActivity, setMemberActivity] = useState<MemberActivity>({
+    buildPublishedCount: 0,
     lastBuildPublishedAt: null,
+    salePublishedCount: 0,
     lastSalePublishedAt: null,
   });
 
@@ -104,10 +108,13 @@ export default function PublicMemberProfilePage() {
 
       const salePublisherName =
         discordData?.display_name || discordData?.username || "";
-      const [{ data: buildData }, { data: saleData }] = await Promise.all([
+      const [
+        { count: buildCount, data: buildData },
+        { count: saleCount, data: saleData },
+      ] = await Promise.all([
         supabase
           .from("builds")
-          .select("created_at")
+          .select("created_at", { count: "exact" })
           .eq("creator_discord_id", discordId)
           .order("created_at", { ascending: false })
           .limit(1)
@@ -115,12 +122,12 @@ export default function PublicMemberProfilePage() {
         salePublisherName
           ? supabase
               .from("ventes")
-              .select("created_at")
+              .select("created_at", { count: "exact" })
               .eq("seller_discord_name", salePublisherName)
               .order("created_at", { ascending: false })
               .limit(1)
               .maybeSingle()
-          : Promise.resolve({ data: null }),
+          : Promise.resolve({ count: 0, data: null }),
       ]);
 
       setDiscordProfile(
@@ -133,7 +140,9 @@ export default function PublicMemberProfilePage() {
       );
       setPlayerProfile(playerData);
       setMemberActivity({
+        buildPublishedCount: buildCount || 0,
         lastBuildPublishedAt: buildData?.created_at || null,
+        salePublishedCount: saleCount || 0,
         lastSalePublishedAt: saleData?.created_at || null,
       });
     }
@@ -346,16 +355,22 @@ export default function PublicMemberProfilePage() {
 
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 {[
-                  ["Dernière connexion Discord", "Non disponible"],
                   [
-                    "Dernier build publié",
-                    formatActivityDate(memberActivity.lastBuildPublishedAt),
+                    "Nombre de ventes publiées",
+                    memberActivity.salePublishedCount.toString(),
                   ],
                   [
                     "Dernière vente publiée",
                     formatActivityDate(memberActivity.lastSalePublishedAt),
                   ],
-                  ["Dernier événement participé", "Non disponible"],
+                  [
+                    "Nombre de builds publiés",
+                    memberActivity.buildPublishedCount.toString(),
+                  ],
+                  [
+                    "Dernier build publié",
+                    formatActivityDate(memberActivity.lastBuildPublishedAt),
+                  ],
                 ].map(([label, value]) => (
                   <div
                     className="rounded-2xl border border-violet-300/15 bg-black/25 p-4"
