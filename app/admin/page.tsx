@@ -117,8 +117,30 @@ const defaultGuildObjective = {
 const emptyEvent = {
   title: "",
   date: "",
+  time: "",
   description: "",
 };
+
+function getEventDateInputValues(eventDate: string | null | undefined) {
+  if (!eventDate) {
+    return { date: "", time: "" };
+  }
+
+  const date = new Date(eventDate);
+
+  if (Number.isNaN(date.getTime())) {
+    return { date: "", time: "" };
+  }
+
+  return {
+    date: date.toLocaleDateString("sv-SE"),
+    time: date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      hour12: false,
+      minute: "2-digit",
+    }),
+  };
+}
 
 const emptyUsefulLink: Omit<UsefulLink, "id"> = {
   title: "",
@@ -349,6 +371,7 @@ export default function AdminPage() {
         id: String(item.id),
         title: item.title,
         date: item.date,
+        eventDate: item.event_date || null,
         description: item.description || "Détails à compléter.",
       })),
     }));
@@ -638,6 +661,7 @@ export default function AdminPage() {
         id: String(item.id),
         title: item.title,
         date: item.date,
+        eventDate: item.event_date || null,
         description: item.description || "Détails à compléter.",
       })),
       sales: (salesResult.data ?? []).map((item) => ({
@@ -810,13 +834,18 @@ export default function AdminPage() {
   async function submitEvent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!eventDraft.title.trim() || !eventDraft.date.trim()) {
+    if (
+      !eventDraft.title.trim() ||
+      !eventDraft.date.trim() ||
+      !eventDraft.time.trim()
+    ) {
       return;
     }
 
     const payload = {
       title: eventDraft.title.trim(),
       date: eventDraft.date.trim(),
+      event_date: `${eventDraft.date.trim()}T${eventDraft.time.trim()}:00`,
       description: eventDraft.description.trim() || "Détails à compléter.",
       published: true,
     };
@@ -843,10 +872,13 @@ export default function AdminPage() {
   }
 
   function editEvent(eventItem: Event) {
+    const eventDateInputValues = getEventDateInputValues(eventItem.eventDate);
+
     setEditingEventId(eventItem.id);
     setEventDraft({
       title: eventItem.title,
-      date: eventItem.date,
+      date: eventDateInputValues.date || eventItem.date,
+      time: eventDateInputValues.time,
       description: eventItem.description,
     });
   }
@@ -1683,8 +1715,18 @@ export default function AdminPage() {
                               date: event.target.value,
                             }))
                           }
-                          placeholder="Date ou créneau"
+                          type="date"
                           value={eventDraft.date}
+                        />
+                        <AdminInput
+                          onChange={(event) =>
+                            setEventDraft((current) => ({
+                              ...current,
+                              time: event.target.value,
+                            }))
+                          }
+                          type="time"
+                          value={eventDraft.time}
                         />
                       </div>
                       <AdminTextarea

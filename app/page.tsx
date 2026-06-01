@@ -297,8 +297,33 @@ type EventItem = {
   id: string;
   title: string;
   date: string;
+  eventDate: string | null;
   description: string;
 };
+
+function formatEventDate(eventDate: string | null, fallbackDate: string) {
+  if (!eventDate) {
+    return fallbackDate;
+  }
+
+  const date = new Date(eventDate);
+
+  if (Number.isNaN(date.getTime())) {
+    return fallbackDate;
+  }
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    hour: "2-digit",
+    hour12: false,
+    minute: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  })
+    .format(date)
+    .replace(" ", " à ")
+    .replace(":", "h");
+}
 
 type BuildItem = {
   id: string;
@@ -1199,6 +1224,7 @@ export default function Home() {
             id: String(item.id),
             title: item.title,
             date: item.date,
+            eventDate: item.event_date || null,
             description: item.description || "Détails à compléter.",
           })),
         );
@@ -1337,7 +1363,7 @@ setMemberProfiles(data ?? []);
     ...events.slice(0, 1).map((eventItem) => ({
       label: "Nouvel événement",
       title: eventItem.title,
-      meta: eventItem.date,
+      meta: formatEventDate(eventItem.eventDate, eventItem.date),
       type: "event" as const,
     })),
     ...homepageAnnouncements.slice(0, 1).map((announcement) => ({
@@ -1390,7 +1416,7 @@ setMemberProfiles(data ?? []);
       ...events.map((eventItem) => ({
         id: `event-${eventItem.id}`,
         title: eventItem.title,
-        meta: eventItem.date,
+        meta: formatEventDate(eventItem.eventDate, eventItem.date),
         href: "/evenements",
         type: "Évènement",
       })),
@@ -1412,7 +1438,7 @@ setMemberProfiles(data ?? []);
   );
   const eventsByDate = events.reduce<Record<string, EventItem[]>>(
     (accumulator, eventItem) => {
-      const eventDate = parseEventDate(eventItem.date);
+      const eventDate = parseEventDate(eventItem.eventDate || eventItem.date);
 
       if (!eventDate) {
         return accumulator;
@@ -1540,7 +1566,7 @@ setMemberProfiles(data ?? []);
                         {eventItem.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        {eventItem.date}
+                        {formatEventDate(eventItem.eventDate, eventItem.date)}
                       </p>
                       <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:5]">
                         {eventItem.description}
@@ -2372,7 +2398,7 @@ setMemberProfiles(data ?? []);
                         {eventItem.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        {eventItem.date}
+                        {formatEventDate(eventItem.eventDate, eventItem.date)}
                       </p>
                       <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
                         {eventItem.description}
@@ -2808,7 +2834,7 @@ setMemberProfiles(data ?? []);
                                 {eventItem.title}
                               </p>
                               <p className="mt-1 text-sm font-bold text-[#e8dcbd]">
-                                {eventItem.date}
+                                {formatEventDate(eventItem.eventDate, eventItem.date)}
                               </p>
                               <p className="mt-2 text-sm leading-6 text-slate-400">
                                 {eventItem.description}
@@ -2887,7 +2913,7 @@ setMemberProfiles(data ?? []);
                 {selectedEvent.title}
               </h2>
               <p className="mt-2 text-sm font-bold text-[#e8dcbd]">
-                {selectedEvent.date}
+                {formatEventDate(selectedEvent.eventDate, selectedEvent.date)}
               </p>
             </div>
             <div className="relative z-10 mt-5 max-h-[60vh] overflow-y-auto rounded-2xl border border-violet-100/10 bg-[#030512]/64 p-4 text-sm leading-7 text-slate-300 shadow-[inset_0_0_18px_rgba(196,181,253,0.024)] sm:p-5 sm:text-base sm:leading-8">

@@ -22,10 +22,35 @@ type EventItem = {
   id: string;
   title: string;
   date: string;
+  eventDate: string | null;
   description: string;
   createdAt: string;
   published: boolean;
 };
+
+function formatEventDate(eventDate: string | null, fallbackDate: string) {
+  if (!eventDate) {
+    return fallbackDate;
+  }
+
+  const date = new Date(eventDate);
+
+  if (Number.isNaN(date.getTime())) {
+    return fallbackDate;
+  }
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    hour: "2-digit",
+    hour12: false,
+    minute: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  })
+    .format(date)
+    .replace(" ", " à ")
+    .replace(":", "h");
+}
 
 type AttendanceStatus = "participant" | "maybe" | "absent";
 
@@ -83,7 +108,7 @@ export default function EvenementsPage() {
       ] = await Promise.all([
         supabase
           .from("evenements")
-          .select("id, title, date, description, created_at, published")
+          .select("id, title, date, event_date, description, created_at, published")
           .eq("archived", false)
           .order("created_at", { ascending: false }),
         supabase.from("event_participants").select("*"),
@@ -103,6 +128,7 @@ export default function EvenementsPage() {
           id: String(eventItem.id),
           title: eventItem.title,
           date: eventItem.date,
+          eventDate: eventItem.event_date || null,
           description: eventItem.description || "Détails à compléter.",
           createdAt: eventItem.created_at || "",
           published: Boolean(eventItem.published),
@@ -204,7 +230,7 @@ export default function EvenementsPage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
-                        {eventItem.date}
+                        {formatEventDate(eventItem.eventDate, eventItem.date)}
                       </span>
                       <span className="rounded-full border border-violet-100/10 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-100/75">
                         {eventItem.published ? "Publié" : "Brouillon"}

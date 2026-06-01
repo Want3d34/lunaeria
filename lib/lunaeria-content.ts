@@ -13,6 +13,7 @@ export type Event = {
   id: string;
   title: string;
   date: string;
+  eventDate?: string | null;
   description: string;
 };
 
