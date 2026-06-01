@@ -86,10 +86,11 @@ const navItems: NavItem[] = legacyNavItems.slice(0, 0).concat([
   { label: "Annonces", icon: Megaphone, href: "/annonces" },
   { label: "Événements", icon: CalendarDays, href: "/evenements" },
   { label: "Ventes", icon: WandSparkles, href: "/services/ventes" },
-  { label: "Membres", icon: Users, href: "/membres" },
   { label: "Métiers", icon: BriefcaseBusiness, href: "/metiers" },
   { label: "Élevage", icon: PackageOpen, href: "/ressources/elevage/muldos" },
   { label: "Builds", icon: ShieldCheck, href: "/stuffs-builds/encyclopedie" },
+  { label: "Galerie", icon: Images, href: "/galerie" },
+  { label: "Membres", icon: Users, href: "/membres" },
 ]);
 
 const staticSearchItems = [
@@ -213,8 +214,7 @@ type HomepageLayoutBlockKey =
   | "activity"
   | "discordBoost"
   | "guildGoals"
-  | "almanax"
-  | "gallery";
+  | "almanax";
 
 type HomepageSettings = {
   heroTitle: string;
@@ -283,14 +283,6 @@ const homepageSettingsFallback: HomepageSettings = {
   guildObjectiveText:
     "Préparer les prochaines sorties, renforcer l'entraide et faire progresser Lunaeria ensemble.",
   guildObjectiveProgress: "En cours",
-};
-
-type GalleryItem = {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  image: string;
 };
 
 type AnnouncementItem = {
@@ -581,12 +573,6 @@ function PremiumCard({
   );
 }
 
-function galleryPlaceholder(index: number) {
-  return index % 2 === 0
-    ? "bg-[radial-gradient(circle_at_35%_30%,rgba(167,139,250,0.18),transparent_26%),linear-gradient(135deg,#060b22,#240a42_54%,#030512)]"
-    : "bg-[radial-gradient(circle_at_65%_25%,rgba(196,181,253,0.19),transparent_26%),linear-gradient(135deg,#030512,#171638_52%,#2b135f)]";
-}
-
 function ContentSkeleton({ className = "" }: { className?: string }) {
   return (
     <div
@@ -852,11 +838,8 @@ export default function Home() {
   const [homepageSettings, setHomepageSettings] =
     useState<HomepageSettings | null>(null);
 
-  const [galleryItemsState, setGalleryItemsState] = useState<GalleryItem[]>([]);
   const [isDynamicContentLoaded, setIsDynamicContentLoaded] = useState(false);
   const [isOnlineMembersLoaded, setIsOnlineMembersLoaded] = useState(false);
-  const [isGalleryLoaded, setIsGalleryLoaded] = useState(false);
-  const [selectedGalleryItem, setSelectedGalleryItem] = useState<GalleryItem | null>(null);
   const [selectedAnnouncement, setSelectedAnnouncement] =
     useState<AnnouncementItem | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
@@ -1306,34 +1289,6 @@ export default function Home() {
     loadOnlineMembers();
   }, []);
 
-  useEffect(() => {
-    async function loadGallery() {
-      const { data, error } = await supabase
-        .from("galerie")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error(error);
-        setIsGalleryLoaded(true);
-        return;
-      }
-
-      setGalleryItemsState(
-        (data ?? []).map((item) => ({
-          id: String(item.id),
-          title: item.title,
-          description: item.description || "",
-          category: item.category || "Guilde",
-          image: item.image || "",
-        })),
-      );
-      setIsGalleryLoaded(true);
-    }
-
-    loadGallery();
-  }, []);
-
 useEffect(() => {
   async function loadMemberProfiles() {
     const { data, error } = await supabase
@@ -1451,7 +1406,6 @@ setMemberProfiles(data ?? []);
       )
       .slice(0, 8)
   : [];
-  const galleryItems = galleryItemsState.slice(0, 4);
   const activeMobileSection = navItems.find(
     (item) => item.children?.length && openSections[item.label],
   );
@@ -1938,70 +1892,6 @@ setMemberProfiles(data ?? []);
           </PremiumCard>
         );
 
-      case "gallery":
-        return (
-          <PremiumCard
-            title="Galerie"
-            icon={Images}
-            className="flex h-full min-h-0 flex-col overflow-hidden"
-          >
-            <div className="homepage-layout-scroll grid min-h-0 flex-1 gap-4 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-4">
-              {!isGalleryLoaded
-                ? [0, 1, 2, 3].map((item) => (
-                    <div
-                      aria-hidden="true"
-                      className="min-h-44 rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] shadow-[0_22px_54px_rgba(0,0,0,0.28)]"
-                      key={item}
-                    />
-                  ))
-                : null}
-              {isGalleryLoaded && galleryItems.length === 0 ? (
-                <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 sm:col-span-2 xl:col-span-4">
-                  Aucune image publiée pour le moment.
-                </div>
-              ) : null}
-              {isGalleryLoaded ? galleryItems.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
-                >
-                  {item.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      alt={item.title}
-                      className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
-                      src={item.image}
-                    />
-                  ) : (
-                    <div
-                      className={`absolute inset-0 ${galleryPlaceholder(index)} transition duration-700 group-hover/gallery:scale-110`}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/18 to-transparent" />
-                  <div className="absolute inset-0 opacity-0 shadow-[inset_0_0_26px_rgba(196,181,253,0.075)] transition duration-500 group-hover/gallery:opacity-100" />
-                  <div className="absolute left-4 top-4 rounded-full border border-violet-100/12 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-100 backdrop-blur-sm">
-                    {item.category}
-                  </div>
-                  <div className="absolute bottom-0 p-4">
-                    <p className="text-sm font-black text-violet-50">{item.title}</p>
-                    <p className="mt-1 text-xs text-slate-300">
-                      {item.description}
-                    </p>
-                  </div>
-                  {item.image ? (
-                    <button
-                      aria-label={`Ouvrir ${item.title}`}
-                      className="absolute inset-0"
-                      onClick={() => setSelectedGalleryItem(item)}
-                      type="button"
-                    />
-                  ) : null}
-                </div>
-              )) : null}
-            </div>
-          </PremiumCard>
-        );
-
       default:
         return null;
     }
@@ -2096,7 +1986,7 @@ setMemberProfiles(data ?? []);
           <span />
         </div>
 
-        <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 snap-x flex-row gap-2 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-none lg:snap-none lg:flex-col lg:gap-1 lg:overflow-visible lg:p-0 lg:pr-0">
+        <nav className="mobile-menu-scrollbar relative z-[10000] flex min-w-0 flex-1 snap-x flex-row gap-2 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:flex-none lg:snap-none lg:flex-col lg:gap-0.5 lg:overflow-visible lg:p-0 lg:pr-0">
           {navItems.map((item) => (
             <SidebarNavItem
               item={item}
@@ -2756,62 +2646,6 @@ setMemberProfiles(data ?? []);
           </PremiumCard>
         </section>
 
-        <PremiumCard title="Galerie" icon={Images} className="mt-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {!isGalleryLoaded
-              ? [0, 1, 2, 3].map((item) => (
-                  <div
-                    aria-hidden="true"
-                    className="min-h-44 rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] shadow-[0_22px_54px_rgba(0,0,0,0.28)]"
-                    key={item}
-                  />
-                ))
-              : null}
-            {isGalleryLoaded && galleryItems.length === 0 ? (
-              <div className="rounded-2xl border border-violet-100/8 bg-violet-50/[0.032] p-4 text-sm font-bold text-violet-100/65 sm:col-span-2 xl:col-span-4">
-                Aucune image publiée pour le moment.
-              </div>
-            ) : null}
-            {isGalleryLoaded ? galleryItems.map((item, index) => (
-              <div
-                key={item.id}
-                className="group/gallery relative min-h-44 overflow-hidden rounded-2xl border border-violet-100/8 bg-slate-950 shadow-[0_22px_54px_rgba(0,0,0,0.38)]"
-              >
-                {item.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt={item.title}
-                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover/gallery:scale-110"
-                    src={item.image}
-                  />
-                ) : (
-                  <div
-                    className={`absolute inset-0 ${galleryPlaceholder(index)} transition duration-700 group-hover/gallery:scale-110`}
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/18 to-transparent" />
-                <div className="absolute inset-0 opacity-0 shadow-[inset_0_0_26px_rgba(196,181,253,0.075)] transition duration-500 group-hover/gallery:opacity-100" />
-                <div className="absolute left-4 top-4 rounded-full border border-violet-100/12 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-100 backdrop-blur-sm">
-                  {item.category}
-                </div>
-                <div className="absolute bottom-0 p-4">
-                  <p className="text-sm font-black text-violet-50">{item.title}</p>
-                  <p className="mt-1 text-xs text-slate-300">
-                    {item.description}
-                  </p>
-                </div>
-                {item.image ? (
-                  <button
-                    aria-label={`Ouvrir ${item.title}`}
-                    className="absolute inset-0 z-30 cursor-zoom-in"
-                    onClick={() => setSelectedGalleryItem(item)}
-                    type="button"
-                  />
-                ) : null}
-              </div>
-            )) : null}
-          </div>
-        </PremiumCard>
           </>
         ) : null}
       </div>
@@ -3062,44 +2896,6 @@ setMemberProfiles(data ?? []);
         </div>
       ) : null}
 
-      {selectedGalleryItem ? (
-        <div className="fixed inset-0 z-[100000] grid place-items-center bg-[#020410]/88 p-4 backdrop-blur-md">
-          <button
-            aria-label="Fermer l'image"
-            className="absolute inset-0 cursor-zoom-out"
-            onClick={() => setSelectedGalleryItem(null)}
-            type="button"
-          />
-          <div className="relative z-10 w-full max-w-5xl overflow-hidden rounded-[1.75rem] border border-violet-200/14 bg-[#06091b]/92 p-4 shadow-[0_42px_120px_rgba(0,0,0,0.72),0_0_30px_rgba(76,29,149,0.14)]">
-            <button
-              aria-label="Fermer l'image"
-              className="absolute right-4 top-4 z-20 grid size-10 place-items-center rounded-xl border border-violet-100/12 bg-[#030512]/80 text-violet-100 backdrop-blur-md transition hover:bg-violet-100/[0.08]"
-              onClick={() => setSelectedGalleryItem(null)}
-              type="button"
-            >
-              <X size={18} />
-            </button>
-            <div className="relative grid max-h-[78vh] place-items-center overflow-hidden rounded-2xl border border-violet-100/10 bg-[#030512]/75">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt={selectedGalleryItem.title}
-                className="max-h-[78vh] w-full object-contain"
-                src={selectedGalleryItem.image}
-              />
-            </div>
-            <div className="mt-4">
-              <p className="text-sm font-black text-violet-50">
-                {selectedGalleryItem.title}
-              </p>
-              {selectedGalleryItem.description ? (
-                <p className="mt-1 text-sm text-slate-300">
-                  {selectedGalleryItem.description}
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      ) : null}
     </main>
   );
 }

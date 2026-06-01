@@ -731,6 +731,18 @@ body {
     inset 0 0 10px rgba(196, 181, 253, 0.05);
 }
 
+.home-sidebar > .lunaeria-sidebar-divider {
+  flex-shrink: 0;
+}
+
+.home-sidebar > .lunaeria-sidebar-divider:not(.lunaeria-sidebar-divider--footer) {
+  margin: 0.15rem auto 0.55rem;
+}
+
+.home-sidebar > .lunaeria-sidebar-divider--footer {
+  margin: 0.55rem auto 0.75rem;
+}
+
 .lunaeria-sidebar-divider {
   position: relative;
   align-items: center;
