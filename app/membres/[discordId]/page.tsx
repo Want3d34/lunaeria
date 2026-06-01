@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  CalendarCheck,
   Crown,
   ShieldCheck,
   Sparkles,
@@ -21,6 +22,7 @@ type DiscordProfile = {
   avatar_url: string | null;
   highest_role: string | null;
   discord_role_ids?: string[] | string | null;
+  is_regular_participant?: boolean | null;
 };
 
 type PlayerProfile = {
@@ -39,6 +41,15 @@ type MemberActivity = {
   lastSalePublishedAt: string | null;
 };
 
+type AttendanceStatus = "participant" | "maybe" | "absent";
+
+type MemberEventStats = {
+  absentCount: number;
+  lastParticipationAt: string | null;
+  maybeCount: number;
+  participatedCount: number;
+};
+
 function formatActivityDate(value: string | null) {
   if (!value) {
     return "Aucune activité";
@@ -48,6 +59,34 @@ function formatActivityDate(value: string | null) {
     dateStyle: "long",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function normalizeAttendanceStatus(value: string): AttendanceStatus | null {
+  const normalizedValue = value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+
+  if (
+    ["participate", "participant", "present", "oui", "yes", "going", "confirmed"].includes(
+      normalizedValue,
+    )
+  ) {
+    return "participant";
+  }
+
+  if (
+    ["maybe", "peut-etre", "interested", "tentative"].includes(normalizedValue)
+  ) {
+    return "maybe";
+  }
+
+  if (["absent", "non", "no", "declined"].includes(normalizedValue)) {
+    return "absent";
+  }
+
+  return null;
 }
 
 function normalizeRole(value: string) {
@@ -89,6 +128,12 @@ export default function PublicMemberProfilePage() {
     salePublishedCount: 0,
     lastSalePublishedAt: null,
   });
+  const [memberEventStats, setMemberEventStats] = useState<MemberEventStats>({
+    absentCount: 0,
+    lastParticipationAt: null,
+    maybeCount: 0,
+    participatedCount: 0,
+  });
 
   useEffect(() => {
     async function loadMemberProfile() {
@@ -111,6 +156,7 @@ export default function PublicMemberProfilePage() {
       const [
         { count: buildCount, data: buildData },
         { count: saleCount, data: saleData },
+        { data: eventParticipationData },
       ] = await Promise.all([
         supabase
           .from("builds")
@@ -128,7 +174,20 @@ export default function PublicMemberProfilePage() {
               .limit(1)
               .maybeSingle()
           : Promise.resolve({ count: 0, data: null }),
+        supabase
+          .from("event_participants")
+          .select("status, updated_at")
+          .eq("discord_id", discordId),
       ]);
+      const eventParticipations = (eventParticipationData ?? []).map(
+        (eventParticipation) => ({
+          status: normalizeAttendanceStatus(eventParticipation.status || ""),
+          updatedAt: eventParticipation.updated_at || null,
+        }),
+      );
+      const confirmedParticipations = eventParticipations.filter(
+        (eventParticipation) => eventParticipation.status === "participant",
+      );
 
       setDiscordProfile(
         discordData
@@ -145,6 +204,20 @@ export default function PublicMemberProfilePage() {
         salePublishedCount: saleCount || 0,
         lastSalePublishedAt: saleData?.created_at || null,
       });
+      setMemberEventStats({
+        absentCount: eventParticipations.filter(
+          (eventParticipation) => eventParticipation.status === "absent",
+        ).length,
+        lastParticipationAt:
+          confirmedParticipations
+            .map((eventParticipation) => eventParticipation.updatedAt)
+            .filter((value): value is string => Boolean(value))
+            .sort((left, right) => right.localeCompare(left))[0] || null,
+        maybeCount: eventParticipations.filter(
+          (eventParticipation) => eventParticipation.status === "maybe",
+        ).length,
+        participatedCount: confirmedParticipations.length,
+      });
     }
 
     loadMemberProfile();
@@ -156,6 +229,13 @@ export default function PublicMemberProfilePage() {
     "Membre Lunaeria";
 
   const role = discordProfile?.highest_role || "Membre";
+  const eventResponseCount =
+    memberEventStats.participatedCount +
+    memberEventStats.maybeCount +
+    memberEventStats.absentCount;
+  const attendanceRate = eventResponseCount
+    ? Math.round((memberEventStats.participatedCount / eventResponseCount) * 100)
+    : 0;
 
   const profileFields = [
     displayName,
@@ -189,6 +269,10 @@ export default function PublicMemberProfilePage() {
 
   if (profileCompletion === 100) {
     automaticBadges.push({ label: "Membre Assidu", icon: Star });
+  }
+
+  if (discordProfile?.is_regular_participant) {
+    automaticBadges.push({ label: "Participant regulier", icon: CalendarCheck });
   }
 
   return (
@@ -371,6 +455,36 @@ export default function PublicMemberProfilePage() {
                     "Dernier build publié",
                     formatActivityDate(memberActivity.lastBuildPublishedAt),
                   ],
+                ].map(([label, value]) => (
+                  <div
+                    className="rounded-2xl border border-violet-300/15 bg-black/25 p-4"
+                    key={label}
+                  >
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
+                      {label}
+                    </p>
+                    <p className="mt-2 font-black">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-violet-300/20 bg-[#0b0718]/80 p-6 shadow-[0_0_45px_rgba(124,58,237,0.16)] backdrop-blur-xl">
+              <h2 className="text-2xl font-black">Statistiques événements</h2>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                {[
+                  [
+                    "Événements participés",
+                    memberEventStats.participatedCount.toString(),
+                  ],
+                  ["Peut-être", memberEventStats.maybeCount.toString()],
+                  ["Absences", memberEventStats.absentCount.toString()],
+                  [
+                    "Dernière participation",
+                    formatActivityDate(memberEventStats.lastParticipationAt),
+                  ],
+                  ["Taux de présence", `${attendanceRate}%`],
                 ].map(([label, value]) => (
                   <div
                     className="rounded-2xl border border-violet-300/15 bg-black/25 p-4"

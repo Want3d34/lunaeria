@@ -1165,6 +1165,7 @@ export default function Home() {
         supabase
           .from("evenements")
           .select("*")
+          .eq("archived", false)
           .order("created_at", { ascending: false }),
         supabase
           .from("builds")

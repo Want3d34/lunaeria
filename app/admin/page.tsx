@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Archive,
   Bell,
   CalendarDays,
   CheckCircle2,
@@ -333,6 +334,7 @@ export default function AdminPage() {
     const { data, error } = await supabase
       .from("evenements")
       .select("*")
+      .eq("archived", false)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -568,6 +570,7 @@ export default function AdminPage() {
       supabase
         .from("evenements")
         .select("*")
+        .eq("archived", false)
         .order("created_at", { ascending: false }),
       supabase
         .from("ventes")
@@ -848,12 +851,18 @@ export default function AdminPage() {
     });
   }
 
-  async function deleteEvent(id: string) {
-    const { error } = await supabase.from("evenements").delete().eq("id", Number(id));
+  async function archiveEvent(id: string) {
+    const { error } = await supabase
+      .from("evenements")
+      .update({
+        archived: true,
+        archived_at: new Date().toISOString(),
+      })
+      .eq("id", Number(id));
 
     if (error) {
       console.error(error);
-      notify("Erreur suppression événement");
+      notify("Erreur archivage événement");
       return;
     }
 
@@ -863,7 +872,7 @@ export default function AdminPage() {
     }
 
     await loadEventsFromSupabase();
-    notify("Evénement supprimé");
+    notify("Evénement archivé");
   }
 
   async function deleteSale(id: string) {
@@ -1736,12 +1745,12 @@ export default function AdminPage() {
                                 <Pencil size={15} />
                               </AdminButton>
                               <AdminButton
-                                aria-label={`Supprimer ${item.title}`}
+                                aria-label={`Archiver ${item.title}`}
                                 className="size-10 p-0"
-                                onClick={() => deleteEvent(item.id)}
+                                onClick={() => archiveEvent(item.id)}
                                 variant="danger"
                               >
-                                <Trash2 size={15} />
+                                <Archive size={15} />
                               </AdminButton>
                             </div>
                           </div>

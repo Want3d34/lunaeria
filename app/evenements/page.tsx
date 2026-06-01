@@ -1,6 +1,13 @@
 "use client";
 
-import { CalendarDays } from "lucide-react";
+import {
+  CalendarDays,
+  CircleHelp,
+  UserCheck,
+  Users,
+  UserX,
+  type LucideIcon,
+} from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
@@ -20,19 +27,75 @@ type EventItem = {
   published: boolean;
 };
 
+type AttendanceStatus = "participant" | "maybe" | "absent";
+
+type EventParticipant = {
+  eventId: string;
+  discordUsername: string;
+  discordAvatar: string | null;
+  status: string;
+  attendanceStatus: AttendanceStatus | null;
+};
+
+function normalizeAttendanceStatus(value: string): AttendanceStatus | null {
+  const normalizedValue = value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+
+  if (
+    ["participate", "participant", "present", "oui", "yes", "going", "confirmed"].includes(
+      normalizedValue,
+    )
+  ) {
+    return "participant";
+  }
+
+  if (
+    ["maybe", "peut-etre", "interested", "tentative"].includes(normalizedValue)
+  ) {
+    return "maybe";
+  }
+
+  if (["absent", "non", "no", "declined"].includes(normalizedValue)) {
+    return "absent";
+  }
+
+  return null;
+}
+
+const attendanceLabels: Record<AttendanceStatus, string> = {
+  participant: "Participant",
+  maybe: "Peut-être",
+  absent: "Absent",
+};
+
 export default function EvenementsPage() {
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [participants, setParticipants] = useState<EventParticipant[]>([]);
 
   useEffect(() => {
     async function loadEventsFromSupabase() {
-      const { data, error } = await supabase
-        .from("evenements")
-        .select("id, title, date, description, created_at, published")
-        .order("created_at", { ascending: false });
+      const [
+        { data, error },
+        { data: participantsData, error: participantsError },
+      ] = await Promise.all([
+        supabase
+          .from("evenements")
+          .select("id, title, date, description, created_at, published")
+          .eq("archived", false)
+          .order("created_at", { ascending: false }),
+        supabase.from("event_participants").select("*"),
+      ]);
 
       if (error) {
         console.error(error);
         return;
+      }
+
+      if (participantsError) {
+        console.error(participantsError);
       }
 
       setEvents(
@@ -43,6 +106,15 @@ export default function EvenementsPage() {
           description: eventItem.description || "Détails à compléter.",
           createdAt: eventItem.created_at || "",
           published: Boolean(eventItem.published),
+        })),
+      );
+      setParticipants(
+        (participantsData ?? []).map((participant) => ({
+          eventId: String(participant.event_id),
+          discordUsername: participant.discord_username || "Membre Discord",
+          discordAvatar: participant.discord_avatar || null,
+          status: participant.status || "",
+          attendanceStatus: normalizeAttendanceStatus(participant.status || ""),
         })),
       );
     }
@@ -95,13 +167,37 @@ export default function EvenementsPage() {
               </div>
             ) : null}
 
-            {events.map((eventItem) => (
-              <article
-                className="premium-card rounded-[1.45rem] border border-violet-100/9 bg-[#06091b]/72 p-5 shadow-[0_22px_60px_rgba(0,0,0,0.35)]"
-                id={`event-${eventItem.id}`}
-                key={eventItem.id}
-              >
-                <div className="relative z-10 flex items-start gap-4">
+            {events.map((eventItem) => {
+              const eventParticipants = participants.filter(
+                (participant) => participant.eventId === eventItem.id,
+              );
+              const participantCount = eventParticipants.filter(
+                (participant) =>
+                  participant.attendanceStatus === "participant",
+              ).length;
+              const maybeCount = eventParticipants.filter(
+                (participant) => participant.attendanceStatus === "maybe",
+              ).length;
+              const absentCount = eventParticipants.filter(
+                (participant) => participant.attendanceStatus === "absent",
+              ).length;
+              const attendanceSummaries: {
+                label: string;
+                count: number;
+                icon: LucideIcon;
+              }[] = [
+                { label: "Participants", count: participantCount, icon: UserCheck },
+                { label: "Peut-être", count: maybeCount, icon: CircleHelp },
+                { label: "Absents", count: absentCount, icon: UserX },
+              ];
+
+              return (
+                <article
+                  className="premium-card rounded-[1.45rem] border border-violet-100/9 bg-[#06091b]/72 p-5 shadow-[0_22px_60px_rgba(0,0,0,0.35)]"
+                  id={`event-${eventItem.id}`}
+                  key={eventItem.id}
+                >
+                  <div className="relative z-10 flex items-start gap-4">
                   <div className="grid size-12 shrink-0 place-items-center rounded-2xl border border-violet-100/14 bg-violet-100/[0.055] text-violet-100">
                     <CalendarDays size={19} />
                   </div>
@@ -121,9 +217,69 @@ export default function EvenementsPage() {
                       {eventItem.description}
                     </p>
                   </div>
-                </div>
-              </article>
-            ))}
+                  </div>
+
+                  <div className="relative z-10 mt-5 border-t border-violet-100/10 pt-4">
+                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+                      <Users size={15} />
+                      Participants
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {attendanceSummaries.map(({ label, count, icon: Icon }) => (
+                        <div
+                          className="rounded-xl border border-violet-100/10 bg-violet-100/[0.045] p-3"
+                          key={label}
+                        >
+                          <Icon className="text-violet-200" size={15} />
+                          <p className="mt-2 text-xl font-black text-violet-50">
+                            {count}
+                          </p>
+                          <p className="mt-1 text-[10px] font-black uppercase tracking-[0.1em] text-violet-100/60">
+                            {label}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-3 space-y-2">
+                      {eventParticipants.length === 0 ? (
+                        <p className="rounded-xl border border-violet-100/8 bg-[#030512]/42 p-3 text-xs font-bold text-violet-100/55">
+                          Aucun participant inscrit pour le moment.
+                        </p>
+                      ) : null}
+                      {eventParticipants.map((participant) => (
+                        <div
+                          className="flex items-center gap-3 rounded-xl border border-violet-100/8 bg-[#030512]/42 p-2.5"
+                          key={`${eventItem.id}-${participant.discordUsername}-${participant.status}`}
+                        >
+                          {participant.discordAvatar ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              alt={participant.discordUsername}
+                              className="size-8 rounded-full border border-violet-200/20 object-cover"
+                              src={participant.discordAvatar}
+                            />
+                          ) : (
+                            <div className="grid size-8 place-items-center rounded-full border border-violet-200/16 bg-violet-300/10 text-xs font-black text-violet-100">
+                              {participant.discordUsername.charAt(0)}
+                            </div>
+                          )}
+                          <p className="min-w-0 flex-1 truncate text-sm font-black text-violet-50">
+                            {participant.discordUsername}
+                          </p>
+                          <span className="rounded-full border border-violet-100/10 bg-violet-100/[0.055] px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-violet-100/70">
+                            {participant.attendanceStatus
+                              ? attendanceLabels[participant.attendanceStatus]
+                              : participant.status || "Non précisé"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </section>
         </div>
       </div>
