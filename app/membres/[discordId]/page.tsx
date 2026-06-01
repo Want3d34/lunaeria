@@ -32,6 +32,22 @@ type PlayerProfile = {
   professions: string[] | null;
 };
 
+type MemberActivity = {
+  lastBuildPublishedAt: string | null;
+  lastSalePublishedAt: string | null;
+};
+
+function formatActivityDate(value: string | null) {
+  if (!value) {
+    return "Non disponible";
+  }
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    dateStyle: "long",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
 function normalizeRole(value: string) {
   return value
     .normalize("NFD")
@@ -65,6 +81,10 @@ export default function PublicMemberProfilePage() {
 
   const [discordProfile, setDiscordProfile] = useState<DiscordProfile | null>(null);
   const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null);
+  const [memberActivity, setMemberActivity] = useState<MemberActivity>({
+    lastBuildPublishedAt: null,
+    lastSalePublishedAt: null,
+  });
 
   useEffect(() => {
     async function loadMemberProfile() {
@@ -82,6 +102,27 @@ export default function PublicMemberProfilePage() {
         .eq("discord_id", discordId)
         .maybeSingle();
 
+      const salePublisherName =
+        discordData?.display_name || discordData?.username || "";
+      const [{ data: buildData }, { data: saleData }] = await Promise.all([
+        supabase
+          .from("builds")
+          .select("created_at")
+          .eq("creator_discord_id", discordId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        salePublisherName
+          ? supabase
+              .from("ventes")
+              .select("created_at")
+              .eq("seller_discord_name", salePublisherName)
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
+
       setDiscordProfile(
         discordData
           ? {
@@ -91,6 +132,10 @@ export default function PublicMemberProfilePage() {
           : null,
       );
       setPlayerProfile(playerData);
+      setMemberActivity({
+        lastBuildPublishedAt: buildData?.created_at || null,
+        lastSalePublishedAt: saleData?.created_at || null,
+      });
     }
 
     loadMemberProfile();
@@ -251,7 +296,8 @@ export default function PublicMemberProfilePage() {
             </div>
           </aside>
 
-          <section className="rounded-3xl border border-violet-300/20 bg-[#0b0718]/80 p-6 shadow-[0_0_45px_rgba(124,58,237,0.16)] backdrop-blur-xl">
+          <div className="space-y-6">
+            <section className="rounded-3xl border border-violet-300/20 bg-[#0b0718]/80 p-6 shadow-[0_0_45px_rgba(124,58,237,0.16)] backdrop-blur-xl">
             <h2 className="text-2xl font-black">Informations joueur</h2>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -293,7 +339,37 @@ export default function PublicMemberProfilePage() {
                 {playerProfile?.presentation || "Aucune présentation renseignée."}
               </p>
             </div>
-          </section>
+            </section>
+
+            <section className="rounded-3xl border border-violet-300/20 bg-[#0b0718]/80 p-6 shadow-[0_0_45px_rgba(124,58,237,0.16)] backdrop-blur-xl">
+              <h2 className="text-2xl font-black">Activité du membre</h2>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                {[
+                  ["Dernière connexion Discord", "Non disponible"],
+                  [
+                    "Dernier build publié",
+                    formatActivityDate(memberActivity.lastBuildPublishedAt),
+                  ],
+                  [
+                    "Dernière vente publiée",
+                    formatActivityDate(memberActivity.lastSalePublishedAt),
+                  ],
+                  ["Dernier événement participé", "Non disponible"],
+                ].map(([label, value]) => (
+                  <div
+                    className="rounded-2xl border border-violet-300/15 bg-black/25 p-4"
+                    key={label}
+                  >
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300/70">
+                      {label}
+                    </p>
+                    <p className="mt-2 font-black">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </main>
