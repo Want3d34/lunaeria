@@ -5,7 +5,6 @@ import {
   Bell,
   CalendarDays,
   CheckCircle2,
-  FileText,
   Home,
   ImagePlus,
   Images,
@@ -35,7 +34,6 @@ import {
 } from "@/components/lunaeria-toast";
 import {
   type Announcement,
-  type BuildItem,
   type Event,
   type GalleryItem,
   type UsefulLink,
@@ -45,8 +43,6 @@ import {
   createFranceEventDate,
   getFranceEventDateInputValues,
 } from "@/lib/event-date";
-import { uploadPublicImage } from "@/lib/storage-images";
-import { dofusClasses, dofusElements, getClassImage, getElement } from "@/lib/stuffs-data";
 import {
   AdminButton,
   AdminCard,
@@ -70,8 +66,6 @@ const navItems: NavItem[] = [
   { key: "evenements", label: "Evénements", icon: CalendarDays },
   { key: "ventes", label: "Ventes", icon: ShoppingBag },
   { key: "galerie", label: "Galerie", icon: Images },
-  { key: "stuffs", label: "Stuff & Build", icon: ShieldCheck },
-  { key: "reglement", label: "Règlement", icon: FileText },
   { key: "liens", label: "Liens utiles", icon: LinkIcon },
   { key: "parametres", label: "Paramètres", icon: Settings },
 ];
@@ -139,21 +133,6 @@ const emptyGallery = {
   image: "",
 };
 
-const emptyBuild = {
-  title: "",
-  gamePseudo: "",
-  discordPseudo: "",
-  className: "Cra",
-  elements: ["Feu"],
-  orientation: "",
-  mode: "PvM" as "PvM" | "PvP",
-  budget: "Moyen",
-  level: "200",
-  dofusbookUrl: "",
-  description: "",
-  image: "",
-};
-
 export default function AdminPage() {
   const { content, isLoaded, setContent } = useHomepageContent();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -173,14 +152,10 @@ export default function AdminPage() {
   );
   const [eventDraft, setEventDraft] = useState(emptyEvent);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
-  const [regulationDraft, setRegulationDraft] = useState(content.regulation.body);
   const [linkDraft, setLinkDraft] = useState(emptyUsefulLink);
   const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
   const [galleryDraft, setGalleryDraft] = useState(emptyGallery);
   const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
-  const [buildDraft, setBuildDraft] = useState(emptyBuild);
-  const [buildImageFile, setBuildImageFile] = useState<File | null>(null);
-  const [editingBuildId, setEditingBuildId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadAdminSession() {
@@ -223,11 +198,10 @@ export default function AdminPage() {
     const syncTimeout = window.setTimeout(() => {
       setHeroDraft(content.hero);
       setRecruitmentDraft(content.recruitment);
-      setRegulationDraft(content.regulation.body);
     }, 0);
 
     return () => window.clearTimeout(syncTimeout);
-  }, [content.hero, content.recruitment, content.regulation.body]);
+  }, [content.hero, content.recruitment]);
 
   const stats = useMemo(
     () => [
@@ -244,12 +218,6 @@ export default function AdminPage() {
         icon: CalendarDays,
       },
       {
-        label: "Builds",
-        value: content.builds.length,
-        detail: "Stuffs partagés",
-        icon: ShieldCheck,
-      },
-      {
         label: "Galerie",
         value: content.gallery.length,
         detail: "Images publiées",
@@ -258,7 +226,6 @@ export default function AdminPage() {
     ],
     [
       content.announcements.length,
-      content.builds.length,
       content.events.length,
       content.gallery.length,
     ],
@@ -388,47 +355,6 @@ export default function AdminPage() {
     }));
   }
 
-  async function loadBuildsFromSupabase() {
-    const { data, error } = await supabase
-      .from("builds")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error(error);
-      notify("Erreur chargement builds");
-      return;
-    }
-
-    setContent((current) => ({
-      ...current,
-      builds: (data ?? []).map((item) => ({
-        id: String(item.id),
-        title: item.title,
-        gamePseudo: item.game_pseudo || "",
-        discordPseudo: item.discord_pseudo || "",
-        className: item.class_name,
-        classImage: item.class_image || getClassImage(item.class_name),
-        elements: item.elements?.length ? item.elements : ["Multi"],
-        elementIcons:
-          item.element_icons?.length
-            ? item.element_icons
-            : (item.elements?.length ? item.elements : ["Multi"]).map(
-                (entry: string) => getElement(entry)?.icon ?? "✦",
-              ),
-        orientation: item.orientation || "",
-        mode: item.mode || "PvM",
-        budget: item.budget || "Moyen",
-        level: item.level || "200",
-        dofusbookUrl: item.dofusbook_url || "https://www.dofusbook.net",
-        description: item.description || "",
-        image: item.image || item.class_image || getClassImage(item.class_name),
-        createdAt: item.created_at || new Date().toISOString(),
-        views: item.views ?? 0,
-      })),
-    }));
-  }
-
   async function loadUsefulLinksFromSupabase() {
     const { data, error } = await supabase
       .from("useful_links")
@@ -475,36 +401,6 @@ export default function AdminPage() {
         image: item.image || "",
         createdAt: item.created_at || new Date().toISOString(),
       })),
-    }));
-  }
-
-  async function loadReglementFromSupabase() {
-    const { data, error } = await supabase
-      .from("reglement")
-      .select("*")
-      .order("id", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-
-    if (error) {
-      console.error(error);
-      notify("Erreur chargement règlement");
-      return;
-    }
-
-    if (!data) {
-      return;
-    }
-
-    const body = data.body ?? content.regulation.body;
-
-    setRegulationDraft(body);
-    setContent((current) => ({
-      ...current,
-      regulation: {
-        ...current.regulation,
-        body,
-      },
     }));
   }
 
@@ -565,7 +461,6 @@ export default function AdminPage() {
       announcementsResult,
       eventsResult,
       salesResult,
-      buildsResult,
       usefulLinksResult,
       galleryResult,
     ] = await Promise.all([
@@ -580,10 +475,6 @@ export default function AdminPage() {
         .order("created_at", { ascending: false }),
       supabase
         .from("ventes")
-        .select("*")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("builds")
         .select("*")
         .order("created_at", { ascending: false }),
       supabase
@@ -611,12 +502,6 @@ export default function AdminPage() {
     if (salesResult.error) {
       console.error(salesResult.error);
       notify("Erreur chargement ventes");
-      return;
-    }
-
-    if (buildsResult.error) {
-      console.error(buildsResult.error);
-      notify("Erreur chargement builds");
       return;
     }
 
@@ -657,30 +542,6 @@ export default function AdminPage() {
         imageUrl: item.image_url || "/file.svg",
         sellerGameName: item.seller_game_name || "Anonyme",
         sellerDiscordName: item.seller_discord_name || "discord inconnu",
-      })),
-      builds: (buildsResult.data ?? []).map((item) => ({
-        id: String(item.id),
-        title: item.title,
-        gamePseudo: item.game_pseudo || "",
-        discordPseudo: item.discord_pseudo || "",
-        className: item.class_name,
-        classImage: item.class_image || getClassImage(item.class_name),
-        elements: item.elements?.length ? item.elements : ["Multi"],
-        elementIcons:
-          item.element_icons?.length
-            ? item.element_icons
-            : (item.elements?.length ? item.elements : ["Multi"]).map(
-                (entry: string) => getElement(entry)?.icon ?? "✦",
-              ),
-        orientation: item.orientation || "",
-        mode: item.mode || "PvM",
-        budget: item.budget || "Moyen",
-        level: item.level || "200",
-        dofusbookUrl: item.dofusbook_url || "https://www.dofusbook.net",
-        description: item.description || "",
-        image: item.image || item.class_image || getClassImage(item.class_name),
-        createdAt: item.created_at || new Date().toISOString(),
-        views: item.views ?? 0,
       })),
       usefulLinks: (usefulLinksResult.data ?? []).map((item) => ({
         id: String(item.id),
@@ -987,31 +848,6 @@ export default function AdminPage() {
     notify("Image supprimée");
   }
 
-  async function persistRegulation() {
-    const { error } = await supabase
-      .from("reglement")
-      .upsert({
-        id: 1,
-        body: regulationDraft,
-        updated_at: new Date().toISOString(),
-      });
-
-    if (error) {
-      console.error(error);
-      notify("Erreur sauvegarde règlement");
-      return;
-    }
-
-    setContent((current) => ({
-      ...current,
-      regulation: {
-        ...current.regulation,
-        body: regulationDraft,
-      },
-    }));
-    notify("Règlement sauvegardé");
-  }
-
   async function submitUsefulLink(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -1078,117 +914,6 @@ export default function AdminPage() {
     notify("Lien supprimé");
   }
 
-  function readBuildImage(file: File) {
-    setBuildImageFile(file);
-    setBuildDraft((current) => ({ ...current, image: URL.createObjectURL(file) }));
-  }
-
-  async function submitBuild(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!buildDraft.title.trim()) {
-      notify("Nom du build obligatoire");
-      return;
-    }
-
-    const elements = buildDraft.elements.length ? buildDraft.elements : ["Multi"];
-    let buildImageUrl = buildDraft.image;
-
-    if (buildImageFile) {
-      try {
-        buildImageUrl = await uploadPublicImage(
-          supabase,
-          "builds",
-          buildImageFile,
-          buildDraft.title,
-        );
-      } catch (error) {
-        console.error("Erreur upload image build:", error);
-        notify("Erreur upload image build");
-        return;
-      }
-    }
-
-    const payload = {
-      title: buildDraft.title.trim(),
-      game_pseudo: buildDraft.gamePseudo.trim(),
-      discord_pseudo: buildDraft.discordPseudo.trim(),
-      class_name: buildDraft.className,
-      class_image: "",
-      elements,
-      element_icons: elements.map((item) => getElement(item)?.icon ?? "✦"),
-      orientation: buildDraft.orientation.trim(),
-      mode: buildDraft.mode,
-      budget: buildDraft.budget,
-      level: buildDraft.level,
-      dofusbook_url: buildDraft.dofusbookUrl.trim() || "https://www.dofusbook.net",
-      description: buildDraft.description.trim(),
-      image: buildImageUrl || "",
-    };
-
-    const query = editingBuildId
-      ? supabase
-          .from("builds")
-          .update(payload)
-          .eq("id", editingBuildId)
-          .select()
-      : supabase.from("builds").insert(payload).select();
-
-    const { error } = await query;
-
-    if (error) {
-      console.error("Erreur Supabase builds:", error);
-      notify(`Erreur builds: ${error.message}`);
-      return;
-    }
-
-    const wasEditing = Boolean(editingBuildId);
-
-    setBuildDraft(emptyBuild);
-    setBuildImageFile(null);
-    setEditingBuildId(null);
-    await loadBuildsFromSupabase();
-    notify(wasEditing ? "Build mis à jour" : "Build ajouté");
-  }
-
-  function editBuild(build: BuildItem) {
-    setEditingBuildId(build.id);
-    setBuildDraft({
-      title: build.title,
-      gamePseudo: build.gamePseudo,
-      discordPseudo: build.discordPseudo,
-      className: build.className,
-      elements: build.elements,
-      orientation: build.orientation,
-      mode: build.mode,
-      budget: build.budget,
-      level: build.level,
-      dofusbookUrl: build.dofusbookUrl,
-      description: build.description,
-      image: build.image,
-    });
-    setBuildImageFile(null);
-  }
-
-  async function deleteBuild(id: string) {
-    const { error } = await supabase.from("builds").delete().eq("id", id)
-
-    if (error) {
-      console.error("Erreur suppression build:", error);
-      notify(`Erreur suppression: ${error.message}`);
-      return;
-    }
-
-    if (editingBuildId === id) {
-      setEditingBuildId(null);
-      setBuildDraft(emptyBuild);
-      setBuildImageFile(null);
-    }
-
-    await loadBuildsFromSupabase();
-    notify("Build supprimé");
-  }
-
   function activateSection(key: string) {
     setActiveSection(key);
   }
@@ -1197,7 +922,6 @@ export default function AdminPage() {
     if (isLoaded) {
       const timeout = window.setTimeout(() => {
         loadHomepageSettingsFromSupabase();
-        loadReglementFromSupabase();
         loadSupabaseContent();
       }, 0);
 
@@ -1989,271 +1713,6 @@ export default function AdminPage() {
                         </article>
                       ))}
                     </div>
-                  </AdminCard>
-                </AdminSection>
-
-                <AdminSection id="stuffs">
-                  <AdminCard
-                    action={
-                      <span className="rounded-full border border-violet-100/10 bg-[#030512]/70 px-3 py-1 text-xs font-black text-violet-100">
-                        {content.builds.length} builds
-                      </span>
-                    }
-                    icon={ShieldCheck}
-                    title="Stuff & Build"
-                  >
-                    <form className="grid gap-4" onSubmit={submitBuild}>
-                      <div className="grid gap-3 md:grid-cols-[130px_1fr]">
-                        <label className="grid cursor-pointer place-items-center rounded-2xl border border-dashed border-violet-100/18 bg-[#030512]/70 p-3 text-center text-xs text-violet-100">
-                          <ImagePlus className="mb-2" size={20} />
-                          Image
-                          <input
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={(event) => {
-                              const file = event.target.files?.[0];
-                              if (file) {
-                                readBuildImage(file);
-                              }
-                            }}
-                            type="file"
-                          />
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            alt="Aperçu build"
-                            className="mt-3 size-20 rounded-2xl object-cover"
-                            src={buildDraft.image || getClassImage(buildDraft.className)}
-                          />
-                        </label>
-                        <div className="grid gap-3">
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            <AdminInput
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  title: event.target.value,
-                                }))
-                              }
-                              placeholder="Nom du stuff"
-                              value={buildDraft.title}
-                            />
-                            <select
-                              className="min-h-12 rounded-2xl border border-violet-100/10 bg-[#030512]/72 px-4 text-sm font-semibold text-violet-50 outline-none"
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  className: event.target.value,
-                                }))
-                              }
-                              value={buildDraft.className}
-                            >
-                              {dofusClasses.map((item) => (
-                                <option key={item.name} value={item.name}>
-                                  {item.name}
-                                </option>
-                              ))}
-                            </select>
-                            <AdminInput
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  gamePseudo: event.target.value,
-                                }))
-                              }
-                              placeholder="Pseudo en jeu"
-                              value={buildDraft.gamePseudo}
-                            />
-                            <AdminInput
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  discordPseudo: event.target.value,
-                                }))
-                              }
-                              placeholder="Pseudo Discord"
-                              value={buildDraft.discordPseudo}
-                            />
-                            <select
-                              className="min-h-12 rounded-2xl border border-violet-100/10 bg-[#030512]/72 px-4 text-sm font-semibold text-violet-50 outline-none"
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  mode: event.target.value as "PvM" | "PvP",
-                                }))
-                              }
-                              value={buildDraft.mode}
-                            >
-                              <option value="PvM">PvM</option>
-                              <option value="PvP">PvP</option>
-                            </select>
-                            <AdminInput
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  budget: event.target.value,
-                                }))
-                              }
-                              placeholder="Budget"
-                              value={buildDraft.budget}
-                            />
-                            <AdminInput
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  level: event.target.value,
-                                }))
-                              }
-                              placeholder="Niveau"
-                              value={buildDraft.level}
-                            />
-                            <AdminInput
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  orientation: event.target.value,
-                                }))
-                              }
-                              placeholder="Orientation"
-                              value={buildDraft.orientation}
-                            />
-                            <AdminInput
-                              className="sm:col-span-2"
-                              onChange={(event) =>
-                                setBuildDraft((current) => ({
-                                  ...current,
-                                  dofusbookUrl: event.target.value,
-                                }))
-                              }
-                              placeholder="URL Dofusbook"
-                              value={buildDraft.dofusbookUrl}
-                            />
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {dofusElements.map((item) => {
-                              const active = buildDraft.elements.includes(item.label);
-                              return (
-                                <button
-                                  className={`rounded-full border px-3 py-2 text-xs font-black uppercase tracking-[0.14em] ${
-                                    active ? "bg-violet-100/[0.08]" : "bg-[#030512]/60"
-                                  }`}
-                                  key={item.label}
-                                  onClick={() =>
-                                    setBuildDraft((current) => ({
-                                      ...current,
-                                      elements: active
-                                        ? current.elements.filter(
-                                            (entry) => entry !== item.label,
-                                          )
-                                        : [...current.elements, item.label],
-                                    }))
-                                  }
-                                  style={{
-                                    borderColor: `${item.accent}66`,
-                                    color: item.accent,
-                                  }}
-                                  type="button"
-                                >
-                                  {item.icon} {item.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                          <AdminTextarea
-                            onChange={(event) =>
-                              setBuildDraft((current) => ({
-                                ...current,
-                                description: event.target.value,
-                              }))
-                            }
-                            placeholder="Description"
-                            value={buildDraft.description}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-3">
-                        <AdminButton type="submit">
-                          {editingBuildId ? <Save size={17} /> : <Plus size={17} />}
-                          {editingBuildId ? "Mettre à jour" : "Ajouter"}
-                        </AdminButton>
-                        {editingBuildId ? (
-                          <AdminButton
-                            onClick={() => {
-                              setEditingBuildId(null);
-                              setBuildDraft(emptyBuild);
-                              setBuildImageFile(null);
-                            }}
-                            variant="ghost"
-                          >
-                            <X size={17} />
-                            Annuler
-                          </AdminButton>
-                        ) : null}
-                      </div>
-                    </form>
-
-                    <div className="mt-6 grid gap-3">
-                      {content.builds.map((build) => (
-                        <article
-                          className="rounded-2xl border border-violet-100/9 bg-violet-50/[0.035] p-4"
-                          key={build.id}
-                        >
-                          <div className="flex items-start gap-3">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              alt={build.className}
-                              className="size-16 rounded-2xl border border-violet-100/10 bg-[#030512]/70 object-cover"
-                              src={build.classImage}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="font-black text-violet-50">
-                                {build.title}
-                              </p>
-                              <p className="mt-1 text-xs text-slate-400">
-                                {build.className} · {build.mode} · Niv. {build.level}
-                              </p>
-                              <p className="mt-2 text-sm text-slate-400">
-                                {build.elements.join(", ")} · {build.budget}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              <AdminButton
-                                className="size-10 p-0"
-                                onClick={() => editBuild(build)}
-                                variant="ghost"
-                              >
-                                <Pencil size={15} />
-                              </AdminButton>
-                              <AdminButton
-                                className="size-10 p-0"
-                                onClick={() => deleteBuild(build.id)}
-                                variant="danger"
-                              >
-                                <Trash2 size={15} />
-                              </AdminButton>
-                            </div>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  </AdminCard>
-                </AdminSection>
-
-                <AdminSection className="xl:col-span-2" id="reglement">
-                  <AdminCard
-                    action={
-                      <AdminButton onClick={persistRegulation}>
-                        <Save size={17} />
-                        Sauvegarder
-                      </AdminButton>
-                    }
-                    icon={FileText}
-                    title="Règlement"
-                  >
-                    <AdminTextarea
-                      className="min-h-[420px] font-mono text-sm leading-7"
-                      onChange={(event) => setRegulationDraft(event.target.value)}
-                      value={regulationDraft}
-                    />
                   </AdminCard>
                 </AdminSection>
 
