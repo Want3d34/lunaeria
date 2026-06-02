@@ -807,3 +807,448 @@ body {
     transform: translate3d(16px, -8px, 0) scale(0.97);
   }
 }
+
+@media (max-width: 768px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  main {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+
+  .premium-card,
+  .premium-card * {
+    min-width: 0;
+  }
+
+  .premium-card h1,
+  .premium-card h2,
+  .premium-card h3,
+  .premium-card p,
+  .premium-card a,
+  .premium-card span {
+    overflow-wrap: anywhere;
+  }
+
+  .page-sidebar {
+    height: 5.5rem;
+    gap: 0.4rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .page-sidebar > a {
+    width: 3.6rem;
+  }
+
+  .page-sidebar > a img {
+    width: 128%;
+  }
+
+  .page-sidebar nav {
+    gap: 0.4rem;
+    padding: 0.15rem 0.35rem 0.2rem 0.15rem;
+    scroll-padding-inline: 0.15rem;
+  }
+
+  .page-sidebar nav a {
+    height: 3.35rem;
+    min-width: 4.1rem;
+    padding: 0.45rem 0.55rem;
+    touch-action: manipulation;
+  }
+
+  .page-sidebar + div {
+    padding: 7rem 0.9rem 1.5rem;
+  }
+
+  .page-sidebar + div header {
+    border-radius: 1.45rem;
+    padding: 1.1rem;
+  }
+
+  .page-sidebar + div header > div {
+    gap: 0.85rem;
+  }
+
+  .page-sidebar + div header h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    line-height: 1;
+  }
+
+  .page-sidebar + div header p {
+    line-height: 1.55;
+  }
+
+  .page-sidebar + div header div[class*="size-16"] {
+    width: 3.25rem;
+    height: 3.25rem;
+    flex-shrink: 0;
+    border-radius: 1rem;
+  }
+
+  .page-sidebar + div section[id] {
+    scroll-margin-top: 6.35rem;
+  }
+
+  .page-sidebar + div article,
+  .page-sidebar + div section.premium-card {
+    border-radius: 1.2rem;
+  }
+
+  .page-sidebar + div article {
+    padding: 1rem;
+  }
+
+  .page-sidebar + div button,
+  .page-sidebar + div a {
+    touch-action: manipulation;
+  }
+
+  .standalone-premium-page {
+    background-attachment: scroll !important;
+  }
+
+  .standalone-premium-page > div:first-child {
+    padding: 1.25rem 0.9rem 1.75rem;
+  }
+
+  .standalone-premium-page > div:first-child > section {
+    border-radius: 1.35rem;
+    padding: 1rem;
+  }
+
+  .standalone-premium-page h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+
+  .standalone-premium-page h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .standalone-premium-page input,
+  .standalone-premium-page textarea,
+  .standalone-premium-page button,
+  .standalone-premium-page a {
+    max-width: 100%;
+  }
+
+  .home-sidebar {
+    height: 5.5rem;
+    gap: 0.4rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .home-sidebar > div:first-child {
+    width: 3.6rem;
+  }
+
+  .home-sidebar > div:first-child img {
+    width: 128%;
+  }
+
+  .home-sidebar nav {
+    gap: 0.4rem;
+    padding-right: 0.35rem;
+    scroll-padding-inline: 0.15rem;
+  }
+
+  .home-sidebar nav a,
+  .home-sidebar nav button {
+    min-width: 4.1rem;
+    touch-action: manipulation;
+  }
+
+  .home-userbar {
+    top: 6.15rem;
+    left: 0.65rem;
+    right: 0.65rem;
+    gap: 0.5rem;
+  }
+
+  .home-content {
+    padding: 11rem 0.75rem 1rem;
+  }
+
+  .home-free-hero {
+    min-height: auto;
+    padding: 1rem 0 1.25rem;
+  }
+
+  .home-free-hero h1 {
+    font-size: clamp(2.2rem, 13vw, 4.25rem);
+    letter-spacing: 0.08em;
+  }
+
+  .home-dashboard {
+    gap: 0.8rem;
+  }
+
+  .home-dashboard .premium-card,
+  .homepage-almanax-shell {
+    border-radius: 1.2rem;
+    padding: 0.9rem;
+  }
+
+  .homepage-fixed-layout,
+  .homepage-fixed-split {
+    gap: 0.8rem;
+  }
+
+  .home-search-results,
+  .home-notifications-panel {
+    max-height: min(22rem, calc(100svh - 12rem));
+  }
+
+  .admin-page {
+    overflow-x: clip;
+  }
+
+  .admin-page aside {
+    padding: 0.9rem;
+  }
+
+  .admin-page aside nav {
+    margin-top: 0.9rem;
+    gap: 0.45rem;
+  }
+
+  .admin-page aside nav a {
+    min-height: 2.85rem;
+    gap: 0.55rem;
+    padding-inline: 0.65rem;
+    font-size: 0.76rem;
+  }
+
+  .admin-page aside + div {
+    padding: 1rem 0.85rem 1.5rem;
+  }
+
+  .admin-page header {
+    border-radius: 1.35rem;
+    padding: 1rem;
+  }
+
+  .admin-page header h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .admin-page input,
+  .admin-page select,
+  .admin-page textarea,
+  .admin-page button {
+    max-width: 100%;
+  }
+
+  .admin-page article {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-sidebar + div {
+    padding-inline: 0.75rem;
+  }
+
+  .page-sidebar + div header,
+  .standalone-premium-page > div:first-child > section {
+    padding: 0.9rem;
+  }
+
+  .page-sidebar + div article {
+    padding: 0.9rem;
+  }
+
+  .standalone-premium-page > div:first-child {
+    padding-inline: 0.75rem;
+  }
+
+  .standalone-premium-page section[class*="rounded-3xl"],
+  .standalone-premium-page aside[class*="rounded-3xl"] {
+    border-radius: 1.25rem;
+  }
+
+  .standalone-premium-page section[class*="p-6"],
+  .standalone-premium-page aside[class*="p-6"] {
+    padding: 1rem;
+  }
+
+  .standalone-premium-page div[class*="grid-cols-2"] {
+    gap: 0.65rem;
+  }
+
+  .home-content {
+    padding-inline: 0.65rem;
+  }
+
+  .home-search {
+    padding-inline: 0.75rem;
+  }
+
+  .home-profile-button {
+    max-width: calc(100vw - 4.8rem);
+  }
+
+  .home-dashboard .premium-card,
+  .homepage-almanax-shell {
+    padding: 0.8rem;
+  }
+
+  .admin-page aside nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-page aside nav a {
+    min-width: 0;
+  }
+
+  .admin-page aside + div {
+    padding-inline: 0.7rem;
+  }
+
+  .admin-page .premium-card {
+    border-radius: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-sidebar {
+    height: 5.1rem;
+    padding-inline: 0.4rem;
+  }
+
+  .page-sidebar > a,
+  .home-sidebar > div:first-child {
+    width: 3.2rem;
+  }
+
+  .page-sidebar nav a,
+  .home-sidebar nav a,
+  .home-sidebar nav button {
+    min-width: 3.85rem;
+  }
+
+  .page-sidebar + div {
+    padding-top: 6.45rem;
+  }
+
+  .page-sidebar + div header h1,
+  .standalone-premium-page h1 {
+    font-size: clamp(1.8rem, 10vw, 2.45rem);
+  }
+
+  .page-sidebar + div header p[class*="tracking"],
+  .standalone-premium-page p[class*="tracking"] {
+    letter-spacing: 0.2em;
+  }
+
+  .home-sidebar {
+    height: 5.1rem;
+    padding-inline: 0.4rem;
+  }
+
+  .home-userbar {
+    top: 5.75rem;
+    left: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .home-content {
+    padding: 10.5rem 0.5rem 0.85rem;
+  }
+
+  .home-free-hero h1 {
+    font-size: clamp(2rem, 12vw, 3.35rem);
+  }
+
+  .home-notifications-panel,
+  .home-search-results {
+    width: calc(100vw - 1rem);
+    max-height: min(20rem, calc(100svh - 11rem));
+  }
+
+  .standalone-premium-page > div:first-child {
+    padding: 1rem 0.65rem 1.4rem;
+  }
+
+  .standalone-premium-page section[class*="p-8"] {
+    padding: 0.95rem;
+  }
+
+  .admin-page aside,
+  .admin-page aside + div {
+    padding-inline: 0.55rem;
+  }
+
+  .admin-page aside nav a {
+    min-height: 2.75rem;
+    padding-inline: 0.55rem;
+    font-size: 0.7rem;
+  }
+}
+
+.lunaeria-calendar-event-day {
+  box-shadow:
+    inset 0 0 14px rgba(196, 181, 253, 0.055),
+    0 0 12px rgba(139, 92, 246, 0.13);
+  animation: lunaeriaCalendarEventPulse 4.8s ease-in-out infinite;
+}
+
+.lunaeria-calendar-event-sparkle {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.4rem;
+  color: rgb(221 214 254 / 0.92);
+  font-size: 0.72rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 5px rgb(167 139 250 / 0.72));
+}
+
+.lunaeria-calendar-event-count {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.35rem;
+  display: inline-grid;
+  min-width: 1rem;
+  height: 1rem;
+  place-items: center;
+  border: 1px solid rgb(196 181 253 / 0.2);
+  border-radius: 9999px;
+  background: rgb(76 29 149 / 0.34);
+  color: rgb(237 233 254 / 0.9);
+  font-size: 0.58rem;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 0 8px rgb(139 92 246 / 0.16);
+}
+
+@keyframes lunaeriaCalendarEventPulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 14px rgba(196, 181, 253, 0.055),
+      0 0 10px rgba(139, 92, 246, 0.1);
+  }
+
+  50% {
+    box-shadow:
+      inset 0 0 16px rgba(196, 181, 253, 0.075),
+      0 0 16px rgba(139, 92, 246, 0.19);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lunaeria-calendar-event-day {
+    animation: none;
+  }
+}

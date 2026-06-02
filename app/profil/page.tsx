@@ -132,7 +132,7 @@ const profileCompletion = Math.round((completedFields / 6) * 100);
 
   return (
     <main
-      className="min-h-screen text-violet-50"
+      className="standalone-premium-page min-h-screen text-violet-50"
       style={{
         backgroundImage:
           "linear-gradient(rgba(3,5,17,0.65), rgba(3,5,17,0.78)), url('/fond2.png')",

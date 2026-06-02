@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Sparkles,
   Swords,
+  Trash2,
   Users,
   WandSparkles,
   X,
@@ -31,6 +32,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { getSiteUrl } from "../lib/site-url";
 import { supabase } from "../lib/supabase";
+import { formatFranceEventDate } from "../lib/event-date";
 
 type NavItem = {
   label: string;
@@ -301,30 +303,6 @@ type EventItem = {
   description: string;
 };
 
-function formatEventDate(eventDate: string | null, fallbackDate: string) {
-  if (!eventDate) {
-    return fallbackDate;
-  }
-
-  const date = new Date(eventDate);
-
-  if (Number.isNaN(date.getTime())) {
-    return fallbackDate;
-  }
-
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "2-digit",
-    hour: "2-digit",
-    hour12: false,
-    minute: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  })
-    .format(date)
-    .replace(" ", " à ")
-    .replace(":", "h");
-}
-
 type BuildItem = {
   id: string;
   title: string;
@@ -366,6 +344,33 @@ type ActivityItem = {
   type: "announcement" | "build" | "event" | "sale";
   timestamp?: string | null;
 };
+
+function getNotificationKey(activity: ActivityItem) {
+  return `${activity.type}:${activity.label}:${activity.title}:${activity.meta}:${activity.timestamp ?? ""}`;
+}
+
+function getStoredNotificationKeys(storageKey: string) {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const storedKeys = window.localStorage.getItem(storageKey);
+
+  if (!storedKeys) {
+    return [];
+  }
+
+  try {
+    const parsedKeys = JSON.parse(storedKeys);
+
+    return Array.isArray(parsedKeys)
+      ? parsedKeys.filter((key): key is string => typeof key === "string")
+      : [];
+  } catch {
+    window.localStorage.removeItem(storageKey);
+    return [];
+  }
+}
 
 type SearchResult = {
   id: string;
@@ -883,7 +888,12 @@ export default function Home() {
   const [isDiscordAuthLoading, setIsDiscordAuthLoading] = useState(true);
   const [isDiscordSubmitting, setIsDiscordSubmitting] = useState(false);
   const [discordAuthError, setDiscordAuthError] = useState<string | null>(null);
-  const [seenNotificationKeys, setSeenNotificationKeys] = useState<string[]>([]);
+  const [seenNotificationKeys, setSeenNotificationKeys] = useState<string[]>(
+    () => getStoredNotificationKeys("lunaeria-seen-notifications"),
+  );
+  const [dismissedNotificationKeys, setDismissedNotificationKeys] = useState<
+    string[]
+  >(() => getStoredNotificationKeys("lunaeria-dismissed-notifications"));
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -1087,26 +1097,6 @@ export default function Home() {
     }
 
     loadHomepageSettings();
-  }, []);
-
-  useEffect(() => {
-    const storedKeys = window.localStorage.getItem("lunaeria-seen-notifications");
-
-    if (!storedKeys) {
-      return;
-    }
-
-    try {
-      const parsedKeys = JSON.parse(storedKeys);
-
-      if (Array.isArray(parsedKeys)) {
-        setSeenNotificationKeys(
-          parsedKeys.filter((key): key is string => typeof key === "string"),
-        );
-      }
-    } catch {
-      window.localStorage.removeItem("lunaeria-seen-notifications");
-    }
   }, []);
 
   useEffect(() => {
@@ -1363,7 +1353,7 @@ setMemberProfiles(data ?? []);
     ...events.slice(0, 1).map((eventItem) => ({
       label: "Nouvel événement",
       title: eventItem.title,
-      meta: formatEventDate(eventItem.eventDate, eventItem.date),
+      meta: formatFranceEventDate(eventItem.eventDate, eventItem.date),
       type: "event" as const,
     })),
     ...homepageAnnouncements.slice(0, 1).map((announcement) => ({
@@ -1375,10 +1365,10 @@ setMemberProfiles(data ?? []);
     })),
   ].slice(0, 6);
   const activityItems = recentActivity;
-  const notificationItems = activityItems;
-  const notificationKeys = notificationItems.map((activity, index) =>
-    `${activity.type}:${activity.label}:${activity.title}:${activity.meta}:${activity.timestamp ?? index}`,
+  const notificationItems = activityItems.filter(
+    (activity) => !dismissedNotificationKeys.includes(getNotificationKey(activity)),
   );
+  const notificationKeys = notificationItems.map(getNotificationKey);
   const unreadNotificationCount = isDynamicContentLoaded
     ? notificationKeys.filter((key) => !seenNotificationKeys.includes(key)).length
     : 0;
@@ -1416,7 +1406,7 @@ setMemberProfiles(data ?? []);
       ...events.map((eventItem) => ({
         id: `event-${eventItem.id}`,
         title: eventItem.title,
-        meta: formatEventDate(eventItem.eventDate, eventItem.date),
+        meta: formatFranceEventDate(eventItem.eventDate, eventItem.date),
         href: "/evenements",
         type: "Évènement",
       })),
@@ -1509,6 +1499,18 @@ setMemberProfiles(data ?? []);
     );
   }
 
+  function handleDismissNotification(notificationKey: string) {
+    const nextDismissedNotificationKeys = [
+      ...new Set([...dismissedNotificationKeys, notificationKey]),
+    ];
+
+    setDismissedNotificationKeys(nextDismissedNotificationKeys);
+    window.localStorage.setItem(
+      "lunaeria-dismissed-notifications",
+      JSON.stringify(nextDismissedNotificationKeys),
+    );
+  }
+
   async function handleDiscordSignOut() {
     setDiscordAuthError(null);
     setIsDiscordSubmitting(true);
@@ -1566,7 +1568,7 @@ setMemberProfiles(data ?? []);
                         {eventItem.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        {formatEventDate(eventItem.eventDate, eventItem.date)}
+                        {formatFranceEventDate(eventItem.eventDate, eventItem.date)}
                       </p>
                       <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:5]">
                         {eventItem.description}
@@ -1908,7 +1910,7 @@ setMemberProfiles(data ?? []);
           >
             <div className="flex h-full min-h-0 flex-col justify-between rounded-2xl border border-violet-200/11 bg-[linear-gradient(145deg,rgba(196,181,253,0.085),rgba(76,29,149,0.065))] p-5 shadow-[inset_0_0_18px_rgba(196,181,253,0.04),0_0_13px_rgba(76,29,149,0.055)]">
               <div>
-                <p className="text-sm leading-6 text-violet-50/78">
+                <p className="whitespace-pre-line break-words text-sm leading-6 text-violet-50/78">
                   {homepageSettings?.guildObjectiveText || homepageSettingsFallback.guildObjectiveText}
                 </p>
               </div>
@@ -2179,16 +2181,17 @@ setMemberProfiles(data ?? []);
                   {isDynamicContentLoaded
                     ? notificationItems.map((activity, index) => {
                         const ActivityIcon = activityIcons[activity.type];
+                        const notificationKey = getNotificationKey(activity);
 
                         return (
                           <div
                             className="flex items-start gap-3 rounded-xl border border-violet-100/10 bg-violet-50/[0.045] p-3"
-                            key={`${activity.label}-${activity.title}-${index}`}
+                            key={`${notificationKey}-${index}`}
                           >
                             <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-violet-200/12 bg-violet-300/10 text-violet-100">
                               <ActivityIcon size={15} />
                             </div>
-                            <div className="min-w-0">
+                            <div className="min-w-0 flex-1">
                               <p className="text-[10px] font-black uppercase tracking-[0.16em] text-violet-200">
                                 {activity.label}
                               </p>
@@ -2199,6 +2202,18 @@ setMemberProfiles(data ?? []);
                                 {activity.meta}
                               </p>
                             </div>
+                            <button
+                              aria-label={`Masquer la notification ${activity.title}`}
+                              className="grid size-7 shrink-0 place-items-center rounded-lg border border-violet-100/10 bg-violet-100/[0.035] text-violet-100/48 transition duration-200 hover:border-red-300/30 hover:bg-red-400/10 hover:text-red-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300/60"
+                              onClick={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                handleDismissNotification(notificationKey);
+                              }}
+                              type="button"
+                            >
+                              <Trash2 size={13} />
+                            </button>
                           </div>
                         );
                       })
@@ -2398,7 +2413,7 @@ setMemberProfiles(data ?? []);
                         {eventItem.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        {formatEventDate(eventItem.eventDate, eventItem.date)}
+                        {formatFranceEventDate(eventItem.eventDate, eventItem.date)}
                       </p>
                       <p className="mt-1 overflow-hidden text-xs leading-5 text-slate-500 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
                         {eventItem.description}
@@ -2771,7 +2786,7 @@ setMemberProfiles(data ?? []);
                             : isCurrentMonth
                               ? "border-violet-100/9 bg-violet-50/[0.035] text-violet-50 hover:border-violet-200/18 hover:bg-violet-100/[0.06]"
                               : "border-violet-100/[0.04] bg-transparent text-slate-600"
-                        }`}
+                        } ${dayEvents.length ? "lunaeria-calendar-event-day" : ""}`}
                         key={dateKey}
                         onClick={() => setSelectedCalendarDate(dateKey)}
                         type="button"
@@ -2787,19 +2802,19 @@ setMemberProfiles(data ?? []);
                         </span>
 
                         {dayEvents.length ? (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {dayEvents.slice(0, 3).map((eventItem) => (
-                              <span
-                                className="h-1.5 w-1.5 rounded-full bg-violet-200 shadow-[0_0_8px_rgba(196,181,253,0.75)]"
-                                key={eventItem.id}
-                              />
-                            ))}
-                            {dayEvents.length > 3 ? (
-                              <span className="text-[10px] font-black text-violet-100">
-                                +{dayEvents.length - 3}
+                          <>
+                            <span
+                              aria-hidden="true"
+                              className="lunaeria-calendar-event-sparkle"
+                            >
+                              ✨
+                            </span>
+                            {dayEvents.length > 1 ? (
+                              <span className="lunaeria-calendar-event-count">
+                                {dayEvents.length}
                               </span>
                             ) : null}
-                          </div>
+                          </>
                         ) : null}
                       </button>
                     );
@@ -2834,7 +2849,7 @@ setMemberProfiles(data ?? []);
                                 {eventItem.title}
                               </p>
                               <p className="mt-1 text-sm font-bold text-[#e8dcbd]">
-                                {formatEventDate(eventItem.eventDate, eventItem.date)}
+                                {formatFranceEventDate(eventItem.eventDate, eventItem.date)}
                               </p>
                               <p className="mt-2 text-sm leading-6 text-slate-400">
                                 {eventItem.description}
@@ -2913,7 +2928,7 @@ setMemberProfiles(data ?? []);
                 {selectedEvent.title}
               </h2>
               <p className="mt-2 text-sm font-bold text-[#e8dcbd]">
-                {formatEventDate(selectedEvent.eventDate, selectedEvent.date)}
+                {formatFranceEventDate(selectedEvent.eventDate, selectedEvent.date)}
               </p>
             </div>
             <div className="relative z-10 mt-5 max-h-[60vh] overflow-y-auto rounded-2xl border border-violet-100/10 bg-[#030512]/64 p-4 text-sm leading-7 text-slate-300 shadow-[inset_0_0_18px_rgba(196,181,253,0.024)] sm:p-5 sm:text-base sm:leading-8">

@@ -41,6 +41,10 @@ import {
   type UsefulLink,
   useHomepageContent,
 } from "@/lib/lunaeria-content";
+import {
+  createFranceEventDate,
+  getFranceEventDateInputValues,
+} from "@/lib/event-date";
 import { uploadPublicImage } from "@/lib/storage-images";
 import { dofusClasses, dofusElements, getClassImage, getElement } from "@/lib/stuffs-data";
 import {
@@ -120,27 +124,6 @@ const emptyEvent = {
   time: "",
   description: "",
 };
-
-function getEventDateInputValues(eventDate: string | null | undefined) {
-  if (!eventDate) {
-    return { date: "", time: "" };
-  }
-
-  const date = new Date(eventDate);
-
-  if (Number.isNaN(date.getTime())) {
-    return { date: "", time: "" };
-  }
-
-  return {
-    date: date.toLocaleDateString("sv-SE"),
-    time: date.toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      hour12: false,
-      minute: "2-digit",
-    }),
-  };
-}
 
 const emptyUsefulLink: Omit<UsefulLink, "id"> = {
   title: "",
@@ -845,7 +828,10 @@ export default function AdminPage() {
     const payload = {
       title: eventDraft.title.trim(),
       date: eventDraft.date.trim(),
-      event_date: `${eventDraft.date.trim()}T${eventDraft.time.trim()}:00`,
+      event_date: createFranceEventDate(
+        eventDraft.date.trim(),
+        eventDraft.time.trim(),
+      ),
       description: eventDraft.description.trim() || "Détails à compléter.",
       published: true,
     };
@@ -872,7 +858,9 @@ export default function AdminPage() {
   }
 
   function editEvent(eventItem: Event) {
-    const eventDateInputValues = getEventDateInputValues(eventItem.eventDate);
+    const eventDateInputValues = getFranceEventDateInputValues(
+      eventItem.eventDate,
+    );
 
     setEditingEventId(eventItem.id);
     setEventDraft({
@@ -1219,7 +1207,7 @@ export default function AdminPage() {
   }, [isLoaded]);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
+    <main className="admin-page min-h-screen overflow-hidden bg-[#030512] text-slate-100">
       <div className="aurora-bg fixed inset-0" />
       <div className="rune-grid fixed inset-0" />
       <div className="star-veil fixed inset-0 opacity-45" />

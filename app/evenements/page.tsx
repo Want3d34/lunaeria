@@ -12,6 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
+import { formatFranceEventDate } from "@/lib/event-date";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,30 +28,6 @@ type EventItem = {
   createdAt: string;
   published: boolean;
 };
-
-function formatEventDate(eventDate: string | null, fallbackDate: string) {
-  if (!eventDate) {
-    return fallbackDate;
-  }
-
-  const date = new Date(eventDate);
-
-  if (Number.isNaN(date.getTime())) {
-    return fallbackDate;
-  }
-
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "2-digit",
-    hour: "2-digit",
-    hour12: false,
-    minute: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  })
-    .format(date)
-    .replace(" ", " à ")
-    .replace(":", "h");
-}
 
 type AttendanceStatus = "participant" | "maybe" | "absent";
 
@@ -230,7 +207,7 @@ export default function EvenementsPage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-black uppercase tracking-[0.22em] text-violet-200">
-                        {formatEventDate(eventItem.eventDate, eventItem.date)}
+                        {formatFranceEventDate(eventItem.eventDate, eventItem.date)}
                       </span>
                       <span className="rounded-full border border-violet-100/10 bg-[#030512]/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-violet-100/75">
                         {eventItem.published ? "Publié" : "Brouillon"}
