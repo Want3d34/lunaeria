@@ -132,6 +132,17 @@ body {
   position: relative;
 }
 
+.home-userbar-popover:has(.home-icon-button) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.home-userbar-popover:has(.home-profile-button) {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
 .home-search-results {
   left: 0;
   right: 0;
@@ -291,6 +302,12 @@ body {
   .home-search {
     grid-column: auto;
     width: min(24rem, 38vw);
+  }
+
+  .home-userbar-popover:has(.home-icon-button),
+  .home-userbar-popover:has(.home-profile-button) {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .home-dashboard {
@@ -1015,23 +1032,23 @@ body {
     overflow-x: clip;
   }
 
-  .admin-page aside {
+  .admin-page aside:not(.admin-sidebar) {
     padding: 0.9rem;
   }
 
-  .admin-page aside nav {
+  .admin-page aside:not(.admin-sidebar) nav {
     margin-top: 0.9rem;
     gap: 0.45rem;
   }
 
-  .admin-page aside nav a {
+  .admin-page aside:not(.admin-sidebar) nav a {
     min-height: 2.85rem;
     gap: 0.55rem;
     padding-inline: 0.65rem;
     font-size: 0.76rem;
   }
 
-  .admin-page aside + div {
+  .admin-page aside:not(.admin-sidebar) + div {
     padding: 1rem 0.85rem 1.5rem;
   }
 
@@ -1105,15 +1122,15 @@ body {
     padding: 0.8rem;
   }
 
-  .admin-page aside nav {
+  .admin-page aside:not(.admin-sidebar) nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .admin-page aside nav a {
+  .admin-page aside:not(.admin-sidebar) nav a {
     min-width: 0;
   }
 
-  .admin-page aside + div {
+  .admin-page aside:not(.admin-sidebar) + div {
     padding-inline: 0.7rem;
   }
 
@@ -1186,12 +1203,12 @@ body {
     padding: 0.95rem;
   }
 
-  .admin-page aside,
-  .admin-page aside + div {
+  .admin-page aside:not(.admin-sidebar),
+  .admin-page aside:not(.admin-sidebar) + div {
     padding-inline: 0.55rem;
   }
 
-  .admin-page aside nav a {
+  .admin-page aside:not(.admin-sidebar) nav a {
     min-height: 2.75rem;
     padding-inline: 0.55rem;
     font-size: 0.7rem;

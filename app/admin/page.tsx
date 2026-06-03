@@ -25,7 +25,6 @@ import {
 import Image from "next/image";
 import { createClient, type Session } from "@supabase/supabase-js";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import {
   inferLunaeriaToastType,
   LunaeriaToast,
@@ -82,6 +81,7 @@ const supabase = createClient(
   {
     auth: {
       storageKey: "lunaeria-admin-auth",
+      storage: typeof window !== "undefined" ? window.sessionStorage : undefined,
       detectSessionInUrl: false,
       persistSession: true,
       autoRefreshToken: true,
@@ -941,74 +941,74 @@ export default function AdminPage() {
         <LunaeriaToast notice={toast} onDismiss={() => setToast(null)} />
       ) : null}
 
-      <div className="relative z-10 grid min-h-screen lg:grid-cols-[300px_1fr]">
-        <aside className="sidebar-shell relative border-b border-violet-200/8 bg-[#040719]/90 p-4 shadow-[24px_0_76px_rgba(0,0,0,0.48),0_0_24px_rgba(76,29,149,0.065)] backdrop-blur-md lg:sticky lg:top-0 lg:min-h-screen lg:border-b-0 lg:border-r lg:p-5">
-          <div className="relative z-10 flex items-center gap-3 rounded-[1.55rem] border border-violet-200/12 bg-violet-100/[0.04] p-3 shadow-[inset_0_1px_0_rgba(196,181,253,0.05),0_0_16px_rgba(76,29,149,0.055)]">
-            <div className="grid size-12 shrink-0 place-items-center rounded-2xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820] shadow-[0_0_18px_rgba(124,58,237,0.2),inset_0_1px_0_rgba(237,233,254,0.42)]">
-              <LunaeriaLogo size={28} />
+      <div className={`relative z-10 min-h-screen ${isAdmin ? "lg:pl-60" : ""}`}>
+        {isAdmin ? (
+          <aside className="admin-sidebar home-sidebar sidebar-shell sidebar-premium fixed left-0 top-0 z-30 flex h-24 w-full flex-row items-center gap-2.5 overflow-visible border-b border-violet-200/8 bg-[#050513]/96 px-3 py-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.44),0_0_20px_rgba(76,29,149,0.05)] backdrop-blur-md lg:h-screen lg:w-60 lg:flex-col lg:items-stretch lg:border-b-0 lg:border-r lg:px-4 lg:py-3 lg:shadow-[18px_0_58px_rgba(0,0,0,0.52),0_0_18px_rgba(76,29,149,0.055)]">
+            <div className="relative z-10 flex w-16 shrink-0 items-center justify-center py-0 lg:mb-2 lg:w-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="Lunaeria Admin"
+                className="relative z-10 w-[140%] max-w-none object-contain drop-shadow-[0_0_10px_rgba(167,139,250,0.14)] lg:w-[157%]"
+                src="/newlogo2.png"
+              />
             </div>
-            <div className="min-w-0">
-              <p className="text-lg font-black tracking-[0.22em] text-violet-50">
-                LUNAERIA
-              </p>
-              <p className="text-xs uppercase tracking-[0.28em] text-violet-100/70">
-                Admin v2
-              </p>
+
+            <div aria-hidden="true" className="lunaeria-sidebar-divider hidden lg:flex">
+              <span />
             </div>
-          </div>
 
-          <nav className="relative z-10 mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1 lg:gap-2.5">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeSection === item.key;
+            <nav
+              aria-label="Navigation admin Lunaeria"
+              className="relative z-10 flex min-w-0 flex-1 snap-x flex-row gap-2 overflow-x-auto overflow-y-visible px-1 pb-1 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden lg:min-w-0 lg:snap-none lg:flex-col lg:gap-1 lg:overflow-visible lg:p-0 lg:pr-0"
+            >
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeSection === item.key;
 
-              return (
-                <a
-                  className={`group/nav flex min-h-12 items-center gap-3 rounded-2xl border px-3 text-sm font-bold transition duration-300 ${
-                    isActive
-                      ? "border-violet-200/18 bg-violet-100/[0.07] text-violet-50 shadow-[0_0_16px_rgba(124,58,237,0.12)]"
-                      : "border-transparent text-slate-400 hover:border-violet-200/14 hover:bg-violet-100/[0.04] hover:text-violet-100"
-                  }`}
-                  href={`#${item.key}`}
-                  key={item.key}
-                  onClick={() => activateSection(item.key)}
-                >
-                  <Icon
-                    className="shrink-0 transition duration-300 group-hover/nav:scale-105 group-hover/nav:drop-shadow-[0_0_6px_rgba(196,181,253,0.26)]"
-                    size={18}
-                  />
-                  <span className="min-w-0 truncate">{item.label}</span>
-                </a>
-              );
-            })}
-          </nav>
+                return (
+                  <a
+                    className={`group/nav relative flex h-12 min-w-[4.35rem] snap-start items-center justify-center gap-1 overflow-visible rounded-xl border px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] transition duration-300 lg:h-9 lg:min-w-0 lg:w-full lg:flex-row lg:justify-start lg:gap-2.5 lg:overflow-hidden lg:px-3 lg:py-0 lg:text-xs lg:font-medium lg:normal-case lg:tracking-normal ${
+                      isActive
+                        ? "border-violet-300/24 bg-violet-400/[0.12] text-violet-50 shadow-[inset_0_1px_8px_rgba(196,181,253,0.045),0_0_14px_rgba(139,92,246,0.12)]"
+                        : "border-transparent text-violet-100/58 hover:border-violet-200/12 hover:bg-violet-100/[0.045] hover:text-violet-50"
+                    }`}
+                    href={`#${item.key}`}
+                    key={item.key}
+                    onClick={() => activateSection(item.key)}
+                  >
+                    <span className="absolute inset-y-2 left-0 w-px bg-violet-200/0 transition duration-300 group-hover/nav:bg-violet-200/45" />
+                    <Icon
+                      className="shrink-0 transition duration-300 group-hover/nav:scale-105 group-hover/nav:drop-shadow-[0_0_6px_rgba(196,181,253,0.26)]"
+                      size={16}
+                    />
+                    <span className="block max-w-[4.1rem] text-center leading-3 lg:max-w-none lg:flex-1 lg:text-left lg:leading-normal">
+                      {item.label}
+                    </span>
+                  </a>
+                );
+              })}
+            </nav>
 
-          <div className="relative z-10 mt-5 rounded-[1.45rem] border border-violet-100/10 bg-[#030512]/70 p-4 shadow-[inset_0_0_18px_rgba(196,181,253,0.02)]">
-            <div className="flex items-center gap-3">
-              <div className="grid size-10 place-items-center rounded-2xl border border-violet-100/12 bg-violet-100/[0.045] text-violet-100">
-                <LockKeyhole size={17} />
-              </div>
-              <div>
-                <p className="text-sm font-black text-violet-50">
-                  Gate temporaire
-                </p>
-                <p className="text-xs text-slate-500">
-                  Structure prête pour Discord OAuth.
-                </p>
-              </div>
+            <div aria-hidden="true" className="lunaeria-sidebar-divider lunaeria-sidebar-divider--footer hidden lg:flex">
+              <span />
             </div>
+
             <AdminButton
-              className="mt-4 w-full"
-              onClick={isAdmin ? handleAdminLogout : undefined}
-              variant={isAdmin ? "ghost" : "primary"}
+              className="relative z-10 hidden w-full lg:inline-flex"
+              onClick={handleAdminLogout}
+              variant="ghost"
             >
               <ShieldCheck size={17} />
-              {isAdmin ? "Déconnexion" : "Connexion requise"}
+              Déconnexion
             </AdminButton>
-          </div>
-        </aside>
+          </aside>
+        ) : null}
 
-        <div className="relative px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+        <div
+          className={`relative px-4 py-5 sm:px-6 lg:px-8 lg:py-8 ${
+            isAdmin ? "pt-[7rem] lg:pt-8" : ""
+          }`}
+        >
           {!isAdmin ? (
             <section className="mx-auto grid min-h-[calc(100vh-2.5rem)] max-w-3xl place-items-center">
               <div className="premium-card rounded-[2rem] border border-violet-200/12 bg-[#06091b]/78 p-7 text-center shadow-[0_42px_120px_rgba(0,0,0,0.58),0_0_30px_rgba(76,29,149,0.09)] backdrop-blur-md sm:p-10">
