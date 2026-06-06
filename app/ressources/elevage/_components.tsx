@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { GitBranch, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
@@ -95,12 +96,6 @@ export function BreedingTreePage({ species }: { species: BreedingSpecies }) {
 
       <PageSidebar
         items={[
-          ...breedingSpeciesNav.map((item) => ({
-            label: item.label,
-            href: item.href,
-            icon: GitBranch,
-            active: item.slug === species.slug,
-          })),
           ...species.generations.slice(0, 10).map((generation) => ({
             label: `Gén. ${generation.generation}`,
             href: `#generation-${generation.generation}`,
@@ -158,6 +153,59 @@ export function BreedingTreePage({ species }: { species: BreedingSpecies }) {
             </div>
           </section>
         ) : null}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export function BreedingIndexPage() {
+  return (
+    <main className="min-h-screen overflow-hidden bg-[#030512] text-slate-100">
+      <div className="aurora-bg fixed inset-0" />
+      <div className="rune-grid fixed inset-0" />
+      <div className="star-veil fixed inset-0 opacity-45" />
+      <div className="fog-veil fixed inset-0" />
+
+      <PageSidebar
+        items={breedingSpeciesNav.map((item) => ({
+          label: item.label,
+          href: item.href,
+          icon: GitBranch,
+        }))}
+        subtitle="Ressources"
+        title="Élevage"
+      />
+
+      <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-60 lg:px-8 lg:pt-8">
+        <div className="mx-auto max-w-7xl">
+          <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10">
+            <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center">
+              <div className="grid size-16 place-items-center rounded-3xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820]">
+                <LunaeriaLogo size={35} />
+              </div>
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.3em] text-violet-200">
+                  Ressources
+                </p>
+                <h1 className="mt-3 text-4xl font-black text-violet-50 drop-shadow-[0_0_14px_rgba(167,139,250,0.18)] [text-shadow:0_0_10px_rgba(196,181,253,0.16),0_10px_30px_rgba(0,0,0,0.78)] sm:text-6xl">
+                  Élevage
+                </h1>
+              </div>
+            </div>
+          </header>
+
+          <section className="mt-8 grid gap-4 md:grid-cols-3">
+            {breedingSpeciesNav.map((item) => (
+              <Link
+                className="premium-card rounded-[1.35rem] border border-violet-100/9 bg-[#06091b]/72 p-5 text-lg font-black text-violet-50 shadow-[0_22px_60px_rgba(0,0,0,0.35)] transition duration-300 hover:-translate-y-1 hover:border-violet-200/18"
+                href={item.href}
+                key={item.slug}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </section>
         </div>
       </div>
     </main>
