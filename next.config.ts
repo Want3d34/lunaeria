@@ -6,6 +6,20 @@ const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  async redirects() {
+    return [
+      {
+        source: "/stuffs-builds/encyclopedie",
+        destination: "/encyclopedie",
+        permanent: true,
+      },
+      {
+        source: "/stuffs-builds/ajouter",
+        destination: "/encyclopedie/ajouter",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

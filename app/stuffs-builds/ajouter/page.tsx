@@ -19,11 +19,9 @@ import { ElementChips, LunaeriaSelect } from "../_components";
 
 const emptyDraft = {
   gamePseudo: "",
-  discordPseudo: "",
   title: "",
   className: "Cra",
-  elements: ["Feu"],
-  orientation: "",
+  elements: [] as string[],
   mode: "PvM" as "PvM" | "PvP",
   budget: "Moyen",
   level: "200",
@@ -88,7 +86,7 @@ export default function AjouterStuffPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "discord",
       options: {
-        redirectTo: `${getSiteUrl()}/auth/callback?next=/stuffs-builds/ajouter`,
+        redirectTo: `${getSiteUrl()}/auth/callback?next=/encyclopedie/ajouter`,
       },
     });
 
@@ -110,6 +108,14 @@ export default function AjouterStuffPage() {
       setToast({
         type: "warning",
         message: "Le pseudo en jeu et le nom du stuff sont obligatoires.",
+      });
+      return;
+    }
+
+    if (draft.elements.length === 0) {
+      setToast({
+        type: "warning",
+        message: "Choisis au moins un élément pour publier le build.",
       });
       return;
     }
@@ -138,14 +144,12 @@ export default function AjouterStuffPage() {
     const payload = {
       title: draft.title.trim(),
       game_pseudo: draft.gamePseudo.trim(),
-      discord_pseudo: draft.discordPseudo.trim() || linkedDiscordProfile.displayName,
       creator_discord_id: linkedDiscordProfile.discordId,
       creator_display_name: linkedDiscordProfile.displayName,
       class_name: draft.className,
       class_image: "",
       elements,
       element_icons: elements.map((item) => getElement(item)?.icon ?? "✦"),
-      orientation: draft.orientation.trim(),
       mode: draft.mode,
       budget: draft.budget,
       level: draft.level,
@@ -177,7 +181,6 @@ export default function AjouterStuffPage() {
             id: String(data.id),
             title: data.title,
             gamePseudo: data.game_pseudo || "",
-            discordPseudo: data.discord_pseudo || "",
             className: data.class_name,
             classImage: data.class_image || classImage,
             elements: data.elements?.length ? data.elements : ["Multi"],
@@ -185,7 +188,6 @@ export default function AjouterStuffPage() {
               data.element_icons?.length
                 ? data.element_icons
                 : elements.map((item) => getElement(item)?.icon ?? "✦"),
-            orientation: data.orientation || "",
             mode: data.mode || "PvM",
             budget: data.budget || "Moyen",
             level: data.level || "200",
@@ -203,7 +205,7 @@ export default function AjouterStuffPage() {
       }));
     }
 
-    router.push("/stuffs-builds/encyclopedie");
+    router.push("/encyclopedie");
   }
 
   return (
@@ -220,7 +222,7 @@ export default function AjouterStuffPage() {
         items={[
           {
             label: "Encyclopédie",
-            href: "/stuffs-builds/encyclopedie",
+            href: "/encyclopedie",
             icon: ShieldCheck,
           },
           { label: "Ajouter", href: "#ajouter", icon: Send, active: true },
@@ -280,7 +282,6 @@ export default function AjouterStuffPage() {
             <div className="grid gap-3">
               <div className="grid gap-3 sm:grid-cols-2">
                 <input className={inputClass()} onChange={(event) => setDraft((current) => ({ ...current, gamePseudo: event.target.value }))} placeholder="Pseudo en jeu" value={draft.gamePseudo} />
-                <input className={inputClass()} onChange={(event) => setDraft((current) => ({ ...current, discordPseudo: event.target.value }))} placeholder="Pseudo Discord" value={draft.discordPseudo} />
                 <input className={inputClass()} onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))} placeholder="Nom du stuff" value={draft.title} />
                 <LunaeriaSelect
                   label="Classe"
@@ -290,7 +291,6 @@ export default function AjouterStuffPage() {
                   options={dofusClasses.map((item) => item.name)}
                   value={draft.className}
                 />
-                <input className={inputClass()} onChange={(event) => setDraft((current) => ({ ...current, orientation: event.target.value }))} placeholder="Orientation" value={draft.orientation} />
                 <LunaeriaSelect
                   label="Mode"
                   onChange={(value) =>

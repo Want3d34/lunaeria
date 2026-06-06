@@ -62,7 +62,6 @@ export default function StuffEncyclopediePage() {
       id: String(item.id),
       title: item.title,
       gamePseudo: item.game_pseudo || "",
-      discordPseudo: item.discord_pseudo || "",
       className: item.class_name,
       classImage: item.class_image || getClassImage(item.class_name),
       elements: item.elements?.length ? item.elements : ["Multi"],
@@ -72,7 +71,6 @@ export default function StuffEncyclopediePage() {
           : (item.elements?.length ? item.elements : ["Multi"]).map(
               (entry: string) => getElement(entry)?.icon ?? "✦",
             ),
-      orientation: item.orientation || "",
       mode: item.mode || "PvM",
       budget: item.budget || "Moyen",
       level: item.level || "200",
@@ -138,7 +136,7 @@ export default function StuffEncyclopediePage() {
     }
 
     if (linkedDiscordProfile) {
-      window.location.href = "/stuffs-builds/ajouter";
+      window.location.href = "/encyclopedie/ajouter";
       return;
     }
 
@@ -147,7 +145,7 @@ export default function StuffEncyclopediePage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "discord",
       options: {
-        redirectTo: `${getSiteUrl()}/auth/callback?next=/stuffs-builds/ajouter`,
+        redirectTo: `${getSiteUrl()}/auth/callback?next=/encyclopedie/ajouter`,
       },
     });
 
@@ -155,6 +153,32 @@ export default function StuffEncyclopediePage() {
       console.error(error);
       setDiscordPrompt("Connexion Discord impossible pour le moment.");
     }
+  }
+
+  async function viewBuild(build: BuildItem) {
+    window.open(build.dofusbookUrl, "_blank", "noopener,noreferrer");
+
+    const nextViews = build.views + 1;
+    const { data, error } = await supabase
+      .from("builds")
+      .update({ views: nextViews })
+      .eq("id", build.id)
+      .select("views")
+      .single();
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const savedViews = data?.views ?? nextViews;
+
+    setContent((current) => ({
+      ...current,
+      builds: current.builds.map((item) =>
+        item.id === build.id ? { ...item, views: savedViews } : item,
+      ),
+    }));
   }
 
   async function deleteBuild(build: BuildItem) {
@@ -335,7 +359,10 @@ export default function StuffEncyclopediePage() {
                   <span>Niv. {build.level}</span>
                   <span className="inline-flex items-center gap-1"><Eye size={14} /> {build.views}</span>
                 </div>
-                <a className="relative z-10 mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-100/12 bg-violet-100/[0.045] px-4 py-3 text-sm font-black text-violet-50 transition hover:border-violet-200/24 hover:bg-violet-200/8" href={build.dofusbookUrl} rel="noreferrer" target="_blank">
+                <a className="relative z-10 mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-100/12 bg-violet-100/[0.045] px-4 py-3 text-sm font-black text-violet-50 transition hover:border-violet-200/24 hover:bg-violet-200/8" href={build.dofusbookUrl} onClick={(event) => {
+                  event.preventDefault();
+                  void viewBuild(build);
+                }} rel="noreferrer" target="_blank">
                   <ShieldCheck size={17} />
                   Voir le build
                 </a>

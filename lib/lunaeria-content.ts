@@ -54,12 +54,10 @@ export type BuildItem = {
   id: string;
   title: string;
   gamePseudo: string;
-  discordPseudo: string;
   className: string;
   classImage: string;
   elements: string[];
   elementIcons: string[];
-  orientation: string;
   mode: "PvM" | "PvP";
   budget: string;
   level: string;
