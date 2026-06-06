@@ -9,6 +9,12 @@ import type {
   BreedingSpecialMount,
 } from "@/lib/breeding-data";
 
+const breedingSpeciesNav = [
+  { label: "Dragodindes", href: "/ressources/elevage/dragodindes", slug: "dragodindes" },
+  { label: "Muldos", href: "/ressources/elevage/muldos", slug: "muldos" },
+  { label: "Volkornes", href: "/ressources/elevage/volkornes", slug: "volkornes" },
+] satisfies { label: string; href: string; slug: BreedingSpecies["slug"] }[];
+
 export function BreedingMountCard({ mount }: { mount: BreedingMount }) {
   return (
     <article className="relative rounded-[1.25rem] border border-violet-100/9 bg-violet-50/[0.035] p-4 shadow-[inset_0_0_14px_rgba(196,181,253,0.02),0_16px_38px_rgba(0,0,0,0.24)] transition duration-300 hover:-translate-y-0.5 hover:border-violet-200/16">
@@ -89,11 +95,16 @@ export function BreedingTreePage({ species }: { species: BreedingSpecies }) {
 
       <PageSidebar
         items={[
+          ...breedingSpeciesNav.map((item) => ({
+            label: item.label,
+            href: item.href,
+            icon: GitBranch,
+            active: item.slug === species.slug,
+          })),
           ...species.generations.slice(0, 10).map((generation) => ({
             label: `Gén. ${generation.generation}`,
             href: `#generation-${generation.generation}`,
             icon: GitBranch,
-            active: generation.generation === species.generations[0]?.generation,
           })),
           ...(species.specialMounts?.length
             ? [{ label: "Spécial", href: "#special", icon: Sparkles }]
