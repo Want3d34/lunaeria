@@ -163,7 +163,7 @@ export default function StuffEncyclopediePage() {
       .from("builds")
       .update({ views: nextViews })
       .eq("id", build.id)
-      .select("views")
+      .select("id, views")
       .single();
 
     if (error) {

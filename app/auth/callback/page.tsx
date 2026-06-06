@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
+function getSafeNextPath(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return "/";
+  }
+
+  return value;
+}
+
 export default function AuthCallbackPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -12,7 +20,7 @@ export default function AuthCallbackPage() {
     async function completeAuth() {
       const url = new URL(window.location.href);
       const code = url.searchParams.get("code");
-      const next = url.searchParams.get("next") || "/";
+      const next = getSafeNextPath(url.searchParams.get("next"));
 
       try {
         if (code) {
@@ -29,7 +37,7 @@ export default function AuthCallbackPage() {
           }
         }
 
-        window.location.replace(next.startsWith("/") ? next : "/");
+        window.location.replace(next);
       } catch (error) {
         console.error(error);
 
