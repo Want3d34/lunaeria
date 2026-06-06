@@ -174,7 +174,13 @@ export function BreedingIndexPage() {
       <div className="fog-veil fixed inset-0" />
 
       <PageSidebar
-        items={[]}
+        items={[
+          {
+            label: "Simulateur",
+            href: "/ressources/elevage/simulateur",
+            icon: Sparkles,
+          },
+        ]}
         subtitle="Ressources"
         title="Élevage"
       />
