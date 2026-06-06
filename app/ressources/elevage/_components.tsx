@@ -111,6 +111,12 @@ export function BreedingTreePage({ species }: { species: BreedingSpecies }) {
 
       <div className="relative z-10 min-h-screen px-4 py-8 pt-[8.25rem] sm:px-6 sm:pt-[8.5rem] lg:ml-60 lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-7xl">
+        <Link
+          className="mb-5 inline-flex items-center rounded-xl border border-violet-300/20 bg-[#0b0718]/75 px-4 py-2 text-sm font-black text-violet-100 shadow-[0_0_18px_rgba(124,58,237,0.12)] backdrop-blur-xl transition hover:border-violet-300/40 hover:bg-violet-900/30 hover:text-violet-50"
+          href="/ressources/elevage"
+        >
+          ← Retour
+        </Link>
         <header className="premium-card rounded-[2rem] border border-violet-200/10 bg-[#06091b]/76 p-7 shadow-[0_42px_120px_rgba(0,0,0,0.55),0_0_28px_rgba(76,29,149,0.08)] backdrop-blur-md sm:p-10">
           <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="grid size-16 place-items-center rounded-3xl border border-violet-100/18 bg-[linear-gradient(135deg,#d8c9ff,#9d86df_52%,#7f72ba)] text-[#0a0820]">
@@ -168,11 +174,7 @@ export function BreedingIndexPage() {
       <div className="fog-veil fixed inset-0" />
 
       <PageSidebar
-        items={breedingSpeciesNav.map((item) => ({
-          label: item.label,
-          href: item.href,
-          icon: GitBranch,
-        }))}
+        items={[]}
         subtitle="Ressources"
         title="Élevage"
       />
