@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, Dna, GitBranch, HeartHandshake, Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
 import {
@@ -185,25 +185,45 @@ function fieldClass() {
 
 function LunaeriaDropdown({
   id,
+  isOpen,
   onChange,
+  onOpenChange,
   options,
   value,
 }: {
   id: string;
+  isOpen: boolean;
   onChange: (value: string) => void;
+  onOpenChange: (id: string | undefined) => void;
   options: SelectOption[];
   value: string;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const selectedOption = options.find((option) => option.value === value) ?? options[0];
 
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        onOpenChange(undefined);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isOpen, onOpenChange]);
+
   return (
-    <div className={`relative ${isOpen ? "z-50" : "z-20"}`}>
+    <div className={`relative ${isOpen ? "z-50" : "z-20"}`} ref={containerRef}>
       <button
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         className="flex min-h-12 w-full items-center justify-between gap-3 rounded-2xl border border-violet-100/10 bg-[#030512]/72 px-4 text-left text-sm font-semibold text-violet-50 outline-none shadow-[inset_0_0_14px_rgba(196,181,253,0.025)] transition hover:border-violet-200/24 hover:bg-[#06091b]/86"
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={() => onOpenChange(isOpen ? undefined : id)}
         type="button"
       >
         <span className="truncate">{selectedOption?.label ?? "Selectionner"}</span>
@@ -232,7 +252,7 @@ function LunaeriaDropdown({
                 key={option.value}
                 onClick={() => {
                   onChange(option.value);
-                  setIsOpen(false);
+                  onOpenChange(undefined);
                 }}
                 role="option"
                 type="button"
@@ -249,6 +269,7 @@ function LunaeriaDropdown({
 }
 
 export default function BreedingSimulatorPage() {
+  const [openDropdownId, setOpenDropdownId] = useState<string>();
   const [mountType, setMountType] = useState<MountType>("dragodindes");
   const [parentOne, setParentOne] = useState("Parent 1");
   const [parentTwo, setParentTwo] = useState("Parent 2");
@@ -368,7 +389,9 @@ export default function BreedingSimulatorPage() {
                   </span>
                   <LunaeriaDropdown
                     id="mount-type"
+                    isOpen={openDropdownId === "mount-type"}
                     onChange={(value) => updateMountType(value as MountType)}
+                    onOpenChange={setOpenDropdownId}
                     options={breedingSpeciesDefinitions.map((species) => ({
                       label: species.title,
                       value: species.slug,
@@ -417,7 +440,9 @@ export default function BreedingSimulatorPage() {
                         />
                         <LunaeriaDropdown
                           id={`${parent.label}-generation`}
+                          isOpen={openDropdownId === `${parent.label}-generation`}
                           onChange={(value) => parent.updateGeneration(Number(value))}
+                          onOpenChange={setOpenDropdownId}
                           options={getGenerationOptions(mountType).map((generation) => ({
                             label: `Generation ${generation}`,
                             value: String(generation),
@@ -426,7 +451,9 @@ export default function BreedingSimulatorPage() {
                         />
                         <LunaeriaDropdown
                           id={`${parent.label}-lineage`}
+                          isOpen={openDropdownId === `${parent.label}-lineage`}
                           onChange={parent.setLineage}
+                          onOpenChange={setOpenDropdownId}
                           options={parent.lineages.map((lineage) => ({
                             label: lineage,
                             value: lineage,
