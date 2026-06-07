@@ -4,57 +4,18 @@ import { Check, ChevronDown, Dna, GitBranch, HeartHandshake, Sparkles } from "lu
 import { useMemo, useState } from "react";
 import { LunaeriaLogo } from "@/components/lunaeria-logo";
 import { PageSidebar } from "@/components/page-sidebar";
+import {
+  breedingSpeciesDefinitions,
+  findMountByColors,
+  getBreedingDefinition,
+  getMountByLineage,
+  getMountsByGeneration,
+  normalizeBreedingName,
+  type BreedingSpeciesSlug,
+  type LocalBreedingMount,
+} from "@/lib/breeding-database";
 
-const mountTypes = {
-  dragodindes: {
-    label: "Dragodindes",
-    generations: {
-      1: ["Rousse Sauvage", "Amande Sauvage", "Doree Sauvage"],
-      2: ["Rousse", "Amande", "Doree"],
-      3: ["Amande et Rousse", "Amande et Doree", "Rousse et Doree"],
-      4: ["Doree et Rousse", "Doree et Amande", "Doree et Indigo"],
-      5: ["Ebene et Rousse", "Ebene et Amande", "Ebene et Doree"],
-      6: ["Emeraude et Rousse", "Emeraude et Amande", "Emeraude et Doree"],
-      7: ["Indigo et Rousse", "Indigo et Amande", "Indigo et Doree"],
-      8: ["Ivoire et Rousse", "Ivoire et Amande", "Turquoise et Doree"],
-      9: ["Orchidee et Rousse", "Orchidee et Amande", "Pourpre et Doree"],
-      10: ["Prune et Rousse", "Prune et Amande", "Prune et Emeraude"],
-    },
-  },
-  muldos: {
-    label: "Muldos",
-    generations: {
-      1: ["Muldo Roux Sauvage", "Muldo Amande Sauvage", "Muldo Dore Sauvage"],
-      2: ["Roux", "Amande", "Dore", "Ebene"],
-      3: ["Pourpre et Roux", "Pourpre et Amande", "Pourpre et Dore"],
-      4: ["Orchidee et Roux", "Orchidee et Amande", "Orchidee et Dore"],
-      5: ["Indigo et Roux", "Indigo et Ebene", "Ebene et Amande"],
-      6: ["Roux et Pourpre", "Roux et Orchidee", "Roux et Indigo"],
-      7: ["Amande et Pourpre", "Amande et Orchidee", "Amande et Indigo"],
-      8: ["Ivoire et Roux", "Ivoire et Amande", "Ivoire et Pourpre"],
-      9: ["Turquoise et Roux", "Turquoise et Amande", "Turquoise et Ivoire"],
-      10: ["Prune et Emeraude", "Prune et Turquoise", "Emeraude et Ivoire"],
-    },
-  },
-  volkornes: {
-    label: "Volkornes",
-    generations: {
-      1: ["Volkorne Pourpre Sauvage", "Volkorne Emeraude Sauvage", "Volkorne Indigo Sauvage"],
-      2: ["Pourpre", "Emeraude", "Indigo", "Orchidee", "Ebene"],
-      3: ["Pourpre et Orchidee", "Indigo et Ebene", "Orchidee et Ebene"],
-      4: ["Amande et Pourpre", "Amande et Indigo", "Amande et Orchidee"],
-      5: ["Roux et Pourpre", "Roux et Amande", "Roux et Ebene"],
-      6: ["Ivoire et Pourpre", "Ivoire et Turquoise", "Turquoise et Amande"],
-      7: ["Prune et Emeraude", "Prune et Ivoire", "Emeraude et Turquoise"],
-      8: ["Dore et Roux", "Dore et Ivoire", "Dore et Emeraude"],
-      9: ["Jade et Dore", "Jade et Prune", "Jade et Emeraude"],
-      10: ["Rubis et Jade", "Saphir et Jade", "Amethyste et Rubis"],
-    },
-  },
-} as const;
-
-type MountType = keyof typeof mountTypes;
-type Generation = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+type MountType = BreedingSpeciesSlug;
 type SelectOption = {
   label: string;
   value: string;
@@ -70,48 +31,135 @@ type SimulatorInput = {
   parentTwoLineage: string;
 };
 
+type SimulatedChild = {
+  lineage: string;
+  generation: number;
+  source: "heritage" | "new-lineage";
+};
+
 function getLineages(mountType: MountType, generation: number) {
-  return mountTypes[mountType].generations[generation as Generation] ?? [];
+  return getMountsByGeneration(mountType, generation).map((mount) => mount.lineage);
+}
+
+function getGenerationOptions(mountType: MountType) {
+  const definition = getBreedingDefinition(mountType);
+
+  return Array.from(
+    { length: definition?.generationCount ?? 10 },
+    (_, index) => index + 1,
+  );
+}
+
+function getMountTypeLabel(mountType: MountType) {
+  return getBreedingDefinition(mountType)?.title ?? mountType;
+}
+
+function getMountTypeName(mountType: MountType) {
+  return getBreedingDefinition(mountType)?.mountType ?? getMountTypeLabel(mountType);
 }
 
 function simulateBreeding(input: SimulatorInput) {
-  const highestGeneration = Math.max(
-    input.parentOneGeneration,
-    input.parentTwoGeneration,
-  );
   const generationGap = Math.abs(
     input.parentOneGeneration - input.parentTwoGeneration,
   );
   const sameLineage = input.parentOneLineage === input.parentTwoLineage;
   const compatibility =
     generationGap <= 1 ? "Excellente" : generationGap <= 3 ? "Stable" : "Faible";
-  const probableGeneration = Math.min(10, highestGeneration + (sameLineage ? 0 : 1));
-  const possibleGenerations = Array.from(
-    new Set([
-      Math.max(1, highestGeneration - 1),
-      highestGeneration,
-      probableGeneration,
-    ]),
-  ).sort((left, right) => left - right);
-  const possibleLineages = sameLineage
-    ? [input.parentOneLineage]
+  const parentOneMount = getMountByLineage(input.mountType, input.parentOneLineage);
+  const parentTwoMount = getMountByLineage(input.mountType, input.parentTwoLineage);
+  const inheritedChildren: SimulatedChild[] = sameLineage
+    ? [
+        {
+          lineage: input.parentOneLineage,
+          generation: parentOneMount?.generation ?? input.parentOneGeneration,
+          source: "heritage",
+        },
+      ]
     : [
-        input.parentOneLineage,
-        input.parentTwoLineage,
-        `${input.parentOneLineage} / ${input.parentTwoLineage}`,
+        {
+          lineage: input.parentOneLineage,
+          generation: parentOneMount?.generation ?? input.parentOneGeneration,
+          source: "heritage",
+        },
+        {
+          lineage: input.parentTwoLineage,
+          generation: parentTwoMount?.generation ?? input.parentTwoGeneration,
+          source: "heritage",
+        },
       ];
+  const inheritedKeys = new Set(
+    inheritedChildren.map((child) => normalizeBreedingName(child.lineage)),
+  );
+  const crossedChildren = createCrossedChildren(
+    input.mountType,
+    parentOneMount,
+    parentTwoMount,
+  );
+  const newLineageChildren = uniqueChildren(
+    crossedChildren.filter(
+      (child) => !inheritedKeys.has(normalizeBreedingName(child.lineage)),
+    ),
+  );
+  const children = [...newLineageChildren, ...inheritedChildren];
+  const possibleGenerations = Array.from(
+    new Set(children.map((child) => child.generation)),
+  ).sort((left, right) => left - right);
+  const possibleLineages = Array.from(
+    new Set(children.map((child) => child.lineage)),
+  );
+  const probableChild = newLineageChildren[0] ?? inheritedChildren[0];
 
   return {
-    children: possibleLineages.map(
-      (lineage) => `${mountTypes[input.mountType].label} ${lineage}`,
-    ),
+    children,
     compatibility,
+    incompleteData: !parentOneMount || !parentTwoMount || crossedChildren.length === 0,
     possibleGenerations,
     possibleLineages,
-    probableResult: `${mountTypes[input.mountType].label} ${
-      sameLineage ? input.parentOneLineage : `${input.parentOneLineage} dominante`
-    } Gen. ${probableGeneration}`,
+    probableResult: probableChild
+      ? `${getMountTypeName(input.mountType)} ${probableChild.lineage} Gen. ${probableChild.generation}`
+      : "Données incomplètes",
   };
+}
+
+function createCrossedChildren(
+  mountType: MountType,
+  parentOneMount: LocalBreedingMount | undefined,
+  parentTwoMount: LocalBreedingMount | undefined,
+) {
+  if (!parentOneMount || !parentTwoMount) {
+    return [];
+  }
+
+  return parentOneMount.baseColors.flatMap((parentOneColor) =>
+    parentTwoMount.baseColors.flatMap((parentTwoColor) => {
+      const result = findMountByColors(mountType, parentOneColor, parentTwoColor);
+
+      return result
+        ? [
+            {
+              lineage: result.lineage,
+              generation: result.generation,
+              source: "new-lineage" as const,
+            },
+          ]
+        : [];
+    }),
+  );
+}
+
+function uniqueChildren(children: SimulatedChild[]) {
+  const seen = new Set<string>();
+
+  return children.filter((child) => {
+    const key = `${normalizeBreedingName(child.lineage)}-${child.generation}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 function fieldClass() {
@@ -221,12 +269,14 @@ export default function BreedingSimulatorPage() {
   );
 
   function updateMountType(nextMountType: MountType) {
-    const nextParentOneLineages = getLineages(nextMountType, parentOneGeneration);
-    const nextParentTwoLineages = getLineages(nextMountType, parentTwoGeneration);
+    const nextGeneration = getGenerationOptions(nextMountType)[0];
+    const nextParentLineages = getLineages(nextMountType, nextGeneration);
 
     setMountType(nextMountType);
-    setParentOneLineage(nextParentOneLineages[0]);
-    setParentTwoLineage(nextParentTwoLineages[0]);
+    setParentOneGeneration(nextGeneration);
+    setParentTwoGeneration(nextGeneration);
+    setParentOneLineage(nextParentLineages[0]);
+    setParentTwoLineage(nextParentLineages[1] ?? nextParentLineages[0]);
   }
 
   function updateParentOneGeneration(nextGeneration: number) {
@@ -302,9 +352,9 @@ export default function BreedingSimulatorPage() {
                   <LunaeriaDropdown
                     id="mount-type"
                     onChange={(value) => updateMountType(value as MountType)}
-                    options={(Object.keys(mountTypes) as MountType[]).map((key) => ({
-                      label: mountTypes[key].label,
-                      value: key,
+                    options={breedingSpeciesDefinitions.map((species) => ({
+                      label: species.title,
+                      value: species.slug,
                     }))}
                     value={mountType}
                   />
@@ -351,10 +401,7 @@ export default function BreedingSimulatorPage() {
                         <LunaeriaDropdown
                           id={`${parent.label}-generation`}
                           onChange={(value) => parent.updateGeneration(Number(value))}
-                          options={Array.from(
-                            { length: 10 },
-                            (_, index) => index + 1,
-                          ).map((generation) => ({
+                          options={getGenerationOptions(mountType).map((generation) => ({
                             label: `Generation ${generation}`,
                             value: String(generation),
                           }))}
@@ -384,7 +431,7 @@ export default function BreedingSimulatorPage() {
                 </div>
                 <div className="relative z-10 grid gap-3 sm:grid-cols-3">
                   {[
-                    ["Type", mountTypes[mountType].label],
+                    ["Type", getMountTypeLabel(mountType)],
                     ["Compatibilite", result.compatibility],
                     ["Resultat probable", result.probableResult],
                   ].map(([label, value]) => (
@@ -438,11 +485,18 @@ export default function BreedingSimulatorPage() {
                         {result.children.map((child) => (
                           <span
                             className="rounded-full border border-violet-100/10 bg-violet-100/[0.055] px-3 py-1 text-xs font-black text-violet-100"
-                            key={child}
+                            key={`${child.source}-${child.lineage}-${child.generation}`}
                           >
-                            {child}
+                            {getMountTypeName(mountType)} {child.lineage} - Gen.{" "}
+                            {child.generation}
+                            {child.source === "new-lineage" ? " - nouvelle lignee" : ""}
                           </span>
                         ))}
+                        {result.incompleteData ? (
+                          <span className="rounded-full border border-amber-100/10 bg-amber-100/[0.055] px-3 py-1 text-xs font-black text-amber-100">
+                            Données incomplètes
+                          </span>
+                        ) : null}
                       </div>
                     </div>
 
