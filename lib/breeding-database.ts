@@ -217,9 +217,10 @@ function createMounts(config: BreedingSpeciesConfig) {
   return config.colors.flatMap((leftColor, leftIndex) =>
     config.colors.slice(leftIndex).map((rightColor) => {
       const sameColor = leftColor.name === rightColor.name;
+      const lineageColors = resolveLineageColors(config.slug, leftColor.name, rightColor.name);
       const lineage = sameColor
         ? leftColor.name
-        : `${leftColor.name} et ${rightColor.name}`;
+        : `${lineageColors[0]} et ${lineageColors[1]}`;
       const generation = sameColor
         ? leftColor.generation
         : nextCrossGeneration(Math.max(leftColor.generation, rightColor.generation));
@@ -241,6 +242,18 @@ function createMounts(config: BreedingSpeciesConfig) {
       } satisfies LocalBreedingMount;
     }),
   );
+}
+
+function resolveLineageColors(
+  species: BreedingSpeciesSlug,
+  leftColor: string,
+  rightColor: string,
+) {
+  if (species === "dragodindes") {
+    return [leftColor, rightColor] as const;
+  }
+
+  return [rightColor, leftColor] as const;
 }
 
 function nextCrossGeneration(baseGeneration: number) {

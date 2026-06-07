@@ -69,16 +69,10 @@ export async function getBreedingSpecies(slug: string) {
     fetchAllMounts(),
     fetchCertificateItems(definition.certificateTypeId),
   ]);
-  const itemsById = new Map(
-    certificateItems
-      .filter((item) => typeof item.id === "number")
-      .map((item) => [item.id as number, item]),
-  );
-  const dofusMountsByName = new Map(
-    mounts
-      .filter((mount) => mount.familyId === definition.familyId)
-      .filter((mount) => mount.name?.fr)
-      .map((mount) => [normalizeBreedingName(mount.name?.fr ?? ""), mount]),
+  const itemsById = createItemsById(certificateItems);
+  const itemsByLineageKey = createItemsByLineageKey(
+    certificateItems,
+    definition.mountType,
   );
 
   return {
@@ -95,7 +89,7 @@ export async function getBreedingSpecies(slug: string) {
       title: definition.generationTitles[generation - 1],
       mounts: definition.mounts
         .filter((mount) => mount.generation === generation)
-        .map((mount) => toBreedingMount(mount, dofusMountsByName, itemsById)),
+        .map((mount) => toBreedingMount(mount, itemsByLineageKey)),
     })),
     specialMounts: createSpecialMounts(definition.slug, mounts, itemsById),
   } satisfies BreedingSpecies;
@@ -133,17 +127,17 @@ function createSpecialMounts(
 
 function toBreedingMount(
   mount: LocalBreedingMount,
-  dofusMountsByName: Map<string, DofusDbMount>,
-  itemsById: Map<number, DofusDbItem>,
+  itemsByLineageKey: Map<string, DofusDbItem>,
 ): BreedingMount {
-  const dofusMount = dofusMountsByName.get(normalizeBreedingName(mount.name));
-  const item = dofusMount?.certificateId
-    ? itemsById.get(dofusMount.certificateId)
-    : undefined;
+  const item = itemsByLineageKey.get(createLineageKey(mount.lineage));
+
+  if (!item?.img) {
+    console.warn(`[breeding-data] Missing mount image for ${mount.name}`);
+  }
 
   return {
-    id: String(dofusMount?.id ?? mount.id),
-    name: dofusMount?.name?.fr ?? mount.name,
+    id: mount.id,
+    name: mount.name,
     type: mount.mountType,
     generation: mount.generation,
     imageUrl: safeImageUrl(item?.img),
@@ -216,6 +210,49 @@ async function fetchCertificateItems(typeId: number) {
 
 function sameName(left: string | undefined, right: string | undefined) {
   return normalizeBreedingName(left ?? "") === normalizeBreedingName(right ?? "");
+}
+
+function createItemsById(items: DofusDbItem[]) {
+  return new Map(
+    items
+      .filter((item) => typeof item.id === "number")
+      .map((item) => [item.id as number, item]),
+  );
+}
+
+function createItemsByLineageKey(items: DofusDbItem[], mountType: string) {
+  const itemsByLineageKey = new Map<string, DofusDbItem>();
+
+  for (const item of items) {
+    if (!item.name?.fr) {
+      continue;
+    }
+
+    const lineage = item.name.fr
+      .replace(new RegExp(`^${mountType}\\s+`, "i"), "")
+      .replace(/\s+sauvage$/i, "")
+      .trim();
+    const key = createLineageKey(lineage);
+
+    if (!itemsByLineageKey.has(key)) {
+      itemsByLineageKey.set(key, item);
+    }
+  }
+
+  return itemsByLineageKey;
+}
+
+function createLineageKey(lineage: string) {
+  const colors = lineage.split(/\s+et\s+/i);
+  const parents = colors.length === 1 ? [colors[0], colors[0]] : colors;
+
+  return parents.map(normalizeImageColorName).sort().join("|");
+}
+
+function normalizeImageColorName(color: string) {
+  const normalized = normalizeBreedingName(color);
+
+  return normalized === "doree" ? "dore" : normalized;
 }
 
 function safeImageUrl(imageUrl: string | undefined) {
