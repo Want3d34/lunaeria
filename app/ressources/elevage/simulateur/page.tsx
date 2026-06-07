@@ -169,16 +169,14 @@ function uniqueChildren(children: SimulatedChild[]) {
 
 function formatGestationHours(hours: number[]) {
   if (!hours.length) {
-    return "DonnÃ©es incomplÃ¨tes";
+    return "Données incomplètes";
   }
 
   if (hours.length === 1) {
-    return `Temps de gestation : ${hours[0]} h`;
+    return `Durée estimée : ${hours[0]} h`;
   }
 
-  return `Temps de gestation possibles : ${hours[0]} h â†’ ${
-    hours[hours.length - 1]
-  } h`;
+  return `Durée estimée : ${hours[0]} h → ${hours[hours.length - 1]} h`;
 }
 
 function fieldClass() {
@@ -446,12 +444,12 @@ export default function BreedingSimulatorPage() {
               <section className="premium-card rounded-[1.75rem] border border-cyan-200/10 bg-[#06091b]/74 p-5 shadow-[0_26px_68px_rgba(0,0,0,0.42),0_0_24px_rgba(34,211,238,0.055)] backdrop-blur-md sm:p-6">
                 <div className="relative z-10 mb-5 flex items-center gap-3">
                   <HeartHandshake className="text-cyan-100" size={21} />
-                  <h2 className="font-black text-violet-50">Compatibilite</h2>
+                  <h2 className="font-black text-violet-50">Compatibilité</h2>
                 </div>
                 <div className="relative z-10 grid gap-3 sm:grid-cols-3">
                   {[
                     ["Type", getMountTypeLabel(mountType)],
-                    ["Compatibilite", result.compatibility],
+                    ["Compatibilité", result.compatibility],
                     ["Resultat probable", result.probableResult],
                   ].map(([label, value]) => (
                     <div
@@ -472,7 +470,7 @@ export default function BreedingSimulatorPage() {
               <section className="premium-card rounded-[1.75rem] border border-violet-200/10 bg-[#06091b]/74 p-5 shadow-[0_26px_68px_rgba(0,0,0,0.42),0_0_24px_rgba(76,29,149,0.055)] backdrop-blur-md sm:p-6">
                 <div className="relative z-10 mb-5 flex items-center gap-3">
                   <GitBranch className="text-violet-100" size={21} />
-                  <h2 className="font-black text-violet-50">Resultats possibles</h2>
+                  <h2 className="font-black text-violet-50">Résultats possibles</h2>
                 </div>
                 <div className="relative z-10 grid gap-4">
                   <div className="grid gap-3 md:grid-cols-2">
@@ -481,9 +479,6 @@ export default function BreedingSimulatorPage() {
                         className="rounded-2xl border border-violet-100/9 bg-[#030512]/62 p-4"
                         key={`${parent}-${index}`}
                       >
-                        <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
-                          Parent {index + 1}
-                        </p>
                         <p className="mt-2 font-black text-violet-50">{parent}</p>
                         <p className="mt-1 text-sm text-slate-400">
                           {index === 0 ? parentOneLineage : parentTwoLineage} - Gen.{" "}
@@ -534,7 +529,7 @@ export default function BreedingSimulatorPage() {
                         <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
                           ⏳ Temps de gestation
                         </p>
-                        <p className="mt-2 font-black text-violet-50">
+                        <p className="mt-2 text-lg font-black text-violet-50">
                           {formatGestationHours(result.possibleGestationHours)}
                         </p>
                       </div>
