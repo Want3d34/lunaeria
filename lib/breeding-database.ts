@@ -4,6 +4,7 @@ export type BreedingCrossing = {
   parents: readonly [string, string];
   result: string;
   generation: number;
+  gestationHours: number;
 };
 
 export type LocalBreedingMount = {
@@ -13,6 +14,7 @@ export type LocalBreedingMount = {
   species: BreedingSpeciesSlug;
   mountType: string;
   generation: number;
+  gestationHours: number;
   parents: readonly [string, string];
   crossings: readonly BreedingCrossing[];
   result: string;
@@ -224,6 +226,7 @@ function createMounts(config: BreedingSpeciesConfig) {
       const generation = sameColor
         ? leftColor.generation
         : nextCrossGeneration(Math.max(leftColor.generation, rightColor.generation));
+      const gestationHours = resolveGestationHours(config.slug, generation);
       const parents = [leftColor.name, rightColor.name] as const;
       const result = `${config.mountType} ${lineage}`;
 
@@ -234,14 +237,27 @@ function createMounts(config: BreedingSpeciesConfig) {
         species: config.slug,
         mountType: config.mountType,
         generation,
+        gestationHours,
         parents,
-        crossings: [{ parents, result: lineage, generation }],
+        crossings: [{ parents, result: lineage, generation, gestationHours }],
         result,
         baseColors: sameColor ? [leftColor.name] : [leftColor.name, rightColor.name],
         dofusDbImage: sameColor ? leftColor.image : undefined,
       } satisfies LocalBreedingMount;
     }),
   );
+}
+
+function resolveGestationHours(species: BreedingSpeciesSlug, generation: number) {
+  if (species === "dragodindes") {
+    return Math.ceil(generation / 2) * 24 + 24;
+  }
+
+  if (species === "muldos") {
+    return 72;
+  }
+
+  return 120;
 }
 
 function resolveLineageColors(

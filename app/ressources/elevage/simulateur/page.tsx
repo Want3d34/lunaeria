@@ -34,6 +34,7 @@ type SimulatorInput = {
 type SimulatedChild = {
   lineage: string;
   generation: number;
+  gestationHours: number;
   source: "heritage" | "new-lineage";
 };
 
@@ -72,6 +73,7 @@ function simulateBreeding(input: SimulatorInput) {
         {
           lineage: input.parentOneLineage,
           generation: parentOneMount?.generation ?? input.parentOneGeneration,
+          gestationHours: parentOneMount?.gestationHours ?? 0,
           source: "heritage",
         },
       ]
@@ -79,11 +81,13 @@ function simulateBreeding(input: SimulatorInput) {
         {
           lineage: input.parentOneLineage,
           generation: parentOneMount?.generation ?? input.parentOneGeneration,
+          gestationHours: parentOneMount?.gestationHours ?? 0,
           source: "heritage",
         },
         {
           lineage: input.parentTwoLineage,
           generation: parentTwoMount?.generation ?? input.parentTwoGeneration,
+          gestationHours: parentTwoMount?.gestationHours ?? 0,
           source: "heritage",
         },
       ];
@@ -104,9 +108,9 @@ function simulateBreeding(input: SimulatorInput) {
   const possibleGenerations = Array.from(
     new Set(children.map((child) => child.generation)),
   ).sort((left, right) => left - right);
-  const possibleLineages = Array.from(
-    new Set(children.map((child) => child.lineage)),
-  );
+  const possibleGestationHours = Array.from(
+    new Set(children.map((child) => child.gestationHours).filter(Boolean)),
+  ).sort((left, right) => left - right);
   const probableChild = newLineageChildren[0] ?? inheritedChildren[0];
 
   return {
@@ -114,7 +118,7 @@ function simulateBreeding(input: SimulatorInput) {
     compatibility,
     incompleteData: !parentOneMount || !parentTwoMount || crossedChildren.length === 0,
     possibleGenerations,
-    possibleLineages,
+    possibleGestationHours,
     probableResult: probableChild
       ? `${getMountTypeName(input.mountType)} ${probableChild.lineage} Gen. ${probableChild.generation}`
       : "Données incomplètes",
@@ -139,6 +143,7 @@ function createCrossedChildren(
             {
               lineage: result.lineage,
               generation: result.generation,
+              gestationHours: result.gestationHours,
               source: "new-lineage" as const,
             },
           ]
@@ -160,6 +165,20 @@ function uniqueChildren(children: SimulatedChild[]) {
     seen.add(key);
     return true;
   });
+}
+
+function formatGestationHours(hours: number[]) {
+  if (!hours.length) {
+    return "DonnÃ©es incomplÃ¨tes";
+  }
+
+  if (hours.length === 1) {
+    return `Temps de gestation : ${hours[0]} h`;
+  }
+
+  return `Temps de gestation possibles : ${hours[0]} h â†’ ${
+    hours[hours.length - 1]
+  } h`;
 }
 
 function fieldClass() {
@@ -489,7 +508,7 @@ export default function BreedingSimulatorPage() {
                           >
                             {getMountTypeName(mountType)} {child.lineage} - Gen.{" "}
                             {child.generation}
-                            {child.source === "new-lineage" ? " - nouvelle lignee" : ""}
+                            {child.source === "new-lineage" ? " - Nouvelle lignée" : ""}
                           </span>
                         ))}
                         {result.incompleteData ? (
@@ -513,10 +532,10 @@ export default function BreedingSimulatorPage() {
                       </div>
                       <div className="rounded-2xl border border-violet-100/9 bg-[#030512]/62 p-4">
                         <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-200">
-                          Lignees possibles
+                          ⏳ Temps de gestation
                         </p>
                         <p className="mt-2 font-black text-violet-50">
-                          {result.possibleLineages.join(", ")}
+                          {formatGestationHours(result.possibleGestationHours)}
                         </p>
                       </div>
                     </div>
