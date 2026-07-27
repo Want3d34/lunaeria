@@ -2090,7 +2090,7 @@ setMemberProfiles(data ?? []);
 </p>
 
 <p className="mt-1 text-[11px] leading-4 text-cyan-100/60">
-   <span className="font-semibold text-violet-200/90">BY AZELYA</span>
+   <span className="font-semibold text-violet-200/90">BY NOVA'KOD</span>
 </p>
         </div>
       </aside>
